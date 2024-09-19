@@ -7,13 +7,11 @@ import com.tencent.wxcloudrun.dto.CounterRequest;
 import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.service.CounterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 
@@ -56,13 +54,10 @@ public class CounterController {
    * @return API response json
    */
   @PostMapping(value = "/api/count")
-  ApiResponse create(@RequestBody CounterRequest request, HttpServletRequest req) {
+  ApiResponse create(@RequestBody CounterRequest request, @RequestHeader Map<String, String> headers) {
     logger.info("/api/count post request, action: {}", request.getAction());
-    logger.info("req",req.getHeader("x-wx-openid"));
-    logger.info("req",req.getHeader("x-wx-appid"));
-    logger.info("req",req.getHeader("x-wx-env"));
-    logger.info("req",req.getHeader("x-wx-source"));
-    return ApiResponse.ok(req);
+    logger.info("req",headers);
+    return ApiResponse.ok(headers);
 //    Optional<Counter> curCounter = counterService.getCounter(1);
 //    if (request.getAction().equals("inc")) {
 //      Integer count = 1;
