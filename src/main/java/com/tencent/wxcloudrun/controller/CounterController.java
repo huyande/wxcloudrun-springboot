@@ -62,27 +62,27 @@ public class CounterController {
     logger.info("req",req.getHeader("x-wx-appid"));
     logger.info("req",req.getHeader("x-wx-env"));
     logger.info("req",req.getHeader("x-wx-source"));
-
-    Optional<Counter> curCounter = counterService.getCounter(1);
-    if (request.getAction().equals("inc")) {
-      Integer count = 1;
-      if (curCounter.isPresent()) {
-        count += curCounter.get().getCount();
-      }
-      Counter counter = new Counter();
-      counter.setId(1);
-      counter.setCount(count);
-      counterService.upsertCount(counter);
-      return ApiResponse.ok(count);
-    } else if (request.getAction().equals("clear")) {
-      if (!curCounter.isPresent()) {
-        return ApiResponse.ok(0);
-      }
-      counterService.clearCount(1);
-      return ApiResponse.ok(0);
-    } else {
-      return ApiResponse.error("参数action错误");
-    }
+    return ApiResponse.ok(req);
+//    Optional<Counter> curCounter = counterService.getCounter(1);
+//    if (request.getAction().equals("inc")) {
+//      Integer count = 1;
+//      if (curCounter.isPresent()) {
+//        count += curCounter.get().getCount();
+//      }
+//      Counter counter = new Counter();
+//      counter.setId(1);
+//      counter.setCount(count);
+//      counterService.upsertCount(counter);
+//      return ApiResponse.ok(count);
+//    } else if (request.getAction().equals("clear")) {
+//      if (!curCounter.isPresent()) {
+//        return ApiResponse.ok(0);
+//      }
+//      counterService.clearCount(1);
+//      return ApiResponse.ok(0);
+//    } else {
+//      return ApiResponse.error("参数action错误");
+//    }
   }
   
 }
