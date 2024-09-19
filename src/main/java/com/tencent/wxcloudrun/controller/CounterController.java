@@ -58,10 +58,10 @@ public class CounterController {
   @PostMapping(value = "/api/count")
   ApiResponse create(@RequestBody CounterRequest request, HttpServletRequest req) {
     logger.info("/api/count post request, action: {}", request.getAction());
-    logger.info("req",req.getHeader("X-WX-OPENID"));
-    logger.info("req",req.getHeader("X-WX-APPID"));
-    logger.info("req",req.getHeader("X-WX-ENV"));
-    logger.info("req",req.getHeader("X-WX-SOURCE"));
+    logger.info("req",req.getHeader("x-wx-openid"));
+    logger.info("req",req.getHeader("x-wx-appid"));
+    logger.info("req",req.getHeader("x-wx-env"));
+    logger.info("req",req.getHeader("x-wx-source"));
 
     Optional<Counter> curCounter = counterService.getCounter(1);
     if (request.getAction().equals("inc")) {
