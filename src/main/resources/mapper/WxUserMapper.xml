@@ -5,8 +5,8 @@
     <resultMap id="wxuserMapper" type="com.tencent.wxcloudrun.model.WxUser">
         <id property="id" column="id"/>
         <result property="openid" column="openid"/>
-        <result property="name" column="name"/>
         <result property="role" column="role"/>
+        <result property="name" column="name"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -17,6 +17,13 @@
         WHERE openid = #{openid}
     </select>
 
+    <select id="getUserById" resultMap="wxuserMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `openid`, `role`, `name`,`createdAt`,`updatedAt`
+        FROM wx_users
+        WHERE id = #{id}
+    </select>
+
+
     <delete id="clearCount" parameterType="java.lang.Integer">
         DELETE
         FROM Counters
@@ -25,9 +32,15 @@
     </delete>
 
     <update id="upsertUser" parameterType="com.tencent.wxcloudrun.model.WxUser">
-        INSERT INTO `wx_users`(`id`, `openid`, `name`,`role`)
-        VALUES(#{id}, #{openid}, #{name}, #{role})
-        ON DUPLICATE KEY UPDATE `name`=#{name}, `role` = #{role}
+        INSERT INTO `wx_users`(`openid`, `name`,`role`)
+        VALUES( #{openid}, #{name}, #{role})
+            ON DUPLICATE KEY UPDATE `name`=#{name}, `role` = #{role}
+    </update>
+
+    <update id="updateRoleUserById" parameterType="java.lang.Integer">
+        UPDATE wx_users
+        SET role = #{role}
+        WHERE id = #{id}
     </update>
 
 </mapper>

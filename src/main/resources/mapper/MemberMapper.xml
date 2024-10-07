@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.MemberMapper">
+
+    <resultMap id="memberMapper" type="com.tencent.wxcloudrun.model.Member">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="pointTotal" column="pointTotal"/>
+        <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
+        <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
+    </resultMap>
+
+    <select id="getMembersByUid" resultMap="memberMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `name`, `gender`, `pointTotal`,`createdAt`,`updatedAt`
+        FROM members
+        WHERE id in (select mid from member_relas where uId = #{uId})
+    </select>
+
+    <select id="getCountMembersByUid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT count(1) as c
+        FROM member_relas
+        WHERE uId = #{uId}
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE
+        FROM members
+        where id = #{id}
+        limit 1
+    </delete>
+
+    <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Member">
+        INSERT INTO `members`(`name`,`gender`,`pointTotal`) VALUE(#{name}, #{gender}, #{pointTotal})
+    </insert>
+
+</mapper>
