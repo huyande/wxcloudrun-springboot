@@ -6,13 +6,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class Member implements Serializable {
+public class MemberRules implements Serializable {
     private Integer id;
+    private Integer mid;
     private String name;
-    private Integer gender;
-    private Integer pointTotal;//积分
-    private Integer dakaDays;//打卡天数
-    private Integer createUid;//创建成员的uid
+    private String type;
+    private String icon;
+    private Integer iconType;
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

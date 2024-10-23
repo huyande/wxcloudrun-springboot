@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.MemberPointLogsMapper">
+
+    <resultMap id="memberRulesMapper" type="com.tencent.wxcloudrun.model.MemberPointLogs">
+        <id property="id" column="id"/>
+        <result property="day" column="day" javaType="java.time.LocalDateTime"/>
+        <result property="mid" column="mid"/>
+        <result property="uid" column="uid"/>
+        <result property="ruleId" column="ruleId"/>
+        <result property="num" column="num"/>
+        <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
+        <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
+    </resultMap>
+
+    <select id="getLogsByMidAndDate" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`,`mid`, `uid`, `ruleId`, `num`, `createdAt`,`updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} AND day BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <select id="getLogsByDayMidAndRuleId" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`,`mid`, `uid` `ruleId`, `num`, `createdAt`,`updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} AND day = #{day} AND ruleId = #{ruleId}
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE
+        FROM member_point_logs
+        where id = #{id}
+    </delete>
+
+    <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberPointLogs">
+            INSERT INTO `member_point_logs`(`day`,`mid`,`uid`,`ruleId`,`num`) VALUE(#{day},#{mid}, #{uid},  #{ruleId}, #{num})
+    </insert>
+
+
+    <update id="updateById" parameterType="java.util.Map">
+        UPDATE `member_point_logs`
+        SET  `uid`=#{uid}, `num`=#{num}
+        WHERE `id`=#{id}
+    </update>
+
+    <select id="getPointSumByMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT sum(num) as c
+        FROM member_point_logs
+        WHERE mid = #{mid}
+    </select>
+
+    <select id="getPointDaysByMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT count(DISTINCT day) as c
+        FROM member_point_logs
+        WHERE mid = #{mid}
+    </select>
+
+</mapper>

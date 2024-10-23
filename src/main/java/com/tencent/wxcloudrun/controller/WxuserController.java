@@ -1,12 +1,8 @@
 package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
-import com.tencent.wxcloudrun.dao.MemberMapper;
-import com.tencent.wxcloudrun.dto.CounterRequest;
-import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.WxUser;
-import com.tencent.wxcloudrun.service.CounterService;
 import com.tencent.wxcloudrun.service.MemberService;
 import com.tencent.wxcloudrun.service.WxuserService;
 import org.apache.commons.lang3.StringUtils;

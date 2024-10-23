@@ -6,15 +6,12 @@ import com.tencent.wxcloudrun.dao.WxuserMapper;
 import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberRelas;
-import com.tencent.wxcloudrun.model.WxUser;
 import com.tencent.wxcloudrun.service.MemberService;
-import com.tencent.wxcloudrun.service.WxuserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MemberServiceImpl implements MemberService {
@@ -48,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
         member.setName(memberRequest.getName());
         member.setGender(memberRequest.getGender());
         member.setPointTotal(memberRequest.getPointTotalCount());
+        member.setCreateUid(memberRequest.getUid());
         memberMapper.insertOne(member);
         MemberRelas memberRelas = new MemberRelas(member.getId(),memberRequest.getUid());
         memberRelasMapper.insertOne(memberRelas);

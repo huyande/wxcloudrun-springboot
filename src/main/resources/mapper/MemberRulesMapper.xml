@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.MemberRulesMapper">
+
+    <resultMap id="memberRulesMapper" type="com.tencent.wxcloudrun.model.MemberRules">
+        <id property="id" column="id"/>
+        <result property="mid" column="mid"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="icon" column="icon"/>
+        <result property="iconType" column="iconType"/>
+        <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
+        <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
+    </resultMap>
+
+    <select id="getRulesByMid" resultMap="memberRulesMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `mid`, `name`, `type`, `icon`, `iconType`, `createdAt`,`updatedAt`
+        FROM member_rules
+        WHERE mid = #{mId}
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">  
+        DELETE
+        FROM member_rules
+        where id = #{id}
+    </delete>
+
+    <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberRules">
+        INSERT INTO `member_rules`(`name`,`type`,`mid`,`icon`,`iconType`) VALUE(#{name}, #{type}, #{mid}, #{icon}, #{iconType})
+    </insert>
+
+</mapper>

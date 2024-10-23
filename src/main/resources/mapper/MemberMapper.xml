@@ -7,12 +7,14 @@
         <result property="name" column="name"/>
         <result property="gender" column="gender"/>
         <result property="pointTotal" column="pointTotal"/>
+        <result property="dakaDays" column="dakaDays"/>
+        <result property="createUid" column="createUid"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
     <select id="getMembersByUid" resultMap="memberMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `name`, `gender`, `pointTotal`,`createdAt`,`updatedAt`
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`createUid`,`createdAt`,`updatedAt`
         FROM members
         WHERE id in (select mid from member_relas where uId = #{uId})
     </select>
@@ -31,7 +33,7 @@
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Member">
-        INSERT INTO `members`(`name`,`gender`,`pointTotal`) VALUE(#{name}, #{gender}, #{pointTotal})
+        INSERT INTO `members`(`name`,`gender`,`pointTotal`,`createUid`) VALUE(#{name}, #{gender}, #{pointTotal},#{createUid})
     </insert>
 
 </mapper>
