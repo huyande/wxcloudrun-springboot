@@ -50,11 +50,87 @@ public class MemberController {
     public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest){
         MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
         return ApiResponse.ok(memberRules);
-    }   
-    @GetMapping("/rules/{mid}")
-    public ApiResponse getRulesByMid(@PathVariable Integer mid) {
+    }
+
+    /**
+     *  查询规则更具id
+     * @param id
+     * @return
+     */
+    @GetMapping("/ruleById/{id}")
+    public ApiResponse getRuleById(@PathVariable Integer id) {
         try {
-            List<MemberRules> rules = memberRulesService.getRulesByMid(mid);
+            MemberRules rule = memberRulesService.getRuleById(id);
+            if (rule != null) {
+                return ApiResponse.ok(rule);
+            } else {
+                return ApiResponse.ok(null);
+            }
+        } catch (Exception e) {
+            logger.error("获取规则失败", e);
+            return ApiResponse.error("获取规则失败");
+        }
+    }
+
+    /**
+     * 查询是否创建了这条规则
+     * @param mid
+     * @param name
+     * @return
+     */
+    @GetMapping("/rule/{mid}")
+    public ApiResponse getRuleByNameAndMid(@PathVariable Integer mid ,@RequestParam String name) {
+        try {
+            MemberRules rule = memberRulesService.getRuleByNameAndMid(name, mid);
+            if (rule != null) {
+                Map<String, Object> ruleMap = new HashMap<>();
+                ruleMap.put("id", rule.getId());
+                ruleMap.put("name", rule.getName());
+                ruleMap.put("icon", rule.getIcon());
+                ruleMap.put("iconType", rule.getIconType());
+                ruleMap.put("type", rule.getType());
+                return ApiResponse.ok(ruleMap);
+            } else {
+                return ApiResponse.ok(null);
+            }
+        } catch (Exception e) {
+            logger.error("获取规则失败", e);
+            return ApiResponse.error("获取规则失败");
+        }
+    }
+
+    @PutMapping("/updateRule/{id}")
+    public ApiResponse updateRuleById(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest) {
+        try {
+            memberRulesService.updateRuleById(id, memberRuleRequest);
+            return ApiResponse.ok("更新成功");
+        } catch (Exception e) {
+            logger.error("更新规则失败", e);
+            return ApiResponse.error("更新规则失败");
+        }
+    }
+
+
+    @DeleteMapping("/rule/{id}")
+    public ApiResponse deleteRuleById(@PathVariable Integer id) {
+        try {
+            memberRulesService.delete(id);
+            return ApiResponse.ok("删除成功");
+        } catch (Exception e) {
+            logger.error("删除规则失败", e);
+            return ApiResponse.error("删除规则失败");
+        }
+    }
+
+    /**
+     *  根据mid获取会员规则列表
+     * @param mid
+     * @return
+     */
+    @GetMapping("/rules/{mid}")
+    public ApiResponse getRulesByMid(@PathVariable Integer mid, @RequestParam String day) {
+        try {
+            List<MemberRules> rules = memberRulesService.getRulesByMid(mid,day);
             // 将规则按类型分组
             Map<String, List<Map<String, Object>>> groupedRules = rules.stream()
                 .collect(Collectors.groupingBy(MemberRules::getType,

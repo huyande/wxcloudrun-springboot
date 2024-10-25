@@ -13,6 +13,8 @@ public class MemberRules implements Serializable {
     private String type;
     private String icon;
     private Integer iconType;
+    private String weeks;//打卡周期
+    private String content;//规则描述
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

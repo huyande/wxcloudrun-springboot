@@ -9,4 +9,6 @@ public class MemberRuleRequest {
     private String type;//类型
     private String icon;   //图标
     private Integer iconType;//图标类型
+    private String weeks;//星期
+    private String content;//内容
 }
