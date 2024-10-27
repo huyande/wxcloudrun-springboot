@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import cn.hutool.core.date.DateUtil;
 
@@ -76,6 +77,16 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setWeeks(memberRuleRequest.getWeeks());
         memberRules.setContent(memberRuleRequest.getContent());
         memberRulesMapper.updateRuleById(memberRules);
+    }
+
+    @Override
+    public List<MemberRules> insertBatch(List<MemberRuleRequest> memberRuleRequests) {
+        List<MemberRules> list = new ArrayList();
+        for(MemberRuleRequest memberRuleRequest : memberRuleRequests){
+            MemberRules memberRules = insert(memberRuleRequest);
+            list.add(memberRules);
+        }
+        return list;
     }
 
 }

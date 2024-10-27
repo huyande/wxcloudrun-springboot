@@ -54,4 +54,10 @@
         WHERE mid = #{mid}
     </select>
 
+    <select id="getPointLogsByMidAndMonth" resultType="java.util.Map" parameterType="java.lang.Integer">
+        SELECT DATE_FORMAT(day,'%Y-%m-%d') as day
+        FROM member_point_logs
+        WHERE mid = #{mid} AND day BETWEEN DATE_FORMAT(NOW() ,'%Y-%m-01') AND CURDATE() GROUP BY day
+    </select>
+
 </mapper>

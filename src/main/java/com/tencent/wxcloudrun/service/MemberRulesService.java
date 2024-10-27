@@ -12,4 +12,6 @@ public interface MemberRulesService {
     MemberRules getRuleById(Integer id);
     void delete(Integer id);
     void updateRuleById(Integer id, MemberRuleRequest memberRuleRequest);
+
+    List<MemberRules> insertBatch(List<MemberRuleRequest> memberRuleRequests);
 }

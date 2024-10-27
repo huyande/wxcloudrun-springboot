@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface MemberPointLogsMapper {
@@ -19,4 +20,6 @@ public interface MemberPointLogsMapper {
     MemberPointLogs getLogsByDayMidAndRuleId( @Param("day")String day,  @Param("mid")Integer mid,  @Param("ruleId")Integer ruleId);
 
     Integer getPointDaysByMid(@Param("mid")Integer mid);
+
+    List<Map<String, Object>> getPointLogsByMidAndMonth(@Param("mid")Integer mid);
 }

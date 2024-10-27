@@ -52,6 +52,18 @@ public class MemberController {
         return ApiResponse.ok(memberRules);
     }
 
+
+    /**
+     *  批量添加规则
+     * @param memberRuleRequests
+     * @return
+     */
+    @PostMapping("/batchAddRules")
+    public ApiResponse createRules(@RequestBody List<MemberRuleRequest> memberRuleRequests){
+        List<MemberRules> memberRules = memberRulesService.insertBatch(memberRuleRequests);
+        return ApiResponse.ok(memberRules);
+    }
+
     /**
      *  查询规则更具id
      * @param id
@@ -209,6 +221,17 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取会员积分总和失败", e);
             return ApiResponse.error("获取会员积分总和失败");
+        }
+    }
+
+    @GetMapping("/pointlogMonthDay/{mid}")
+    public ApiResponse getPointMonthDay(@PathVariable Integer mid) {
+        try {
+            List<Map<String, Object>> logs = memberPointLogsService.getPointLogsByMidAndMonth(mid);
+            return ApiResponse.ok(logs);
+        } catch (Exception e) {
+            logger.error("获取会员积分详情失败", e);
+            return ApiResponse.error("获取会员积分详情失败");
         }
     }
 

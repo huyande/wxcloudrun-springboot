@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Service
 public class MemberServicePointLogsImpl implements MemberPointLogsService {
@@ -62,6 +64,12 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     @Override
     public Integer getPointDaysByMid(Integer mid) {
         return memberPointLogsMapper.getPointDaysByMid(mid);
+    }
+
+    @Override
+    public List<Map<String, Object>> getPointLogsByMidAndMonth(Integer mid) {
+        List<Map<String, Object>> result = memberPointLogsMapper.getPointLogsByMidAndMonth(mid);
+        return result;
     }
 
 }
