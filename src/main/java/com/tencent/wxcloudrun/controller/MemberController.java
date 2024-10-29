@@ -235,4 +235,29 @@ public class MemberController {
         }
     }
 
+    // 根据uid获取memberlist
+    @GetMapping("/memberlist/{uid}")
+    public ApiResponse getMemberListByUid(@PathVariable Integer uid) {
+        try {
+            List<Member> members = memberService.getMembersByUid(uid);
+            return ApiResponse.ok(members);
+        } catch (Exception e) {
+            logger.error("获取会员列表失败", e);
+            return ApiResponse.error("获取会员列表失败");
+        }
+    }
+
+
+    // 根据mid获取member
+    @GetMapping("/logCount/{mid}")
+    public ApiResponse getMemberLogCountByMid(@PathVariable Integer mid) {
+        try {
+            Integer count = memberPointLogsService.getAllCountLogsByDayMid(mid);
+            return ApiResponse.ok(count);
+        } catch (Exception e) {
+            logger.error("获取会员信息失败", e);
+            return ApiResponse.error("获取会员信息失败");
+        }
+    }
+
 }

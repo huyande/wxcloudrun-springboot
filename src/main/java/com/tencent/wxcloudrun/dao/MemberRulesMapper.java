@@ -11,6 +11,7 @@ import java.util.List;
 public interface MemberRulesMapper {
 
     MemberRules getRuleByNameAndMid(@Param("name") String name, @Param("mid") Integer mid);
+    List<MemberRules> getRuleByNameAndMids(@Param("name") String name, @Param("mid") Integer mid);
     void insertOne(MemberRules memberRules);
     List<MemberRules> getRulesByMid(@Param("mId") Integer mId);
     int delete(@Param("id") Integer id);

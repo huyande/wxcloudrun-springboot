@@ -83,8 +83,11 @@ public class MemberServiceRulesImpl implements MemberRulesService {
     public List<MemberRules> insertBatch(List<MemberRuleRequest> memberRuleRequests) {
         List<MemberRules> list = new ArrayList();
         for(MemberRuleRequest memberRuleRequest : memberRuleRequests){
-            MemberRules memberRules = insert(memberRuleRequest);
-            list.add(memberRules);
+            List<MemberRules> rules = memberRulesMapper.getRuleByNameAndMids(memberRuleRequest.getName(), memberRuleRequest.getMid());
+            if(rules.isEmpty()){
+                MemberRules memberRules = insert(memberRuleRequest);
+                list.add(memberRules);
+            }
         }
         return list;
     }

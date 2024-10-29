@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-
+import cn.hutool.core.util.RandomUtil;
 /**
  * counter控制器
  */
@@ -56,8 +56,10 @@ public class WxuserController {
     if(!user.isPresent()) {
       WxUser wxUser =  new WxUser();
       wxUser.setOpenid(openid);
+      wxUser.setFamilyCode(RandomUtil.randomNumbers(6));
       wxuserService.upsertUser(wxUser);
+      return ApiResponse.ok(wxUser);
     }
-    return ApiResponse.ok();
+    return ApiResponse.ok(user.get());
   }
 }

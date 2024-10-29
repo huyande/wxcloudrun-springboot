@@ -72,4 +72,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         return result;
     }
 
+    @Override
+    public Integer getAllCountLogsByDayMid(Integer mid) {
+        return memberPointLogsMapper.getAllCountLogsByDayMid(mid);
+    }
+
 }

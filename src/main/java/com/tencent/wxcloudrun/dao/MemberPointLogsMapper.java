@@ -22,4 +22,6 @@ public interface MemberPointLogsMapper {
     Integer getPointDaysByMid(@Param("mid")Integer mid);
 
     List<Map<String, Object>> getPointLogsByMidAndMonth(@Param("mid")Integer mid);
+
+    Integer getAllCountLogsByDayMid(@Param("mid") Integer mid);
 }

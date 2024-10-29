@@ -25,6 +25,12 @@
         WHERE mid = #{mid} AND day = #{day} AND ruleId = #{ruleId}
     </select>
 
+    <select id="getAllCountLogsByDayMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT count(distinct day) as c
+        FROM member_point_logs
+        WHERE mid = #{mid}
+    </select>
+
     <delete id="delete" parameterType="java.lang.Long">
         DELETE
         FROM member_point_logs

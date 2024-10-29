@@ -16,4 +16,6 @@ public interface MemberPointLogsService {
     //根据mid获取统计用户的积分
     Integer getPointDaysByMid(Integer mid);
     List<Map<String, Object>> getPointLogsByMidAndMonth(Integer mid);
+
+    Integer getAllCountLogsByDayMid(Integer mid);
 }
