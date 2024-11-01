@@ -61,6 +61,7 @@ public class WxuserServiceImpl implements WxuserService {
             family.setCode(familyRequest.getCode());
             family.setUid(familyRequest.getUid());
             familyMapper.insertOne(family);
+            wxuserMapper.updateRoleUserById(familyRequest.getUid(),familyRequest.getRole());
         }
     }
 
