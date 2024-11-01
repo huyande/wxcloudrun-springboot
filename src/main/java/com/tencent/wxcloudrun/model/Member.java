@@ -12,7 +12,8 @@ public class Member implements Serializable {
     private Integer gender;
     private Integer pointTotal;//积分
     private Integer dakaDays;//打卡天数
-    private Integer createUid;//创建成员的uid
+    private Integer uid;//创建成员的uid
+    private String familyCode;
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

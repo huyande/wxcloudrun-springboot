@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.FamilyMapper">
+
+    <resultMap id="familyMapper" type="com.tencent.wxcloudrun.model.Family">
+        <id property="id" column="id"/>
+        <result property="uid" column="uid"/>
+        <result property="code" column="code"/>
+    </resultMap>
+
+    <select id="getUidsByCode" resultMap="familyMapper" parameterType="java.lang.String">
+        SELECT `id`, `uid`, `code`
+        FROM family
+        WHERE code = #{code}
+    </select>
+
+    <select id="getOneByCodeAndUid" resultMap="familyMapper" parameterType="java.util.Map">
+        SELECT `id`, `uid`, `code`
+        FROM family
+        WHERE code = #{code} and uid = #{uid}
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE
+        FROM family
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByCodeAndUid" parameterType="java.util.Map">
+        DELETE
+        FROM family
+        where  code = #{code} and uid = #{uid}
+    </delete>
+
+    <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Family">
+        INSERT INTO `family`(`code`,`uid`) VALUE(#{code}, #{uid})
+    </insert>
+
+
+    <update id="updateRoleUserById" parameterType="java.lang.Integer">
+        UPDATE wx_users
+        SET role = #{role}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

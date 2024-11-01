@@ -8,15 +8,22 @@
         <result property="gender" column="gender"/>
         <result property="pointTotal" column="pointTotal"/>
         <result property="dakaDays" column="dakaDays"/>
-        <result property="createUid" column="createUid"/>
+        <result property="uid" column="uid"/>
+        <result property="familyCode" column="familyCode"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
-    <select id="getMembersByUid" resultMap="memberMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`createUid`,`createdAt`,`updatedAt`
+    <select id="getMembersByFamilyCode" resultMap="memberMapper" parameterType="java.lang.String">
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
         FROM members
-        WHERE id in (select mid from member_relas where uId = #{uId})
+        WHERE familyCode = #{familyCode}
+    </select>
+
+    <select id="getMembersByUid" resultMap="memberMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
+        FROM members
+        WHERE familyCode in (select code from family where uid = #{uId})
     </select>
 
     <select id="getCountMembersByUid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
@@ -33,7 +40,7 @@
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Member">
-        INSERT INTO `members`(`name`,`gender`,`pointTotal`,`createUid`) VALUE(#{name}, #{gender}, #{pointTotal},#{createUid})
+        INSERT INTO `members`(`name`,`gender`,`pointTotal`,`uid`,`familyCode`) VALUE(#{name}, #{gender}, #{pointTotal},#{uid},#{familyCode})
     </insert>
 
 </mapper>

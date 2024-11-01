@@ -24,6 +24,17 @@
         WHERE id = #{id}
     </select>
 
+    <select id="getUsersByFamilyCode" resultMap="wxuserMapper" parameterType="java.lang.String">
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        FROM wx_users
+        WHERE id in (select uid from family where code = #{familyCode})
+    </select>
+
+    <select id="getUserByFamilyCode"  resultMap="wxuserMapper" parameterType="java.lang.String">
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        FROM wx_users
+        WHERE familyCode = #{familyCode}
+    </select>
 
     <delete id="clearCount" parameterType="java.lang.Integer">
         DELETE

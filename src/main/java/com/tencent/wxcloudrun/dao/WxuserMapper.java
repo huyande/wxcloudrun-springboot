@@ -1,9 +1,10 @@
 package com.tencent.wxcloudrun.dao;
 
-import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.model.WxUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface WxuserMapper {
@@ -14,4 +15,6 @@ public interface WxuserMapper {
   void upsertUser(WxUser wxUser);
   void updateRoleUserById(@Param("id") Integer id,@Param("role") Integer role );
 
+  List<WxUser> getUsersByFamilyCode(@Param("familyCode") String familyCode);
+  WxUser getUserByFamilyCode(@Param("familyCode") String familyCode);
 }

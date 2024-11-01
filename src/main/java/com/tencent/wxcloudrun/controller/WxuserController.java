@@ -1,6 +1,8 @@
 package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
+import com.tencent.wxcloudrun.dto.FamilyRequest;
+import com.tencent.wxcloudrun.model.Family;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.WxUser;
 import com.tencent.wxcloudrun.service.MemberService;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +54,7 @@ public class WxuserController {
   }
 
   @PostMapping("/create")
-  public  ApiResponse add(@RequestHeader(value = "X-WX-OPENID")String openid){
+  public  ApiResponse add(@RequestHeader(value = "X-WX-OPENID")String openid) {
     Optional<WxUser> user = wxuserService.getUser(openid);
     if(!user.isPresent()) {
       WxUser wxUser =  new WxUser();
@@ -62,4 +65,66 @@ public class WxuserController {
     }
     return ApiResponse.ok(user.get());
   }
+
+
+  @GetMapping("/getUsersByUid/{id}")
+  public ApiResponse getUser( @PathVariable Integer id) {
+    WxUser wxUser = wxuserService.getUserById(id);
+    return ApiResponse.ok(wxUser);
+  }
+
+  @GetMapping("/getUsersByFamilyCode")
+  public ApiResponse getUsersByFamilyCode(@RequestParam String code){
+    List<WxUser> users = wxuserService.getUsersByFamilyCode(code);
+    return ApiResponse.ok(users);
+  }
+
+  /**
+   * 判断是否已经绑定过
+   * @param code
+   * @param openid
+   * @return
+   */
+  @GetMapping("/hasRelaFamily")
+  public ApiResponse hasRelaFamily(@RequestParam String code,@RequestHeader(value = "X-WX-OPENID")String openid) {
+    Optional<WxUser> user = wxuserService.getUser(openid);
+    if (!user.isPresent()) {
+      return ApiResponse.ok(false);
+    }
+    //当自己点时候，直接返回true
+    if(user.get().getFamilyCode().equals(code)){
+      return ApiResponse.ok(true);
+    }
+    Family family = wxuserService.getFamilyByCodeAndUid(code, user.get().getId());
+    if (family == null) {
+      return ApiResponse.ok(false);
+    }
+    return ApiResponse.ok(true);
+  }
+
+  /**
+   * 绑定
+   * @param code
+   * @param openid
+   * @return
+   */
+  @PostMapping("/familyRelas")
+  public ApiResponse familyRelas(@RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-WX-OPENID")String openid) {
+    //要绑定的uid
+    Optional<WxUser> user = wxuserService.getUser(openid);
+    if (!user.isPresent()) {
+      return ApiResponse.error("openid null");
+    }
+
+    wxuserService.setFailyRela(familyRequest);
+
+    return ApiResponse.ok();
+  }
+
+  @DeleteMapping("/familyRelas")
+  public ApiResponse deleteFamilyRelas(@RequestBody FamilyRequest familyRequest) {
+    wxuserService.deleteFamilyRelas(familyRequest);
+    return ApiResponse.ok();
+  }
+
 }

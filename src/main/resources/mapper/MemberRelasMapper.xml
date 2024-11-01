@@ -8,11 +8,23 @@
         <result property="uid" column="uid"/>
     </resultMap>
 
+    <select id="getOneByMidAndUid" resultMap="memberRelaMapper" parameterType="java.util.Map">
+        SELECT `id`, `mid`, `uid`
+        FROM member_relas
+        WHERE mid = #{mid} and uid = #{uid}
+    </select>
+
     <delete id="delete" parameterType="java.lang.Integer">
         DELETE
         FROM members
         where id = #{id}
         limit 1
+    </delete>
+
+    <delete id="deleteByMidAndUid"  parameterType="java.util.Map">
+        DELETE
+        FROM member_relas
+        WHERE mid = #{mid} and uid = #{uid}
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberRelas">

@@ -7,6 +7,7 @@ import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
 import com.tencent.wxcloudrun.model.MemberRules;
+import com.tencent.wxcloudrun.model.WxUser;
 import com.tencent.wxcloudrun.service.MemberService;
 import com.tencent.wxcloudrun.service.WxuserService;
 import com.tencent.wxcloudrun.service.MemberRulesService;

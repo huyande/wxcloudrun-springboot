@@ -6,7 +6,9 @@ import com.tencent.wxcloudrun.model.Member;
 import java.util.List;
 
 public interface MemberService {
-    List<Member> getMembersByUid(Integer uId);
+    List<Member> getMembersByFamilyCode(String FamilyCode);
     Integer getMemberCountByUid(Integer uId);
     Member insert(MemberRequest memberRequest);
+
+    List<Member> getMembersByUid(Integer id);
 }
