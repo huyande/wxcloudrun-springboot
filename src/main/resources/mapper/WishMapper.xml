@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.WishMapper">
+
+    <resultMap id="wishMapper" type="com.tencent.wxcloudrun.model.Wish">
+        <id property="id" column="id"/>
+        <result property="mid" column="mid"/>
+        <result property="img" column="img"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="needPoint" column="needPoint"/>
+        <result property="unit" column="unit"/>
+        <result property="unitType" column="unitType"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
+        <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
+    </resultMap>
+
+    <!-- 根据ID查询 -->
+    <select id="getById" resultMap="wishMapper">
+        SELECT * FROM wish WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll" resultMap="wishMapper">
+        SELECT * FROM wish
+    </select>
+
+    <!-- 根据mid查询 -->
+    <select id="findByMid" resultMap="wishMapper">
+        SELECT * FROM wish WHERE mid = #{mid}
+    </select>
+
+    <!-- 插入数据 -->
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.Wish" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO wish (
+            mid, img, title, content, needPoint, 
+            unit, unitType, type
+        ) VALUES (
+            #{mid}, #{img}, #{title}, #{content}, #{needPoint},
+            #{unit}, #{unitType}, #{type}
+        )
+    </insert>
+
+    <!-- 更新数据 -->
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.Wish">
+        UPDATE wish
+        SET 
+            mid = #{mid},
+            img = #{img},
+            title = #{title},
+            content = #{content},
+            needPoint = #{needPoint},
+            unit = #{unit},
+            unitType = #{unitType},
+            type = #{type},
+            updatedAt = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除数据 -->
+    <delete id="delete">
+        DELETE FROM wish WHERE id = #{id}
+    </delete>
+
+</mapper>
