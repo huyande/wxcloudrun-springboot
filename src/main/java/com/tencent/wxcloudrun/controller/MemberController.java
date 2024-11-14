@@ -218,9 +218,8 @@ public class MemberController {
             Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
             Integer days = memberPointLogsService.getPointDaysByMid(mid);
             Integer wishSum =  wishLogService.getSumNumByMid(mid);
-
             HashMap<String, Object> result = new HashMap<>();
-            result.put("pointSum", pointSum - wishSum);
+            result.put("pointSum", (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum));
             result.put("days", days);
             return ApiResponse.ok(result);
         } catch (Exception e) {
