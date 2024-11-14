@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.WishRequest;
 import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.service.WishService;
@@ -18,32 +19,33 @@ public class WishController {
     }
 
     @PostMapping("/create")
-    public Wish createWish(@RequestBody WishRequest request) {
-        return wishService.createWish(request);
+    public ApiResponse createWish(@RequestBody WishRequest request) {
+        return ApiResponse.ok(wishService.createWish(request));
     }
 
     @PutMapping("/update")
-    public Wish updateWish(@RequestBody WishRequest request) {
-        return wishService.updateWish(request);
+    public ApiResponse updateWish(@RequestBody WishRequest request) {
+        return ApiResponse.ok(wishService.updateWish(request));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteWish(@PathVariable Integer id) {
+    public ApiResponse deleteWish(@PathVariable Integer id) {
         wishService.deleteWish(id);
+        return ApiResponse.ok();
     }
 
     @GetMapping("/{id}")
-    public Wish getWish(@PathVariable Integer id) {
-        return wishService.getWishById(id);
+    public ApiResponse getWish(@PathVariable Integer id) {
+        return ApiResponse.ok(wishService.getWishById(id));
     }
 
     @GetMapping("/list")
-    public List<Wish> getAllWishes() {
-        return wishService.getAllWishes();
+    public ApiResponse getAllWishes() {
+        return ApiResponse.ok(wishService.getAllWishes());
     }
 
     @GetMapping("/member/{mid}")
-    public List<Wish> getWishesByMid(@PathVariable String mid) {
-        return wishService.getWishesByMid(mid);
+    public ApiResponse getWishesByMid(@PathVariable String mid) {
+        return ApiResponse.ok(wishService.getWishesByMid(mid));
     }
 }

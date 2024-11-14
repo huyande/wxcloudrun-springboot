@@ -8,10 +8,7 @@ import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
 import com.tencent.wxcloudrun.model.MemberRules;
 import com.tencent.wxcloudrun.model.WxUser;
-import com.tencent.wxcloudrun.service.MemberService;
-import com.tencent.wxcloudrun.service.WxuserService;
-import com.tencent.wxcloudrun.service.MemberRulesService;
-import com.tencent.wxcloudrun.service.MemberPointLogsService;
+import com.tencent.wxcloudrun.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +28,19 @@ public class MemberController {
     final WxuserService wxuserService;
     final MemberRulesService memberRulesService;
     final MemberPointLogsService memberPointLogsService;
+    final WishLogService wishLogService;
     final Logger logger;
 
-    public MemberController(MemberService memberService,WxuserService wxuserService,MemberRulesService memberRulesService,MemberPointLogsService memberPointLogsService){
+    public MemberController(MemberService memberService,
+                            WxuserService wxuserService,
+                            MemberRulesService memberRulesService,
+                            MemberPointLogsService memberPointLogsService,
+                            WishLogService wishLogService) {
         this.memberService = memberService;
         this.wxuserService = wxuserService;
         this.memberRulesService = memberRulesService;
         this.memberPointLogsService = memberPointLogsService;
+        this.wishLogService = wishLogService;
         this.logger =  LoggerFactory.getLogger(MemberController.class);
     }
 
@@ -214,9 +217,10 @@ public class MemberController {
         try {
             Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
             Integer days = memberPointLogsService.getPointDaysByMid(mid);
+            Integer wishSum =  wishLogService.getSumNumByMid(mid);
 
             HashMap<String, Object> result = new HashMap<>();
-            result.put("pointSum", pointSum);
+            result.put("pointSum", pointSum - wishSum);
             result.put("days", days);
             return ApiResponse.ok(result);
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.tencent.wxcloudrun.service.impl;
 
 import com.tencent.wxcloudrun.dao.MemberPointLogsMapper;
+import com.tencent.wxcloudrun.dao.WishLogMapper;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
 import com.tencent.wxcloudrun.service.MemberPointLogsService;
@@ -17,7 +18,8 @@ import java.util.Map;
 
 @Service
 public class MemberServicePointLogsImpl implements MemberPointLogsService {
- 
+
+    //积分日志
     final MemberPointLogsMapper memberPointLogsMapper;
     //构造函数注入
     public MemberServicePointLogsImpl(@Autowired MemberPointLogsMapper memberPointLogsMapper) {
