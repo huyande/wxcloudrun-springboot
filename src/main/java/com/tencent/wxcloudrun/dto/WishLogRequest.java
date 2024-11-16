@@ -7,5 +7,7 @@ public class WishLogRequest {
     private Integer mid;
     private Integer uid;
     private Integer wid;
-    private Integer num;
+    private Integer point;
+    private String info;
+    private Integer status;
 }

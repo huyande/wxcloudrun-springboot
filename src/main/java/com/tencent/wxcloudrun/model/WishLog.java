@@ -11,7 +11,9 @@ public class WishLog {
     private Integer mid;
     private Integer uid;
     private Integer wid;
-    private Integer num;
+    private Integer point;
+    private String info;
+    private Integer status; //0 代使用 1 已使用 -1 撤销
     // 创建时间
     private LocalDateTime createdAt;
     // 更新时间

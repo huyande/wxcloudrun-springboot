@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -59,6 +60,17 @@ public class WishLogController {
         }
     }
 
+    @GetMapping("/member/{mid}")
+    ApiResponse getByMid(@PathVariable Integer mid) {
+        try {
+            List<Map<String, Object>> wishLogs = wishLogService.getByMid(mid);
+            return ApiResponse.ok(wishLogs);
+        } catch (Exception e) {
+            logger.error("查询所有愿望日志列表失败", e);
+            return ApiResponse.error("查询失败");
+        }
+    }
+
     /**
      * 根据愿望ID查询愿望日志列表
      * @param wid 愿望ID
@@ -77,23 +89,24 @@ public class WishLogController {
 
     /**
      * 创建愿望日志
-     * @param wishLog 愿望日志对象
+     * @param
      * @return API响应
      */
     @PostMapping
     ApiResponse create(@RequestBody WishLogRequest wishLogRequest) {
         try {
             // 参数校验
-            if (wishLogRequest.getUid() == null || wishLogRequest.getWid() == null || wishLogRequest.getNum() == null) {
+            if (wishLogRequest.getUid() == null || wishLogRequest.getWid() == null || wishLogRequest.getPoint() == null) {
                 return ApiResponse.error("参数不完整");
             }
             WishLog wishLog = new WishLog();
             wishLog.setUid(wishLogRequest.getUid());
             wishLog.setWid(wishLogRequest.getWid());
-            wishLog.setNum(wishLogRequest.getNum());
+            wishLog.setPoint(wishLogRequest.getPoint());
             wishLog.setMid(wishLogRequest.getMid());
-            wishLogService.create(wishLog);
-            return ApiResponse.ok(wishLog);
+            wishLog.setInfo(wishLogRequest.getInfo());
+            WishLog log = wishLogService.create(wishLog);
+            return ApiResponse.ok(log);
         } catch (Exception e) {
             logger.error("创建愿望日志失败", e);
             return ApiResponse.error("创建失败");
@@ -145,4 +158,5 @@ public class WishLogController {
             return ApiResponse.error("删除失败");
         }
     }
+
 }

@@ -22,4 +22,6 @@ public class WishRequest {
     private String unitType;
     // 愿望类型
     private Integer type;
+    // 愿望状态
+    private Integer status; //0 正常 1 删除 或禁止
 }

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface WishLogMapper {
@@ -19,7 +20,7 @@ public interface WishLogMapper {
     List<WishLog> getByWid(@Param("wid") Integer wid);
     
     // 新增
-    void insert(WishLog wishLog);
+    int insert(WishLog wishLog);
     
     // 更新
     void update(WishLog wishLog);
@@ -28,4 +29,6 @@ public interface WishLogMapper {
     void deleteById(@Param("id") Integer id);
 
     Integer getSumNumByMid(@Param("mid") Integer mid);
+
+    List<Map<String, Object>> getByMid(@Param("mid")Integer mid);
 }

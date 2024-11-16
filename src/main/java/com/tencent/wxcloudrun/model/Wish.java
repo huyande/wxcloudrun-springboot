@@ -37,6 +37,7 @@ public class Wish {
     private String unitType;
     // 愿望类型
     private Integer type; // 0 系统 1 自己创建的
+    private Integer status; // 0 开启 1 关闭
     // 创建时间
     private LocalDateTime createdAt;
     // 更新时间

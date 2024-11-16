@@ -2,6 +2,7 @@ package com.tencent.wxcloudrun.service;
 
 import com.tencent.wxcloudrun.model.WishLog;
 import java.util.List;
+import java.util.Map;
 
 public interface WishLogService {
     
@@ -15,7 +16,7 @@ public interface WishLogService {
     List<WishLog> getByWid(Integer wid);
     
     // 新增
-    void create(WishLog wishLog);
+    WishLog create(WishLog wishLog);
     
     // 更新
     void update(WishLog wishLog);
@@ -24,4 +25,6 @@ public interface WishLogService {
     void deleteById(Integer id);
 
     Integer getSumNumByMid(Integer mid);
+
+    List<Map<String, Object>> getByMid(Integer mid);
 }

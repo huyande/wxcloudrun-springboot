@@ -12,6 +12,7 @@
         <result property="unit" column="unit"/>
         <result property="unitType" column="unitType"/>
         <result property="type" column="type"/>
+        <result property="status" column="status"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -54,6 +55,7 @@
             unit = #{unit},
             unitType = #{unitType},
             type = #{type},
+            status = #{status},
             updatedAt = #{updatedAt}
         WHERE id = #{id}
     </update>

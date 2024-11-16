@@ -7,7 +7,9 @@
         <result property="mid" column="mid"/>
         <result property="uid" column="uid"/>
         <result property="wid" column="wid"/>
-        <result property="num" column="num"/>
+        <result property="point" column="point"/>
+        <result property="info" column="info"/>
+        <result property="status" column="status"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -17,7 +19,14 @@
     </select>
 
     <select id="getSumNumByMid" resultType="java.lang.Integer">
-        SELECT sum(num) FROM wish_log WHERE mid = #{mid}
+        SELECT sum(point) FROM wish_log WHERE mid = #{mid} and status != -1
+    </select>
+
+    <select id="getByMid" resultType="java.util.Map">
+        SELECT t1.id,t1.wid,t1.point,t1.status,t2.img,t2.title,t2.content,t2.needPoint,t2.unit,t2.unitType,date_format(t2.updatedAt, '%Y-%m-%d %H:%i:%s') as updatedAt
+        FROM wish_log as t1 ,wish as t2
+        WHERE t1.wid = t2.id and t2.mid = #{mid}
+        ORDER BY t1.createdAt DESC
     </select>
 
     <select id="getByUid" resultMap="wishMapper">
@@ -28,18 +37,14 @@
         SELECT * FROM wish_log WHERE wid = #{wid} ORDER BY createdAt DESC
     </select>
 
-    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.WishLog">
-        INSERT INTO wish_log (mid, uid, wid, num, createdAt, updatedAt)
-        VALUES (#{mid}, #{uid}, #{wid}, #{num}, #{createdAt}, #{updatedAt})
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.WishLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO wish_log (mid, uid, wid, point,info)
+        VALUES (#{mid}, #{uid}, #{wid}, #{point}, #{info})
     </insert>
 
     <update id="update" parameterType="com.tencent.wxcloudrun.model.WishLog">
         UPDATE wish_log 
-        SET mid = #{mid},
-            uid = #{uid},
-            wid = #{wid},
-            num = #{num},
-            updatedAt = #{updatedAt}
+        SET status = #{status}
         WHERE id = #{id}
     </update>
 

@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WishLogServiceImpl implements WishLogService {
@@ -31,10 +33,11 @@ public class WishLogServiceImpl implements WishLogService {
     }
 
     @Override
-    public void create(WishLog wishLog) {
+    public WishLog create(WishLog wishLog) {
         wishLog.setCreatedAt(LocalDateTime.now());
         wishLog.setUpdatedAt(LocalDateTime.now());
         wishLogMapper.insert(wishLog);
+        return wishLog;
     }
 
     @Override
@@ -51,5 +54,10 @@ public class WishLogServiceImpl implements WishLogService {
     @Override
     public Integer getSumNumByMid(Integer mid) {
         return wishLogMapper.getSumNumByMid(mid);
+    }
+
+    @Override
+    public List<Map<String, Object>> getByMid(Integer mid) {
+        return wishLogMapper.getByMid(mid);
     }
 }
