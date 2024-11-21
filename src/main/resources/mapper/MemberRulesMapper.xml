@@ -24,7 +24,7 @@
     <select id="getRuleByNameAndMid" resultMap="memberRulesMapper" parameterType="java.util.Map">
         SELECT `id`, `mid`, `name`, `type`, `icon`, `iconType`,`weeks`,`content`, `createdAt`,`updatedAt`
         FROM member_rules
-        WHERE name = #{name} AND mid = #{mid}
+        WHERE name = #{name} AND mid = #{mid} limit 1
     </select>
 
     <select id="getRuleByNameAndMids" resultMap="memberRulesMapper" parameterType="java.util.Map">
