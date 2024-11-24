@@ -47,6 +47,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setIconType(memberRuleRequest.getIconType());
         memberRules.setWeeks(memberRuleRequest.getWeeks());
         memberRules.setContent(memberRuleRequest.getContent());
+        memberRules.setSort(memberRuleRequest.getSort());
         memberRulesMapper.insertOne(memberRules);
         return memberRules;
     }
@@ -92,4 +93,30 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         return list;
     }
 
+    @Override
+    public void updateRule(MemberRules rule) {
+        memberRulesMapper.updateRuleById(rule);
+    }
+
+    @Override
+    public List<MemberRules> getActiveRulesByMid(Integer mId) {
+        return memberRulesMapper.getActiveRulesByMid(mId);
+    }
+
+    @Override
+    public void swapRuleSort(Integer currentId, Integer targetId) {
+        MemberRules currentRule = memberRulesMapper.getRuleById(currentId);
+        MemberRules targetRule = memberRulesMapper.getRuleById(targetId);
+        
+        if (currentRule == null || targetRule == null) {
+            throw new RuntimeException("规则不存在");
+        }
+        
+        memberRulesMapper.swapRuleSort(currentId, targetId, currentRule.getSort(), targetRule.getSort());
+    }
+
+    @Override
+    public MemberRules getLastSortByTypeAndMid(Integer mid, String type) {
+        return memberRulesMapper.getLastSortByTypeAndMid(mid,type);
+    }
 }

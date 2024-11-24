@@ -14,4 +14,22 @@ public interface MemberRulesService {
     void updateRuleById(Integer id, MemberRuleRequest memberRuleRequest);
 
     List<MemberRules> insertBatch(List<MemberRuleRequest> memberRuleRequests);
+
+    void updateRule(MemberRules rule);
+
+    /**
+     * 获取指定mid的所有活动规则（status=1）
+     * @param mId
+     * @return
+     */
+    List<MemberRules> getActiveRulesByMid(Integer mId);
+
+    /**
+     * 交换两个规则的排序值
+     * @param currentId 当前规则ID
+     * @param targetId 目标规则ID
+     */
+    void swapRuleSort(Integer currentId, Integer targetId);
+
+    MemberRules getLastSortByTypeAndMid(Integer mid, String type);
 }

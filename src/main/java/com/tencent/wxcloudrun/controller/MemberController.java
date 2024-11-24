@@ -52,6 +52,8 @@ public class MemberController {
 
     @PostMapping("/createRule")
     public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest){
+        MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(),memberRuleRequest.getType());
+        memberRuleRequest.setSort(lastRule.getSort()+1);
         MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
         return ApiResponse.ok(memberRules);
     }
@@ -158,6 +160,7 @@ public class MemberController {
                         ruleMap.put("iconType", rule.getIconType());
                         ruleMap.put("stars", 0);
                         ruleMap.put("status", 0);
+                        ruleMap.put("row_status", rule.getStatus());//由于之前的设计将status 标识成打卡的状态了，row_status 标识是否删除
                         return ruleMap;
                     }, Collectors.toList())));
 
@@ -264,4 +267,82 @@ public class MemberController {
         }
     }
 
+    /**
+     * 更新规则的排序值
+     * @param id 规则ID
+     * @param sort 新的排序值
+     * @return
+     */
+    @PutMapping("/rule/updateSort/{id}")
+    public ApiResponse updateRuleSort(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest) {
+        try {
+            MemberRules rule = memberRulesService.getRuleById(id);
+            if (rule == null) {
+                return ApiResponse.error("规则不存在");
+            }
+            rule.setSort(memberRuleRequest.getSort());
+            memberRulesService.updateRule(rule);
+            return ApiResponse.ok(rule);
+        } catch (Exception e) {
+            logger.error("更新规则排序失败", e);
+            return ApiResponse.error("更新规则排序失败");
+        }
+    }
+
+    /**
+     * 交换两个规则的排序值
+     * @param currentId 当前规则ID
+     * @param targetId 目标规则ID
+     * @return
+     */
+    @PutMapping("/rule/swapSort/{currentId}/{targetId}")
+    public ApiResponse swapRuleSort(@PathVariable Integer currentId, @PathVariable Integer targetId) {
+        try {
+            memberRulesService.swapRuleSort(currentId, targetId);
+            return ApiResponse.ok("交换排序成功");
+        } catch (Exception e) {
+            logger.error("交换规则排序失败", e);
+            return ApiResponse.error("交换规则排序失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 根据mid获取所有status=1的规则列表
+     * @param mid
+     * @return
+     */
+    @GetMapping("/rules/active/{mid}")
+    public ApiResponse getActiveRulesByMid(@PathVariable Integer mid) {
+        try {
+            List<MemberRules> rules = memberRulesService.getActiveRulesByMid(mid);
+            // 将规则按类型分组
+            Map<String, List<Map<String, Object>>> groupedRules = rules.stream()
+                .collect(Collectors.groupingBy(MemberRules::getType,
+                    Collectors.mapping(rule -> {
+                        Map<String, Object> ruleMap = new HashMap<>();
+                        ruleMap.put("id", rule.getId());
+                        ruleMap.put("name", rule.getName());
+                        ruleMap.put("icon", rule.getIcon());
+                        ruleMap.put("iconType", rule.getIconType());
+                        ruleMap.put("stars", 0);
+                        ruleMap.put("status", 0);
+                        return ruleMap;
+                    }, Collectors.toList())));
+
+            // 构建最终的输出格式
+            List<Map<String, Object>> formattedRules = groupedRules.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> typeGroup = new HashMap<>();
+                    typeGroup.put("type", entry.getKey());
+                    typeGroup.put("items", entry.getValue());
+                    return typeGroup;
+                })
+                .collect(Collectors.toList());
+
+            return ApiResponse.ok(formattedRules);
+        } catch (Exception e) {
+            logger.error("获取会员活动规则失败", e);
+            return ApiResponse.error("获取会员活动规则失败");
+        }
+    }
 }

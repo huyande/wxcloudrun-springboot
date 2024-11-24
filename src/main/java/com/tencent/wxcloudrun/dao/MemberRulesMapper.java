@@ -19,4 +19,13 @@ public interface MemberRulesMapper {
     MemberRules getRuleById(@Param("id") Integer id);
 
     void updateRuleById(MemberRules memberRules);
+
+    List<MemberRules> getActiveRulesByMid(@Param("mId") Integer mId);
+
+    void swapRuleSort(@Param("currentId") Integer currentId, 
+                     @Param("targetId") Integer targetId,
+                     @Param("currentSort") Integer currentSort,
+                     @Param("targetSort") Integer targetSort);
+
+    MemberRules getLastSortByTypeAndMid(@Param("mId") Integer mid, @Param("type")String type);
 }
