@@ -5,10 +5,7 @@ import com.tencent.wxcloudrun.dao.MemberMapper;
 import com.tencent.wxcloudrun.dao.MemberRelasMapper;
 import com.tencent.wxcloudrun.dao.WxuserMapper;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
-import com.tencent.wxcloudrun.model.Family;
-import com.tencent.wxcloudrun.model.Member;
-import com.tencent.wxcloudrun.model.MemberRelas;
-import com.tencent.wxcloudrun.model.WxUser;
+import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.MemberService;
 import com.tencent.wxcloudrun.service.WxuserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +75,10 @@ public class WxuserServiceImpl implements WxuserService {
     @Override
     public void deleteFamilyRelas(FamilyRequest familyRequest) {
         familyMapper.deleteByCodeAndUid(familyRequest.getCode(), familyRequest.getUid()); //删除家庭()
+    }
+
+    @Override
+    public WxCheckConfig getWxCheckConfig() {
+        return wxuserMapper.getWxCheckConfigs();
     }
 }

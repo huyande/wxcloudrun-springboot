@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.dao;
 
+import com.tencent.wxcloudrun.model.WxCheckConfig;
 import com.tencent.wxcloudrun.model.WxUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,4 +18,6 @@ public interface WxuserMapper {
 
   List<WxUser> getUsersByFamilyCode(@Param("familyCode") String familyCode);
   WxUser getUserByFamilyCode(@Param("familyCode") String familyCode);
+
+  WxCheckConfig getWxCheckConfigs();
 }

@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.service;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
 import com.tencent.wxcloudrun.model.Family;
 import com.tencent.wxcloudrun.model.Member;
+import com.tencent.wxcloudrun.model.WxCheckConfig;
 import com.tencent.wxcloudrun.model.WxUser;
 
 import java.util.List;
@@ -32,4 +33,6 @@ public interface WxuserService {
   Family getFamilyByCodeAndUid(String code, Integer uid);
 
   void deleteFamilyRelas(FamilyRequest familyRequest);
+
+  WxCheckConfig getWxCheckConfig();
 }
