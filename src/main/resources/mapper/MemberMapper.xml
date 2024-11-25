@@ -14,6 +14,12 @@
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
+    <select id="getMemberById" resultMap="memberMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
+        FROM members
+        WHERE id = #{id}
+    </select>
+
     <select id="getMembersByFamilyCode" resultMap="memberMapper" parameterType="java.lang.String">
         SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
         FROM members

@@ -88,4 +88,9 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.getMembersByUid(id);
     }
 
+    @Override
+    public Member getMemberById(Integer mid) {
+        return memberMapper.getMemberById(mid);
+    }
+
 }

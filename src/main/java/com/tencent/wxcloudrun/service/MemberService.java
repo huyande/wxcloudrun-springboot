@@ -11,4 +11,6 @@ public interface MemberService {
     Member insert(MemberRequest memberRequest);
 
     List<Member> getMembersByUid(Integer id);
+
+    Member getMemberById(Integer mid);
 }

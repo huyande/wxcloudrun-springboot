@@ -12,4 +12,6 @@ public interface MemberMapper {
     List<Member> getMembersByFamilyCode(@Param("familyCode") String FamilyCode);
     List<Member> getMembersByUid(@Param("uId") Integer uId);
     Integer getCountMembersByUid(@Param("uId") Integer uId);
+
+    Member getMemberById(@Param("id") Integer mid);
 }

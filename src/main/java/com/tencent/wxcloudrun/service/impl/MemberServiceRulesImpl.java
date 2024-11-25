@@ -77,6 +77,8 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setIconType(memberRuleRequest.getIconType());
         memberRules.setWeeks(memberRuleRequest.getWeeks());
         memberRules.setContent(memberRuleRequest.getContent());
+        memberRules.setSort(memberRuleRequest.getSort());
+        memberRules.setStatus(1);
         memberRulesMapper.updateRuleById(memberRules);
     }
 

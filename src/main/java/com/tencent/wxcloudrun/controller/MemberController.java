@@ -53,7 +53,11 @@ public class MemberController {
     @PostMapping("/createRule")
     public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest){
         MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(),memberRuleRequest.getType());
-        memberRuleRequest.setSort(lastRule.getSort()+1);
+        if(lastRule!=null){
+            memberRuleRequest.setSort(lastRule.getSort()+1);
+        }else{
+            memberRuleRequest.setSort(0);
+        }
         MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
         return ApiResponse.ok(memberRules);
     }
@@ -218,11 +222,13 @@ public class MemberController {
     @GetMapping("/pointsum/{mid}")
     public ApiResponse getPointSumByMid(@PathVariable Integer mid) {
         try {
+            Member member = memberService.getMemberById(mid);
             Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
             Integer days = memberPointLogsService.getPointDaysByMid(mid);
             Integer wishSum =  wishLogService.getSumNumByMid(mid);
             HashMap<String, Object> result = new HashMap<>();
-            result.put("pointSum", (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum));
+            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
+            result.put("pointSum", total+member.getPointTotal());
             result.put("days", days);
             return ApiResponse.ok(result);
         } catch (Exception e) {
