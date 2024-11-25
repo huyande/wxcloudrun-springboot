@@ -37,25 +37,28 @@ public class WxuserController {
   }
 
   @GetMapping("/login")
-  public ApiResponse login(@RequestHeader(value = "X-WX-OPENID",required = false)String openid){
+  public ApiResponse login(@RequestHeader(value = "X-WX-OPENID",required = false)String openid,@RequestParam String version){
     if(StringUtils.isEmpty(openid)){
       return ApiResponse.error("openid null");
     }
     Optional<WxUser> user = wxuserService.getUser(openid);
-    WxCheckConfig wxCheckConfig = wxuserService.getWxCheckConfig();
+    WxCheckConfig wxCheckConfig = wxuserService.getWxCheckConfig(version);
     HashMap<String,Object> resMap = new HashMap<>();
+    if(wxCheckConfig==null){
+      resMap.put("checkShow",0);
+    }else{
+      resMap.put("checkShow",wxCheckConfig.getStatus());
+    }
     if(user.isPresent()){
       //如果有user 则判断是否有member
 //      Integer memberCount = memberService.getMemberCountByUid(user.get().getId());
       List<Member> members = memberService.getMembersByUid(user.get().getId());
       resMap.put("user",user);
       resMap.put("members",members);
-      resMap.put("checkShow",wxCheckConfig.getStatus());
       return ApiResponse.ok(resMap);
     }
     resMap.put("user",null);
     resMap.put("members",null);
-    resMap.put("checkShow",wxCheckConfig.getStatus());
     return ApiResponse.ok(resMap);
   }
 

@@ -78,7 +78,7 @@ public class WxuserServiceImpl implements WxuserService {
     }
 
     @Override
-    public WxCheckConfig getWxCheckConfig() {
-        return wxuserMapper.getWxCheckConfigs();
+    public WxCheckConfig getWxCheckConfig(String version) {
+        return wxuserMapper.getWxCheckConfigs(version);
     }
 }

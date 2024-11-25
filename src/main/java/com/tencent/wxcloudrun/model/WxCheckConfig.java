@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class WxCheckConfig {
     private Integer id;
-    private String name;
+    private String version;
     private Integer status;
 }

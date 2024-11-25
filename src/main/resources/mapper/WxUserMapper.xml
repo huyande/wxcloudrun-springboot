@@ -36,8 +36,8 @@
         WHERE familyCode = #{familyCode}
     </select>
 
-    <select id="getWxCheckConfigs" resultType="com.tencent.wxcloudrun.model.WxCheckConfig">
-        select  * from wx_check_config where id=1
+    <select id="getWxCheckConfigs" resultType="com.tencent.wxcloudrun.model.WxCheckConfig" parameterType="java.lang.String">
+        select  * from wx_check_config where version = #{version}
     </select>
 
     <delete id="clearCount" parameterType="java.lang.Integer">

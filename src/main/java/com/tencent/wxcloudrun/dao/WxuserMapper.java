@@ -19,5 +19,5 @@ public interface WxuserMapper {
   List<WxUser> getUsersByFamilyCode(@Param("familyCode") String familyCode);
   WxUser getUserByFamilyCode(@Param("familyCode") String familyCode);
 
-  WxCheckConfig getWxCheckConfigs();
+  WxCheckConfig getWxCheckConfigs(@Param("version") String version);
 }

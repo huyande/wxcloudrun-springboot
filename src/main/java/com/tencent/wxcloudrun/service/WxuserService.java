@@ -34,5 +34,5 @@ public interface WxuserService {
 
   void deleteFamilyRelas(FamilyRequest familyRequest);
 
-  WxCheckConfig getWxCheckConfig();
+  WxCheckConfig getWxCheckConfig(String version);
 }
