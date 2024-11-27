@@ -31,10 +31,7 @@ public class LogInterceptor implements HandlerInterceptor {
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
                 String headerName = headerNames.nextElement();
-                if (headerName.toLowerCase().contains("token") || 
-                    headerName.toLowerCase().contains("authorization")) {
-                    logger.info("Header - {}: {}", headerName, "***");
-                } else {
+                if (headerName.toLowerCase().contains("X-WX-OPENID")) {
                     logger.info("Header - {}: {}", headerName, request.getHeader(headerName));
                 }
             }
