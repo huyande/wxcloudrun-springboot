@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/event")
 public class WxEventController {
@@ -20,8 +22,8 @@ public class WxEventController {
     }
 
     @PostMapping("/handel")
-    public String handel(@RequestBody JSONObject json) {
-        logger.info("事件响应：",json.toString());
+    public String handel(@RequestBody Map<String, Object> jsonMap) {
+        logger.info("事件响应：{}",jsonMap);
         return "";
     }
 }
