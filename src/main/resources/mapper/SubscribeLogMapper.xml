@@ -7,6 +7,7 @@
         <result property="openid" column="openid"/>
         <result property="templateId" column="templateId"/>
         <result property="createTime" column="createTime"/>
+        <result property="sendTime" column="sendTime"/>
     </resultMap>
 
     <delete id="delete">
@@ -18,34 +19,43 @@
         INSERT INTO subscribe_log (
             openid,
             templateId,
-            createTime
+            sendTime
         ) VALUES (
             #{openid},
             #{templateId},
-            #{createTime}
+            #{sendTime}
         )
     </insert>
 
     <!-- 根据openid查询订阅记录 -->
     <select id="queryByOpenid" resultMap="SubscribeLogMapper">
-        SELECT id, openid, templateId, createTime
+        SELECT id, openid, templateId, createTime, sendTime
         FROM subscribe_log
         WHERE openid = #{openid}
     </select>
 
     <!-- 根据模板ID查询订阅记录 -->
     <select id="queryByTemplateId" resultMap="SubscribeLogMapper">
-        SELECT id, openid, templateId, createTime
+        SELECT id, openid, templateId, createTime, sendTime
         FROM subscribe_log
         WHERE templateId = #{templateId}
     </select>
 
     <!-- 分页查询所有订阅记录 -->
     <select id="queryAll" resultMap="SubscribeLogMapper">
-        SELECT id, openid, templateId, createTime
+        SELECT id, openid, templateId, createTime, sendTime
         FROM subscribe_log
         ORDER BY createTime DESC
         LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询指定时间范围内需要发送的订阅记录 -->
+    <select id="querySubscriptionsToSend" resultMap="SubscribeLogMapper">
+        SELECT id, openid, templateId, createTime, sendTime
+        FROM subscribe_log
+        WHERE templateId = #{templateId}
+        AND sendTime BETWEEN #{endTime} AND #{startTime}
+        AND sendTime IS NOT NULL
     </select>
 
 </mapper>
