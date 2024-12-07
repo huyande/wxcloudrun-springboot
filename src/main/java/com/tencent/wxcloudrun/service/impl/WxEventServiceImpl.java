@@ -34,31 +34,47 @@ public class WxEventServiceImpl implements WxEventService {
         String event = (String) jsonMap.get("Event");
         if(event.equals("subscribe_msg_popup_event")) {
             String fromUserName = (String) jsonMap.get("FromUserName");
-            List<Map<String, Object>> list = (List<Map<String, Object>>)jsonMap.get("List");
+            Object listObj = jsonMap.get("List");
             
-            if (list != null && !list.isEmpty()) {
-                LocalDateTime now = LocalDateTime.now();
-                
+            LocalDateTime now = LocalDateTime.now();
+            
+            // 处理单个订阅对象的情况
+            if (listObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> item = (Map<String, Object>) listObj;
+                processSubscribeItem(item, fromUserName, now);
+            } 
+            // 处理多个订阅对象的情况
+            else if (listObj instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> list = (List<Map<String, Object>>) listObj;
                 for (Map<String, Object> item : list) {
-                    String status = (String) item.get("SubscribeStatusString");
-                    if ("accept".equals(status)) {
-                        String templateId = (String) item.get("TemplateId");
-                        SubscribeLog subscribeLog = new SubscribeLog();
-                        subscribeLog.setOpenid(fromUserName);
-                        subscribeLog.setTemplateId(templateId);
-                        
-                        // 只有特定模板ID才计算发送时间
-                        if (TASK_TEMPLATE_IDS.contains(templateId)) {
-                            LocalDateTime sendTime = calculateNextSendTime(now);
-                            subscribeLog.setSendTime(sendTime);
-                        }
-
-                        subscribeLogMapper.insertOne(subscribeLog);
-                    }
+                    processSubscribeItem(item, fromUserName, now);
                 }
             }
         }
         return "success";
+    }
+
+    /**
+     * 处理单个订阅项
+     */
+    private void processSubscribeItem(Map<String, Object> item, String fromUserName, LocalDateTime now) {
+        String status = (String) item.get("SubscribeStatusString");
+        if ("accept".equals(status)) {
+            String templateId = (String) item.get("TemplateId");
+            SubscribeLog subscribeLog = new SubscribeLog();
+            subscribeLog.setOpenid(fromUserName);
+            subscribeLog.setTemplateId(templateId);
+            
+            // 只有特定模板ID才计算发送时间
+            if (TASK_TEMPLATE_IDS.contains(templateId)) {
+                LocalDateTime sendTime = calculateNextSendTime(now);
+                subscribeLog.setSendTime(sendTime);
+            }
+
+            subscribeLogMapper.insertOne(subscribeLog);
+        }
     }
 
     /**
