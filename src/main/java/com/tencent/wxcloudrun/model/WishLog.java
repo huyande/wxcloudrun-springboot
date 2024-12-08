@@ -14,6 +14,10 @@ public class WishLog {
     private Integer point;
     private String info;
     private Integer status; //0 代使用 1 已使用 -1 撤销
+    private Integer amount;//兑换的数量
+
+    private String unitType;//点数类型
+    private LocalDateTime endTime;//如果兑换的是时间相关的，则需要记录完成的时间是多少
     // 创建时间
     private LocalDateTime createdAt;
     // 更新时间

@@ -10,6 +10,9 @@
         <result property="point" column="point"/>
         <result property="info" column="info"/>
         <result property="status" column="status"/>
+        <result property="unitType" column="unitType"/>
+        <result property="endTime" column="endTime" javaType="java.time.LocalDateTime"/>
+        <result property="amount" column="amount"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -38,13 +41,14 @@
     </select>
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.WishLog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO wish_log (mid, uid, wid, point,info)
-        VALUES (#{mid}, #{uid}, #{wid}, #{point}, #{info})
+        INSERT INTO wish_log (mid, uid, wid, point,info,unitType,amount)
+        VALUES (#{mid}, #{uid}, #{wid}, #{point}, #{info}, #{unitType}, #{amount})
     </insert>
 
     <update id="update" parameterType="com.tencent.wxcloudrun.model.WishLog">
         UPDATE wish_log 
         SET status = #{status}
+        <if test="endTime != null">, endTime = #{endTime}</if>
         WHERE id = #{id}
     </update>
 

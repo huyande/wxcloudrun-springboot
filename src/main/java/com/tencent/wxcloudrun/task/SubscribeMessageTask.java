@@ -31,7 +31,7 @@ public class SubscribeMessageTask {
      * 每10分钟执行一次定时任务
      * 只在7:00-22:00之间执行
      */
-    @Scheduled(cron = "0 */1 7-22 * * ?")
+    @Scheduled(cron = "0 */10 10-22 * * ?")
     public void sendSubscribeMessages() {
         String templateId = "qxlklvQafBnD88U_4DnGrOLN7zRktvi2rsHS0VOYKcg"; // 这里替换为实际的模板ID
         

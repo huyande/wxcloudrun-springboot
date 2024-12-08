@@ -19,7 +19,7 @@ import java.util.Set;
 @Service
 public class WxEventServiceImpl implements WxEventService {
     
-    private static final LocalTime EARLIEST_SEND_TIME = LocalTime.of(7, 0);
+    private static final LocalTime EARLIEST_SEND_TIME = LocalTime.of(10, 0);
     private static final LocalTime LATEST_SEND_TIME = LocalTime.of(22, 0);
     
     private static final Set<String> TASK_TEMPLATE_IDS = new HashSet<>(Arrays.asList(

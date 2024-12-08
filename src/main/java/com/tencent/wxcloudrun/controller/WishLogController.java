@@ -2,13 +2,18 @@ package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
+import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.model.WishLog;
 import com.tencent.wxcloudrun.service.WishLogService;
+import com.tencent.wxcloudrun.service.WishService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,10 +23,12 @@ import java.util.Optional;
 public class WishLogController {
 
     final WishLogService wishLogService;
+    final WishService wishService;
     final Logger logger;
 
-    public WishLogController(@Autowired WishLogService wishLogService) {
+    public WishLogController(@Autowired WishLogService wishLogService, @Autowired WishService wishService) {
         this.wishLogService = wishLogService;
+        this.wishService = wishService;
         this.logger = LoggerFactory.getLogger(WishLogController.class);
     }
 
@@ -37,7 +44,11 @@ public class WishLogController {
             if (wishLog == null) {
                 return ApiResponse.error("愿望日志不存在");
             }
-            return ApiResponse.ok(wishLog);
+            Wish wish = wishService.getWishById(wishLog.getWid());
+            Map<String,Object> res = new HashMap<>();
+            res.put("wishLog", wishLog);
+            res.put("wish", wish);
+            return ApiResponse.ok(res);
         } catch (Exception e) {
             logger.error("查询愿望日志失败", e);
             return ApiResponse.error("查询失败");
@@ -105,6 +116,8 @@ public class WishLogController {
             wishLog.setPoint(wishLogRequest.getPoint());
             wishLog.setMid(wishLogRequest.getMid());
             wishLog.setInfo(wishLogRequest.getInfo());
+            wishLog.setAmount(wishLogRequest.getAmount());
+            wishLog.setUnitType(wishLogRequest.getUnitType());
             WishLog log = wishLogService.create(wishLog);
             return ApiResponse.ok(log);
         } catch (Exception e) {
@@ -116,11 +129,11 @@ public class WishLogController {
     /**
      * 更新愿望日志
      * @param id 愿望日志ID
-     * @param wishLog 愿望日志对象
+     * @param wishLogRequest 愿望日志对象
      * @return API响应
      */
     @PutMapping("/{id}")
-    ApiResponse update(@PathVariable Integer id, @RequestBody WishLog wishLog) {
+    ApiResponse update(@PathVariable Integer id, @RequestBody WishLogRequest wishLogRequest) {
         try {
             // 检查是否存在
             WishLog existingLog = wishLogService.getById(id);
@@ -128,9 +141,12 @@ public class WishLogController {
                 return ApiResponse.error("愿望日志不存在");
             }
 
-            wishLog.setId(id);
-            wishLogService.update(wishLog);
-            return ApiResponse.ok(wishLog);
+            existingLog.setStatus(wishLogRequest.getStatus());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(wishLogRequest.getEndTime(), formatter);
+            existingLog.setEndTime(localDateTime);
+            wishLogService.update(existingLog);
+            return ApiResponse.ok(existingLog);
         } catch (Exception e) {
             logger.error("更新愿望日志失败", e);
             return ApiResponse.error("更新失败");

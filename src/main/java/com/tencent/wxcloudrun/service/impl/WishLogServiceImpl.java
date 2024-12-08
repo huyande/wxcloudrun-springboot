@@ -42,7 +42,8 @@ public class WishLogServiceImpl implements WishLogService {
 
     @Override
     public void update(WishLog wishLog) {
-        wishLog.setUpdatedAt(LocalDateTime.now());
+//        wishLog.setUpdatedAt(LocalDateTime.now());
+
         wishLogMapper.update(wishLog);
     }
 

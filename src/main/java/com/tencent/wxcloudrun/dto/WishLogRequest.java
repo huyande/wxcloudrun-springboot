@@ -2,6 +2,8 @@ package com.tencent.wxcloudrun.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class WishLogRequest {
     private Integer mid;
@@ -10,4 +12,7 @@ public class WishLogRequest {
     private Integer point;
     private String info;
     private Integer status;
+    private String unitType;
+    private String endTime;
+    private Integer amount;
 }
