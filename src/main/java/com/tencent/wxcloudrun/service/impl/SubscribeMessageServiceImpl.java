@@ -214,7 +214,7 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
         return WxSubscribeMessage.builder()
                 .touser(subscribeLog.getOpenid())
                 .template_id(subscribeLog.getTemplateId())
-                .page("/count_down_time/count_down_time?wishLogId="+wishLog.getId())
+                .page("/pages/count_down_time/count_down_time?wishLogId="+wishLog.getId())
                 .data(data)
                 .build();
     }
