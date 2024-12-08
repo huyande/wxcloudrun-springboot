@@ -20,6 +20,12 @@ public interface WishLogService {
     
     // 更新
     void update(WishLog wishLog);
+
+    /**
+     * 查询所有分钟类型的未完成任务
+     * @return 任务列表
+     */
+    List<WishLog> queryTimeTask();
     
     // 删除
     void deleteById(Integer id);

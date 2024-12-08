@@ -53,6 +53,11 @@ public class WishLogServiceImpl implements WishLogService {
     }
 
     @Override
+    public List<WishLog> queryTimeTask() {
+        return wishLogMapper.queryTimeTask();
+    }
+
+    @Override
     public Integer getSumNumByMid(Integer mid) {
         return wishLogMapper.getSumNumByMid(mid);
     }

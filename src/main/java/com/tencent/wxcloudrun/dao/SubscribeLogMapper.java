@@ -28,4 +28,10 @@ public interface SubscribeLogMapper {
     List<SubscribeLog> querySubscriptionsToSend(@Param("templateId") String templateId, 
                                                @Param("startTime") LocalDateTime startTime,
                                                @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * 获取用户最新的订阅记录
+     */
+    SubscribeLog getLatestSubscription(@Param("openid") String openid, 
+                                     @Param("templateId") String templateId);
 }

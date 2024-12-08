@@ -31,4 +31,6 @@ public interface WishLogMapper {
     Integer getSumNumByMid(@Param("mid") Integer mid);
 
     List<Map<String, Object>> getByMid(@Param("mid")Integer mid);
+
+    List<WishLog> queryTimeTask();
 }

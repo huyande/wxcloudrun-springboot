@@ -17,4 +17,9 @@ public interface SubscribeMessageService {
      * @param subscribeLogs 订阅记录列表
      */
     void sendMessages(String templateId, List<SubscribeLog> subscribeLogs);
+
+    /**
+     * 处理时间任务的消息发送
+     */
+    void processTimeTask();
 }

@@ -50,12 +50,20 @@
     </select>
 
     <!-- 查询指定时间范围内需要发送的订阅记录 -->
-    <select id="querySubscriptionsToSend" resultMap="SubscribeLogMapper">
-        SELECT id, openid, templateId, createTime, sendTime
-        FROM subscribe_log
-        WHERE templateId = #{templateId}
+    <select id="querySubscriptionsToSend" resultType="com.tencent.wxcloudrun.model.SubscribeLog">
+        SELECT * FROM subscribe_log 
+        WHERE template_id = #{templateId}
         AND sendTime BETWEEN #{endTime} AND #{startTime}
         AND sendTime IS NOT NULL
+    </select>
+
+    <!-- 获取用户最新的订阅记录 -->
+    <select id="getLatestSubscription" resultType="com.tencent.wxcloudrun.model.SubscribeLog">
+        SELECT * FROM subscribe_log 
+        WHERE openid = #{openid} 
+        AND templateId = #{templateId}
+        ORDER BY  createTime asc
+        LIMIT 1
     </select>
 
 </mapper>
