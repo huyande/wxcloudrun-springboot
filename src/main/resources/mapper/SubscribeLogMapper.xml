@@ -52,7 +52,7 @@
     <!-- 查询指定时间范围内需要发送的订阅记录 -->
     <select id="querySubscriptionsToSend" resultType="com.tencent.wxcloudrun.model.SubscribeLog">
         SELECT * FROM subscribe_log 
-        WHERE template_id = #{templateId}
+        WHERE templateId = #{templateId}
         AND sendTime BETWEEN #{endTime} AND #{startTime}
         AND sendTime IS NOT NULL
     </select>
