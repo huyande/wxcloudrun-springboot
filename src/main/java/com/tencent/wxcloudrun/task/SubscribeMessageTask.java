@@ -65,7 +65,7 @@ public class SubscribeMessageTask {
      *
      */
     //0 */1 6-23 * * ?
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */1 6-23 * * ?")
     public void checkTimeTask() {
         logger.info("开始检查时间任务");
         subscribeMessageService.processTimeTask();
