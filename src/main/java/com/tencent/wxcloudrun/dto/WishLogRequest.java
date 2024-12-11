@@ -15,4 +15,5 @@ public class WishLogRequest {
     private String unitType;
     private String endTime;
     private Integer amount;
+    private Integer unit;
 }

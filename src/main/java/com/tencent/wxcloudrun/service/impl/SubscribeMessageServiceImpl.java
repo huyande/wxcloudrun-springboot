@@ -123,6 +123,9 @@ public class SubscribeMessageServiceImpl implements SubscribeMessageService {
                 
                 logger.info("发送时间任务提醒消息结果 - templateId: {}, openid: {}, result: {}", 
                         templateId, user.getOpenid(), result);
+                task.setStatus(1);
+                task.setEndTime(null);
+                wishLogService.update(task);
 
                 // 发送成功后删除记录
                 if (subscribeLog.getId() != null) {

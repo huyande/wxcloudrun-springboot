@@ -66,4 +66,9 @@ public class WishLogServiceImpl implements WishLogService {
     public List<Map<String, Object>> getByMid(Integer mid) {
         return wishLogMapper.getByMid(mid);
     }
+
+    @Override
+    public List<WishLog> getAllLogByStatus(Integer mid, Integer status) {
+        return wishLogMapper.getAllLogByMidAndStatus(mid, status);
+    }
 }

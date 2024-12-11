@@ -55,6 +55,17 @@ public class WishLogController {
         }
     }
 
+    @GetMapping("/getAllLogByStatus/{mid}")
+    ApiResponse getAllLogByStatus(@PathVariable Integer mid,@RequestParam Integer status) {
+        try {
+            List<WishLog> wishLogs = wishLogService.getAllLogByStatus(mid,status);
+            return ApiResponse.ok(wishLogs);
+        } catch (Exception e) {
+            logger.error("查询愿望日志失败", e);
+            return ApiResponse.error("查询失败");
+        }
+    }
+
     /**
      * 根据用户ID查询愿望日志列表
      * @param uid 用户ID
@@ -118,6 +129,7 @@ public class WishLogController {
             wishLog.setInfo(wishLogRequest.getInfo());
             wishLog.setAmount(wishLogRequest.getAmount());
             wishLog.setUnitType(wishLogRequest.getUnitType());
+            wishLog.setUnit(wishLogRequest.getUnit());
             WishLog log = wishLogService.create(wishLog);
             return ApiResponse.ok(log);
         } catch (Exception e) {

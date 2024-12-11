@@ -18,6 +18,7 @@ public class WishLog {
 
     private String unitType;//点数类型
     private LocalDateTime endTime;//如果兑换的是时间相关的，则需要记录完成的时间是多少
+    private Integer unit;
     // 创建时间
     private LocalDateTime createdAt;
     // 更新时间

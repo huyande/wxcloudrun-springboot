@@ -33,4 +33,6 @@ public interface WishLogMapper {
     List<Map<String, Object>> getByMid(@Param("mid")Integer mid);
 
     List<WishLog> queryTimeTask();
+
+    List<WishLog> getAllLogByMidAndStatus(Integer mid, Integer status);
 }

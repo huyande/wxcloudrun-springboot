@@ -55,7 +55,7 @@
         WHERE templateId = #{templateId}
         AND sendTime BETWEEN #{endTime} AND #{startTime}
         AND sendTime IS NOT NULL
-        
+
     </select>
 
     <!-- 获取用户最新的订阅记录 -->

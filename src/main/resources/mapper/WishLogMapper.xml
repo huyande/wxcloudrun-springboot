@@ -13,6 +13,7 @@
         <result property="unitType" column="unitType"/>
         <result property="endTime" column="endTime" javaType="java.time.LocalDateTime"/>
         <result property="amount" column="amount"/>
+        <result property="unit" column="unit"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -45,8 +46,8 @@
     </select>
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.WishLog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO wish_log (mid, uid, wid, point,info,unitType,amount)
-        VALUES (#{mid}, #{uid}, #{wid}, #{point}, #{info}, #{unitType}, #{amount})
+        INSERT INTO wish_log (mid, uid, wid, point,info,unitType,amount,unit)
+        VALUES (#{mid}, #{uid}, #{wid}, #{point}, #{info}, #{unitType}, #{amount}, #{unit})
     </insert>
 
     <update id="update" parameterType="com.tencent.wxcloudrun.model.WishLog">
@@ -64,9 +65,14 @@
     <select id="queryTimeTask" resultType="com.tencent.wxcloudrun.model.WishLog">
         SELECT * FROM wish_log 
         WHERE unitType = '分钟'
-        AND status = 1
+        AND status = 2
         AND endTime IS NOT NULL
         AND endTime BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 MINUTE)
+    </select>
+
+
+    <select id="getAllLogByMidAndStatus" parameterType="java.lang.Integer" resultType="com.tencent.wxcloudrun.model.WishLog">
+        SELECT * FROM wish_log WHERE mid = #{mid} AND status = #{status} ORDER BY createdAt DESC
     </select>
 
 </mapper>

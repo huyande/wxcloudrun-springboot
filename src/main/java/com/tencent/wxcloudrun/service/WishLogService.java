@@ -33,4 +33,6 @@ public interface WishLogService {
     Integer getSumNumByMid(Integer mid);
 
     List<Map<String, Object>> getByMid(Integer mid);
+
+    List<WishLog> getAllLogByStatus(Integer mid, Integer status);
 }
