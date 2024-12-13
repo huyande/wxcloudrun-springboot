@@ -35,4 +35,6 @@ public interface WxuserService {
   void deleteFamilyRelas(FamilyRequest familyRequest);
 
   WxCheckConfig getWxCheckConfig(String version);
+
+  void updateUserSettings(Integer id, Integer soundEnabled, Integer animationEnabled);
 }

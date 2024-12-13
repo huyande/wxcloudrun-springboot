@@ -8,30 +8,32 @@
         <result property="role" column="role"/>
         <result property="name" column="name"/>
         <result property="familyCode" column="familyCode"/>
+        <result property="soundEnabled" column="soundEnabled"/>
+        <result property="soundEnabled" column="soundEnabled"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
     <select id="getUser" resultMap="wxuserMapper" parameterType="java.lang.String">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`, `soundEnabled`,`animationEnabled`, `createdAt`,`updatedAt`
         FROM wx_users
         WHERE openid = #{openid}
     </select>
 
     <select id="getUserById" resultMap="wxuserMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`soundEnabled`,`animationEnabled`,`createdAt`,`updatedAt`
         FROM wx_users
         WHERE id = #{id}
     </select>
 
     <select id="getUsersByFamilyCode" resultMap="wxuserMapper" parameterType="java.lang.String">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`soundEnabled`,`animationEnabled`,`createdAt`,`updatedAt`
         FROM wx_users
         WHERE id in (select uid from family where code = #{familyCode})
     </select>
 
     <select id="getUserByFamilyCode"  resultMap="wxuserMapper" parameterType="java.lang.String">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`soundEnabled`,`animationEnabled`,`createdAt`,`updatedAt`
         FROM wx_users
         WHERE familyCode = #{familyCode}
     </select>
@@ -56,6 +58,14 @@
     <update id="updateRoleUserById" parameterType="java.lang.Integer">
         UPDATE wx_users
         SET role = #{role}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserSettings">
+        UPDATE wx_users 
+        SET <if test="soundEnabled != null">soundEnabled = #{soundEnabled},</if>
+            <if test="animationEnabled != null">animationEnabled = #{animationEnabled},</if>
+            updatedAt = NOW()
         WHERE id = #{id}
     </update>
 

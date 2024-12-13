@@ -18,6 +18,8 @@ public class WxUser implements Serializable {
 
   private String familyCode; // 家庭代码，用于标识不同的家庭
 
+  private Integer soundEnabled;
+  private Integer animationEnabled;
 
   private LocalDateTime createdAt;
 

@@ -2,6 +2,7 @@ package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
+import com.tencent.wxcloudrun.dto.SettingRequest;
 import com.tencent.wxcloudrun.model.Family;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.WxCheckConfig;
@@ -134,6 +135,23 @@ public class WxuserController {
   public ApiResponse deleteFamilyRelas(@RequestBody FamilyRequest familyRequest) {
     wxuserService.deleteFamilyRelas(familyRequest);
     return ApiResponse.ok();
+  }
+
+  @PutMapping("/settings/{id}")
+  public ApiResponse updateSettings(
+          @PathVariable Integer id, @RequestBody SettingRequest settingRequest) {
+    
+    // 验证参数值是否合法
+    try {
+        // 使用用户id更新设置
+        wxuserService.updateUserSettings(id, settingRequest.getSoundEnabled(), settingRequest.getAnimationEnabled());
+
+        // 重新获取更新后的用户信息
+        WxUser updatedUser = wxuserService.getUserById(id);
+        return ApiResponse.ok(updatedUser);
+    } catch (Exception e) {
+        return ApiResponse.error("Update failed");
+    }
   }
 
 }

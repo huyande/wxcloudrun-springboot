@@ -20,4 +20,8 @@ public interface WxuserMapper {
   WxUser getUserByFamilyCode(@Param("familyCode") String familyCode);
 
   WxCheckConfig getWxCheckConfigs(@Param("version") String version);
+
+  void updateUserSettings(@Param("id") Integer id,
+                         @Param("soundEnabled") Integer soundEnabled,
+                         @Param("animationEnabled") Integer animationEnabled);
 }

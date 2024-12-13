@@ -82,4 +82,9 @@ public class WxuserServiceImpl implements WxuserService {
         return wxuserMapper.getWxCheckConfigs(version);
 
     }
+
+    @Override
+    public void updateUserSettings(Integer id, Integer soundEnabled, Integer animationEnabled) {
+        wxuserMapper.updateUserSettings(id, soundEnabled, animationEnabled);
+    }
 }
