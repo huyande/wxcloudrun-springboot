@@ -154,9 +154,11 @@ public class WishLogController {
             }
 
             existingLog.setStatus(wishLogRequest.getStatus());
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime localDateTime = LocalDateTime.parse(wishLogRequest.getEndTime(), formatter);
-            existingLog.setEndTime(localDateTime);
+            if(wishLogRequest.getEndTime() != null){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime localDateTime = LocalDateTime.parse(wishLogRequest.getEndTime(), formatter);
+                existingLog.setEndTime(localDateTime);
+            }
             wishLogService.update(existingLog);
             return ApiResponse.ok(existingLog);
         } catch (Exception e) {
