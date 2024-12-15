@@ -32,11 +32,11 @@ public class WxEventController {
 
     @PostMapping("/handel")
     public String handel(@RequestBody Map<String, Object> jsonMap) {
-        logger.info("事件响应：{}",jsonMap);
-        String msgType = (String) jsonMap.get("MsgType");
-        if(msgType.equals("event")) {
-            wxEventService.eventHandel(jsonMap);
-        }
+//        logger.info("事件响应：{}",jsonMap);
+//        String msgType = (String) jsonMap.get("MsgType");
+//        if(msgType.equals("event")) {
+//            wxEventService.eventHandel(jsonMap);
+//        }
         return "";
     }
 
