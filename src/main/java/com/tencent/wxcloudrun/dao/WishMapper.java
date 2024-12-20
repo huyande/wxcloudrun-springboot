@@ -26,4 +26,8 @@ public interface WishMapper {
     
     // 删除愿望
     int delete(@Param("id") Integer id);
+
+
+    void deleteByMid(@Param("mid") Integer mid, @Param("type") Integer type);
+
 }

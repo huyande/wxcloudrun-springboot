@@ -28,4 +28,6 @@ public interface MemberRulesMapper {
                      @Param("targetSort") Integer targetSort);
 
     MemberRules getLastSortByTypeAndMid(@Param("mId") Integer mid, @Param("type")String type);
+
+    void deleteByMid(@Param("mid") Integer mid);
 }

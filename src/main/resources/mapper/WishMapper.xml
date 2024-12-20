@@ -65,4 +65,9 @@
         DELETE FROM wish WHERE id = #{id}
     </delete>
 
+    <delete id="deleteByMid" parameterType="java.lang.Integer">
+        DELETE FROM wish WHERE mid = #{mid}
+        <if test="type != null">AND type = #{type}</if>
+    </delete>
+
 </mapper>

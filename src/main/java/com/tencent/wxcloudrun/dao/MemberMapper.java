@@ -14,4 +14,8 @@ public interface MemberMapper {
     Integer getCountMembersByUid(@Param("uId") Integer uId);
 
     Member getMemberById(@Param("id") Integer mid);
+
+    void updateById(Member member);
+
+    void deleteById(@Param("id") Integer id);
 }

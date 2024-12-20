@@ -18,4 +18,6 @@ public interface MemberPointLogsService {
     List<Map<String, Object>> getPointLogsByMidAndMonth(Integer mid);
 
     Integer getAllCountLogsByDayMid(Integer mid);
+
+    Map<String, Object> getPointLogsByMid(Integer mid, Integer page);
 }

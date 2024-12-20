@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.beans.Transient;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -77,6 +78,21 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     @Override
     public Integer getAllCountLogsByDayMid(Integer mid) {
         return memberPointLogsMapper.getAllCountLogsByDayMid(mid);
+    }
+
+    @Override
+    public Map<String, Object> getPointLogsByMid(Integer mid, Integer page) {
+        Map<String, Object> map = new HashMap<>();
+        int pageSize = 10;
+        if (page == null) {
+            page = 1;
+        }
+        Integer offset = (page - 1) * pageSize;
+        List<Map<String, Object>> logs = memberPointLogsMapper.getPointLogsByMid(mid, pageSize, offset);
+        Integer count = memberPointLogsMapper.getPointLogsByMidCount(mid);
+        map.put("total", count);
+        map.put("rows", logs);
+        return map;
     }
 
 }

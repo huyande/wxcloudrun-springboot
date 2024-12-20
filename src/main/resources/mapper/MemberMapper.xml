@@ -38,15 +38,21 @@
         WHERE uId = #{uId}
     </select>
 
-    <delete id="delete" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         DELETE
         FROM members
         where id = #{id}
-        limit 1
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Member">
         INSERT INTO `members`(`name`,`gender`,`pointTotal`,`uid`,`familyCode`) VALUE(#{name}, #{gender}, #{pointTotal},#{uid},#{familyCode})
     </insert>
+
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.Member">
+        UPDATE members 
+        SET name = #{name},
+            gender = #{gender}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

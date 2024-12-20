@@ -79,4 +79,8 @@
         SET name = #{name}, type = #{type}, icon = #{icon}, iconType = #{iconType}, weeks = #{weeks}, sort = #{sort},status = #{status}
         WHERE id = #{id}
     </update>
+
+    <delete id="deleteByMid" parameterType="java.lang.Integer">
+        DELETE FROM member_rules WHERE mid = #{mid}
+    </delete>
 </mapper>

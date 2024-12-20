@@ -66,4 +66,64 @@
         WHERE mid = #{mid} AND day BETWEEN DATE_FORMAT(NOW() ,'%Y-%m-01') AND CURDATE() GROUP BY day
     </select>
 
+
+    <delete id="deleteByMid" parameterType="java.lang.Integer">
+        DELETE FROM member_point_logs WHERE mid = #{mid}
+    </delete>
+
+    <select id="getPointLogsByMid" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT DATE_FORMAT(day, '%Y-%m-%d') as day, num, name, icon, iconType
+        FROM (
+            SELECT
+            t1.day,
+            t1.num,
+            t2.name,
+            t2.icon,
+            t2.iconType,
+            @row_num := IF(@prev_day = t1.day, @row_num + 1, 1) AS row_num,
+            @prev_day := t1.day
+            FROM
+            member_point_logs t1
+            JOIN
+            member_rules t2
+            ON
+            t1.ruleId = t2.id
+            JOIN (SELECT @row_num := 0, @prev_day := NULL) vars
+            WHERE
+            t1.mid = #{mid}
+            AND t2.mid = #{mid}
+            ORDER BY
+            t1.day DESC, t1.num DESC
+            ) ranked_logs
+        WHERE
+
+            row_num <![CDATA[ <= ]]> 4
+        ORDER BY
+            day DESC
+            LIMIT  #{pageSize} OFFSET #{offset};
+    </select>
+
+    <select id="getPointLogsByMidCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(1) as c
+        FROM (
+                 SELECT
+                     @row_num := IF(@prev_day = t1.day, @row_num + 1, 1) AS row_num,
+                    @prev_day := t1.day
+                 FROM
+                     member_point_logs t1
+                     JOIN
+                     member_rules t2
+                 ON
+                     t1.ruleId = t2.id
+                     JOIN (SELECT @row_num := 0, @prev_day := NULL) vars
+                 WHERE
+                     t1.mid = #{mid}
+                   AND t2.mid = #{mid}
+                 ORDER BY
+                     t1.day DESC, t1.num DESC
+             ) ranked_logs
+        WHERE
+            row_num <![CDATA[ <= ]]> 4
+    </select>
+
 </mapper>

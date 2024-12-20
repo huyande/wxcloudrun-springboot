@@ -35,4 +35,6 @@ public interface WishLogMapper {
     List<WishLog> queryTimeTask();
 
     List<WishLog> getAllLogByMidAndStatus(Integer mid, Integer status);
+
+    void deleteByMid(@Param("mid") Integer mid);
 }

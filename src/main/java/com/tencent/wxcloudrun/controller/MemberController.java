@@ -230,6 +230,7 @@ public class MemberController {
             int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
             result.put("pointSum", total+member.getPointTotal());
             result.put("days", days);
+            result.put("originalPointSum", (pointSum == null ? 0 : pointSum)+member.getPointTotal());//累计的积分，不减去wishSum的积分
             return ApiResponse.ok(result);
         } catch (Exception e) {
             logger.error("获取会员积分总和失败", e);
@@ -349,6 +350,97 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取会员活动规则失败", e);
             return ApiResponse.error("获取会员活动规则失败");
+        }
+    }
+
+    /**
+     * 根据id获取member信息
+     * @param id member的id
+     * @return member信息
+     */
+    @GetMapping("/{id}")
+    public ApiResponse getMemberById(@PathVariable Integer id) {
+        try {
+            Member member = memberService.getMemberById(id);
+            if (member != null) {
+                return ApiResponse.ok(member);
+            } else {
+                return ApiResponse.error("未找到该成员");
+            }
+        } catch (Exception e) {
+            logger.error("获取成员信息失败", e);
+            return ApiResponse.error("获取成员信息失败");
+        }
+    }
+
+    /**
+     * 更新member信息
+     * @param id member的id
+     * @param memberRequest 更新的member信息
+     * @return 更新后的member信息
+     */
+    @PutMapping("/{id}")
+    public ApiResponse updateMember(@PathVariable Integer id, @RequestBody MemberRequest memberRequest) {
+        try {
+            // 参数校验
+//            if (memberRequest.getName() == null || memberRequest.getName().trim().isEmpty()) {
+//                return ApiResponse.error("名称不能为空");
+//            }
+//            if (memberRequest.getGender() == null) {
+//                return ApiResponse.error("性别不能为空");
+//            }
+//            if (memberRequest.getPointTotalCount() == null) {
+//                return ApiResponse.error("积分不能为空");
+//            }
+            
+            Member updatedMember = memberService.updateMember(id, memberRequest);
+            return ApiResponse.ok(updatedMember);
+        } catch (Exception e) {
+            logger.error("更新成员信息失败", e);
+            return ApiResponse.error("更新成员信息失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清除成员相关数据
+     * @param id member的id
+     * @return 清除结果
+     */
+    @DeleteMapping("/clearData/{id}")
+    public ApiResponse clearMemberData(@PathVariable Integer id) {
+        try {
+            memberService.clearMemberData(id);
+            return ApiResponse.ok("数据清除成功");
+        } catch (Exception e) {
+            logger.error("清除成员数据失败", e);
+            return ApiResponse.error("清除成员数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除成员相关数据
+     * @param id member的id
+     * @return 清除结果
+     */
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse deleteMemberData(@PathVariable Integer id) {
+        try {
+            memberService.deleteMemberById(id);
+            return ApiResponse.ok("数据清除成功");
+        } catch (Exception e) {
+            logger.error("清除成员数据失败", e);
+            return ApiResponse.error("清除成员数据失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/pointlogHistory/{mid}/{page}")
+    public ApiResponse getPointLogsByMid(@PathVariable Integer mid, @PathVariable Integer page) {
+        try {
+            Map<String, Object> data  = memberPointLogsService.getPointLogsByMid(mid,page);
+            return ApiResponse.ok(data);
+        } catch (Exception e) {
+            logger.error("获取会员积分详情失败", e);
+            return ApiResponse.error("获取会员积分详情失败");
         }
     }
 }

@@ -24,4 +24,10 @@ public interface MemberPointLogsMapper {
     List<Map<String, Object>> getPointLogsByMidAndMonth(@Param("mid")Integer mid);
 
     Integer getAllCountLogsByDayMid(@Param("mid") Integer mid);
+
+    void deleteByMid(@Param("mid") Integer mid);
+
+    List<Map<String, Object>> getPointLogsByMid(@Param("mid")Integer mid, @Param("pageSize")Integer pageSize,@Param("offset") Integer offset);
+
+    Integer getPointLogsByMidCount(@Param("mid")Integer mid);
 }

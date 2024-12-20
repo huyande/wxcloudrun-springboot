@@ -6,6 +6,7 @@ import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.Transient;
 import java.util.Arrays;
@@ -20,17 +21,27 @@ public class MemberServiceImpl implements MemberService {
     final WxuserMapper wxuserMapper;
     final FamilyMapper familyMapper;
     final WishMapper wishMapper;
+    final MemberRulesMapper memberRulesMapper;
+    final MemberPointLogsMapper memberPointLogsMapper;
+    final WishLogMapper wishLogMapper;
     //构造函数注入
     public MemberServiceImpl(@Autowired MemberMapper memberMapper,
                              @Autowired MemberRelasMapper memberRelasMapper,
                              @Autowired WxuserMapper wxuserMapper,
                              @Autowired FamilyMapper familyMapper,
-                             @Autowired WishMapper wishMapper) {
+                             @Autowired WishMapper wishMapper,
+                             @Autowired MemberRulesMapper memberRulesMapper,
+                             @Autowired MemberPointLogsMapper memberPointLogsMapper,
+                             @Autowired WishLogMapper wishLogMapper) {
+
         this.familyMapper = familyMapper;
         this.memberMapper = memberMapper;
         this.memberRelasMapper = memberRelasMapper;
         this.wxuserMapper = wxuserMapper;
         this.wishMapper = wishMapper;
+        this.memberRulesMapper = memberRulesMapper;
+        this.memberPointLogsMapper = memberPointLogsMapper;
+        this.wishLogMapper = wishLogMapper;
     }
 
     private static final List<Wish> DEFAULT_WISHES = Collections.unmodifiableList(Arrays.asList(
@@ -91,6 +102,67 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member getMemberById(Integer mid) {
         return memberMapper.getMemberById(mid);
+    }
+
+    @Override
+    public Member updateMember(Integer id, MemberRequest memberRequest) {
+        Member member = memberMapper.getMemberById(id);
+        if (member == null) {
+            throw new RuntimeException("成员不存在");
+        }
+        if(memberRequest.getName()!=null){
+            member.setName(memberRequest.getName());
+        }
+        if(memberRequest.getGender()!=null){
+            member.setGender(memberRequest.getGender());
+        }
+
+//        member.setPointTotal(memberRequest.getPointTotalCount());
+        
+        memberMapper.updateById(member);
+        return memberMapper.getMemberById(id);
+    }
+
+    @Transactional
+    @Override
+    public void clearMemberData(Integer mid) {
+        // 验证member是否存在
+        Member member = memberMapper.getMemberById(mid);
+        if (member == null) {
+            throw new RuntimeException("成员不存在");
+        }
+        
+        // 删除规则数据
+        memberRulesMapper.deleteByMid(mid);
+        
+        // 删除积分记录
+        memberPointLogsMapper.deleteByMid(mid);
+        
+        // 删除愿望记录
+        wishLogMapper.deleteByMid(mid);
+        
+        // 删除愿望
+        wishMapper.deleteByMid(mid,1);
+    }
+
+    @Override
+    public void deleteMemberById(Integer mid) {
+        Member member = memberMapper.getMemberById(mid);
+        if (member == null) {
+            throw new RuntimeException("成员不存在");
+        }
+        // 删除规则数据
+        memberRulesMapper.deleteByMid(mid);
+
+        // 删除积分记录
+        memberPointLogsMapper.deleteByMid(mid);
+
+        // 删除愿望记录
+        wishLogMapper.deleteByMid(mid);
+
+        // 删除愿望
+        wishMapper.deleteByMid(mid,null);
+        memberMapper.deleteById(mid);
     }
 
 }

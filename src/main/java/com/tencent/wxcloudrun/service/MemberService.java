@@ -13,4 +13,10 @@ public interface MemberService {
     List<Member> getMembersByUid(Integer id);
 
     Member getMemberById(Integer mid);
+
+    Member updateMember(Integer id, MemberRequest memberRequest);
+
+    void clearMemberData(Integer mid);
+
+    void deleteMemberById(Integer id);
 }
