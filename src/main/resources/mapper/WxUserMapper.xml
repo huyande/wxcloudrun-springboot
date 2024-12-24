@@ -61,6 +61,12 @@
         WHERE id = #{id}
     </update>
 
+    <update id="updateAtUserById" parameterType="java.lang.Integer">
+        UPDATE wx_users
+        SET updatedAt = now()
+        WHERE id = #{id}
+    </update>
+
     <update id="updateUserSettings">
         UPDATE wx_users 
         SET <if test="soundEnabled != null">soundEnabled = #{soundEnabled},</if>

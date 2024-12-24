@@ -87,4 +87,9 @@ public class WxuserServiceImpl implements WxuserService {
     public void updateUserSettings(Integer id, Integer soundEnabled, Integer animationEnabled) {
         wxuserMapper.updateUserSettings(id, soundEnabled, animationEnabled);
     }
+
+    @Override
+    public void updateAtUserById(Integer id) {
+        wxuserMapper.updateAtUserById(id);
+    }
 }

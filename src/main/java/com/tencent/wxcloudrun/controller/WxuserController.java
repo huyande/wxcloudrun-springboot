@@ -62,8 +62,7 @@ public class WxuserController {
       Date date = Date.from(zonedDateTime.toInstant());
       if(!DateUtil.isSameDay(date, new Date())) {
         // The user's update time is today
-        user.get().setUpdatedAt(LocalDateTime.now());
-        wxuserService.upsertUser(user.get());
+        wxuserService.updateAtUserById(user.get().getId());
       }
       //如果有user 则判断是否有member
 //      Integer memberCount = memberService.getMemberCountByUid(user.get().getId());

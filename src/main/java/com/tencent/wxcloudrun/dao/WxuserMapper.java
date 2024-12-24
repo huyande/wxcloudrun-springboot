@@ -24,4 +24,6 @@ public interface WxuserMapper {
   void updateUserSettings(@Param("id") Integer id,
                          @Param("soundEnabled") Integer soundEnabled,
                          @Param("animationEnabled") Integer animationEnabled);
+
+  void updateAtUserById(@Param("id")Integer id);
 }

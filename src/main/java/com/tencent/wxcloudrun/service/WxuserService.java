@@ -37,4 +37,6 @@ public interface WxuserService {
   WxCheckConfig getWxCheckConfig(String version);
 
   void updateUserSettings(Integer id, Integer soundEnabled, Integer animationEnabled);
+
+  void updateAtUserById(Integer id);
 }
