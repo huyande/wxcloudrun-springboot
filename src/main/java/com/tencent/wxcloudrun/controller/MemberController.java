@@ -210,6 +210,9 @@ public class MemberController {
     public ApiResponse addPointLog(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs) {
         try {
             memberPointLogs.setMid(mid);
+            if(memberPointLogs.getType() ==null){
+                memberPointLogs.setType(0);
+            }
             memberPointLogsService.insert(memberPointLogs);
             return ApiResponse.ok();
         } catch (Exception e) {

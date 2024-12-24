@@ -53,6 +53,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             memberPointLogs.setUid(memberPointLogsRequest.getUid());
             memberPointLogs.setRuleId(memberPointLogsRequest.getRuleId());
             memberPointLogs.setNum(memberPointLogsRequest.getNum());
+            memberPointLogs.setType(memberPointLogsRequest.getType());
             memberPointLogsMapper.insertOne(memberPointLogs);
             return memberPointLogs;
         }

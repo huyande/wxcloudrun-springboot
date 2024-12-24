@@ -15,7 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(logInterceptor)
-                .addPathPatterns("/wishLog/**", "/member/**", "/wish/**", "/wxuser/**")  // 指定要拦截的路径
+                .addPathPatterns("/wishLog/**", "/member/**", "/wish/**", "/wxuser/**","/api/**")  // 指定要拦截的路径
                 .excludePathPatterns("/static/**");  // 排除静态资源
     }
 }

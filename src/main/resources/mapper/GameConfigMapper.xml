@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.GameConfigMapper">
+
+    <resultMap id="gameConfigMapper" type="com.tencent.wxcloudrun.model.GameConfig">
+        <id property="id" column="id"/>
+        <result property="uid" column="uid"/>
+        <result property="point" column="point"/>
+        <result property="number" column="number"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"/>
+    </resultMap>
+
+    <select id="getById" resultMap="gameConfigMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE id = #{id}
+    </select>
+
+    <select id="getByUidAndType" resultMap="gameConfigMapper" parameterType="java.util.Map">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE uid = #{uid} AND type = #{type}
+    </select>
+
+    <select id="getByUid" resultMap="gameConfigMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE uid = #{uid}
+    </select>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.GameConfig">
+        INSERT INTO `game_config`(`uid`, `point`, `number`, `type`)
+        VALUES(#{uid}, #{point}, #{number}, #{type})
+    </insert>
+
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.GameConfig">
+        UPDATE game_config
+        SET point = #{point},
+            number = #{number},
+            type = #{type}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM game_config
+        WHERE id = #{id}
+    </delete>
+
+</mapper> 

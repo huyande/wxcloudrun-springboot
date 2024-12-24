@@ -13,6 +13,7 @@ public class MemberPointLogs implements Serializable {
     private Integer uid;
     private Integer ruleId;
     private Integer num;
+    private Integer type;//积分类型 0:规则积分 1:游戏产生的积分
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

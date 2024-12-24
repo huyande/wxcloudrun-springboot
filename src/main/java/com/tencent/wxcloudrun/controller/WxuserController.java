@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
 import com.tencent.wxcloudrun.dto.SettingRequest;
@@ -15,10 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
+
 import cn.hutool.core.util.RandomUtil;
 /**
  * counter控制器
@@ -51,6 +53,18 @@ public class WxuserController {
       resMap.put("checkShow",wxCheckConfig.getStatus());
     }
     if(user.isPresent()){
+      //判断user的更新时间是否是今天 user.get().getUpdatedAt()
+      //获取系统默认时区
+      ZoneId zoneId = ZoneId.systemDefault();
+      //时区的日期和时间
+      ZonedDateTime zonedDateTime = user.get().getUpdatedAt().atZone(zoneId);
+      //获取时刻
+      Date date = Date.from(zonedDateTime.toInstant());
+      if(!DateUtil.isSameDay(date, new Date())) {
+        // The user's update time is today
+        user.get().setUpdatedAt(LocalDateTime.now());
+        wxuserService.upsertUser(user.get());
+      }
       //如果有user 则判断是否有member
 //      Integer memberCount = memberService.getMemberCountByUid(user.get().getId());
       List<Member> members = memberService.getMembersByUid(user.get().getId());
