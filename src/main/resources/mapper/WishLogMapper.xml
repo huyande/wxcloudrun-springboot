@@ -31,7 +31,7 @@
     </select>
 
     <select id="getByMid" resultType="java.util.Map">
-        SELECT t1.id,t1.wid,t1.point,t1.status,t2.img,t2.title,t2.content,t2.needPoint,t2.unit,t2.unitType,date_format(t1.updatedAt, '%Y-%m-%d %H:%i:%s') as updatedAt
+        SELECT t1.id,t1.wid,t1.point,t1.status,t2.img,t2.title,t2.content,t2.needPoint,t2.unit,t2.unitType,date_format(t1.updatedAt, '%Y-%m-%d %H:%i:%s') as updatedAt,t1.amount
         FROM wish_log as t1 ,wish as t2
         WHERE t1.wid = t2.id and t2.mid = #{mid}
         ORDER BY t1.createdAt DESC
