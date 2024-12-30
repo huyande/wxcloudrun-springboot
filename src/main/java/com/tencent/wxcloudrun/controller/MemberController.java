@@ -153,6 +153,27 @@ public class MemberController {
     public ApiResponse getRulesByMid(@PathVariable Integer mid, @RequestParam String day) {
         try {
             List<MemberRules> rules = memberRulesService.getRulesByMid(mid,day);
+            
+            // 获取一周的开始和结束时间
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime currentDate = LocalDateTime.parse(day, formatter);
+            LocalDateTime weekStart = currentDate.minusDays(currentDate.getDayOfWeek().getValue() - 1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime weekEnd = weekStart.plusDays(7).minusSeconds(1);
+            
+            // 获取一周内的打卡记录
+            List<Map<String, Object>> weeklyLogs = memberPointLogsService.getWeeklyPointLogs(mid, weekStart, weekEnd);
+            
+            // 创建规则ID到周打卡状态的映射
+            Map<Integer, boolean[]> ruleWeekStatus = new HashMap<>();
+            for (Map<String, Object> log : weeklyLogs) {
+                Integer ruleId = Integer.parseInt(log.get("ruleId").toString());
+                int weekday = Integer.parseInt(log.get("weekday").toString());
+                if (!ruleWeekStatus.containsKey(ruleId)) {
+                    ruleWeekStatus.put(ruleId, new boolean[7]);
+                }
+                ruleWeekStatus.get(ruleId)[weekday] = true;
+            }
+            
             // 将规则按类型分组
             Map<String, List<Map<String, Object>>> groupedRules = rules.stream()
                 .collect(Collectors.groupingBy(MemberRules::getType,
@@ -164,7 +185,20 @@ public class MemberController {
                         ruleMap.put("iconType", rule.getIconType());
                         ruleMap.put("stars", 0);
                         ruleMap.put("status", 0);
-                        ruleMap.put("row_status", rule.getStatus());//由于之前的设计将status 标识成打卡的状态了，row_status 标识是否删除
+                        ruleMap.put("row_status", rule.getStatus());
+                        
+                        // 添加周打卡状态
+                        boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);
+                        Map<String, Boolean> weekStatusMap = new HashMap<>();
+                        weekStatusMap.put("monday", weekStatus[1]);    // 周一
+                        weekStatusMap.put("tuesday", weekStatus[2]);   // 周二
+                        weekStatusMap.put("wednesday", weekStatus[3]); // 周三
+                        weekStatusMap.put("thursday", weekStatus[4]);  // 周四
+                        weekStatusMap.put("friday", weekStatus[5]);    // 周五
+                        weekStatusMap.put("saturday", weekStatus[6]);  // 周六
+                        weekStatusMap.put("sunday", weekStatus[0]);    // 周日
+                        ruleMap.put("weekStatus", weekStatusMap);
+                        
                         return ruleMap;
                     }, Collectors.toList())));
 
@@ -444,6 +478,67 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取会员积分详情失败", e);
             return ApiResponse.error("获取会员积分详情失败");
+        }
+    }
+
+    /**
+     * 获取规则的连续打卡天数信息
+     * @param mid 会员ID
+     * @param ruleId 规则ID
+     * @return 连续打卡天数信息
+     */
+    @GetMapping("/streak/{mid}/{ruleId}")
+    public ApiResponse getStreakInfo(@PathVariable Integer mid, @PathVariable Integer ruleId) {
+        try {
+            Map<String, Integer> streakInfo = memberPointLogsService.getStreakInfo(mid, ruleId);
+            return ApiResponse.ok(streakInfo);
+        } catch (Exception e) {
+            logger.error("获取连续打卡天数失败", e);
+            return ApiResponse.error("获取连续打卡天数失败");
+        }
+    }
+
+    /**
+     * 获取指定月份的打卡记录
+     * @param mid 会员ID
+     * @param ruleId 规则ID
+     * @param yearMonth 年月(格式：yyyy-MM)
+     * @return 打卡记录列表
+     */
+    @GetMapping("/checkinLog/{mid}/{ruleId}")
+    public ApiResponse getMonthlyCheckInRecords(
+            @PathVariable Integer mid,
+            @PathVariable Integer ruleId,
+            @RequestParam String yearMonth) {
+        try {
+            List<Map<String, Object>> records = memberPointLogsService.getMonthlyCheckInRecords(mid, ruleId, yearMonth);
+            return ApiResponse.ok(records);
+        } catch (Exception e) {
+            logger.error("获取月度打卡记录失败", e);
+            return ApiResponse.error("获取月度打卡记录失败");
+        }
+    }
+
+    /**
+     * 获取指定时间段内的打卡记录
+     * @param mid 会员ID
+     * @param ruleId 规则ID
+     * @param startDay 开始日期(格式：yyyy-MM-dd)
+     * @param endDay 结束日期(格式：yyyy-MM-dd)
+     * @return 打卡记录列表
+     */
+    @GetMapping("/checkinLog/{mid}/{ruleId}/range")
+    public ApiResponse getPointLogsByDateRange(
+            @PathVariable Integer mid,
+            @PathVariable Integer ruleId,
+            @RequestParam String startDay,
+            @RequestParam String endDay) {
+        try {
+            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRange(mid, ruleId, startDay, endDay);
+            return ApiResponse.ok(records);
+        } catch (Exception e) {
+            logger.error("获取时间段内打卡记录失败", e);
+            return ApiResponse.error("获取时间段内打卡记录失败");
         }
     }
 }

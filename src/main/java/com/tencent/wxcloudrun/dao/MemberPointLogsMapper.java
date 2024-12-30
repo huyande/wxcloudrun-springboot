@@ -26,8 +26,26 @@ public interface MemberPointLogsMapper {
     Integer getAllCountLogsByDayMid(@Param("mid") Integer mid);
 
     void deleteByMid(@Param("mid") Integer mid);
+    void deleteByRuleId(@Param("ruleId") Integer ruleId);
 
     List<Map<String, Object>> getPointLogsByMid(@Param("mid")Integer mid, @Param("pageSize")Integer pageSize,@Param("offset") Integer offset);
 
     Integer getPointLogsByMidCount(@Param("mid")Integer mid);
+
+    List<Map<String, Object>> getWeeklyPointLogs(@Param("mid")Integer mid, @Param("startTime")LocalDateTime startTime, @Param("endTime")LocalDateTime endTime);
+
+    MemberPointLogs getYesterdayLog(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId);
+
+    MemberPointLogs getBeforeYesterdayLog(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId);
+
+    List<MemberPointLogs> getCheckInRecords(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId);
+
+    Integer getPointSumByMidAndRuleId(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId);
+
+    Integer getPointLogsCountByMidAndRuleId(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId);
+
+    List<MemberPointLogs> getMonthlyCheckInRecords(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId, @Param("yearMonth") String yearMonth);
+
+    List<MemberPointLogs> getPointLogsByDateRange(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId, 
+        @Param("startDay") LocalDateTime startDay, @Param("endDay") LocalDateTime endDay);
 }

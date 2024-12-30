@@ -30,4 +30,6 @@ public interface MemberRulesMapper {
     MemberRules getLastSortByTypeAndMid(@Param("mId") Integer mid, @Param("type")String type);
 
     void deleteByMid(@Param("mid") Integer mid);
+
+    void updateStreakById(@Param("id") Integer id, @Param("currentStreak") Integer currentStreak, @Param("longestStreak") Integer longestStreak);
 }

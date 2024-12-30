@@ -72,6 +72,10 @@
         DELETE FROM member_point_logs WHERE mid = #{mid}
     </delete>
 
+    <delete id="deleteByRuleId" parameterType="java.lang.Integer">
+        DELETE FROM member_point_logs WHERE ruleId = #{ruleId}
+    </delete>
+
     <select id="getPointLogsByMid" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT DATE_FORMAT(day, '%Y-%m-%d') as day, num, name, icon, iconType
         FROM (
@@ -127,6 +131,82 @@
              ) ranked_logs
         WHERE
             row_num <![CDATA[ <= ]]> 4
+    </select>
+
+    <select id="getWeeklyPointLogs" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            ruleId,
+            DATE_FORMAT(day, '%w') as weekday,
+            COUNT(*) as count
+        FROM 
+            member_point_logs
+        WHERE 
+            mid = #{mid}
+            AND type = 0
+            AND day BETWEEN #{startTime} AND #{endTime}
+        GROUP BY 
+            ruleId, DATE_FORMAT(day, '%w')
+    </select>
+
+    <select id="getYesterdayLog" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`,`mid`, `uid`, `ruleId`, `num`, `createdAt`,`updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId} 
+        AND DATE(day) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        AND type = 0
+        LIMIT 1
+    </select>
+
+    <select id="getBeforeYesterdayLog" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`,`mid`, `uid`, `ruleId`, `num`, `createdAt`,`updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId} 
+        AND DATE(createdAt) = DATE_SUB(CURDATE(), INTERVAL 2 DAY)
+        AND type = 0
+        LIMIT 1
+    </select>
+
+    <select id="getCheckInRecords" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`, `mid`, `uid`, `ruleId`, `num`, `createdAt`, `updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND type = 0
+        ORDER BY day DESC
+    </select>
+
+    <select id="getPointSumByMidAndRuleId" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT sum(num) as c
+        FROM member_point_logs
+        WHERE mid = #{mid} AND ruleId = #{ruleId} and type=0
+    </select>
+
+    <select id="getPointLogsCountByMidAndRuleId" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(1) as c
+        FROM member_point_logs
+        WHERE mid = #{mid} AND ruleId = #{ruleId} and type=0
+    </select>
+
+    <select id="getMonthlyCheckInRecords" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `day`,`num`
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND type = 0
+        AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        ORDER BY day DESC
+    </select>
+
+    <select id="getPointLogsByDateRange" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT `id`, `day`, `mid`, `uid`, `ruleId`, `num`, `createdAt`, `updatedAt`
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND type = 0
+        AND day BETWEEN #{startDay} AND #{endDay}
+        ORDER BY day ASC
     </select>
 
 </mapper>

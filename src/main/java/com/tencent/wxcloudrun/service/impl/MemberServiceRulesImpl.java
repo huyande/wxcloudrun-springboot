@@ -1,6 +1,7 @@
 package com.tencent.wxcloudrun.service.impl;
 
 import cn.hutool.core.date.DateTime;
+import com.tencent.wxcloudrun.dao.MemberPointLogsMapper;
 import com.tencent.wxcloudrun.dao.MemberRulesMapper;
 import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.MemberRules;
@@ -18,9 +19,11 @@ import cn.hutool.core.date.DateUtil;
 public class MemberServiceRulesImpl implements MemberRulesService {
 
     final MemberRulesMapper memberRulesMapper;
+    final MemberPointLogsMapper memberPointLogsMapper;
     //构造函数注入
-    public MemberServiceRulesImpl(@Autowired MemberRulesMapper memberRulesMapper) {
+    public MemberServiceRulesImpl(@Autowired MemberRulesMapper memberRulesMapper,@Autowired MemberPointLogsMapper memberPointLogsMapper) {
         this.memberRulesMapper = memberRulesMapper;
+        this.memberPointLogsMapper = memberPointLogsMapper;
     }
 
     @Override
@@ -65,6 +68,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
     @Override
     public void delete(Integer id) {
         memberRulesMapper.delete(id);
+        memberPointLogsMapper.delete(Long.valueOf(id));
     }
 
     @Override
