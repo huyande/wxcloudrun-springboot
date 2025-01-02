@@ -7,4 +7,5 @@ public class WxCheckConfig {
     private Integer id;
     private String version;
     private Integer status;
+    private String versionPopup;
 }

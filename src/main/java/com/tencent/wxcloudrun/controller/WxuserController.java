@@ -51,6 +51,7 @@ public class WxuserController {
       resMap.put("checkShow",0);
     }else{
       resMap.put("checkShow",wxCheckConfig.getStatus());
+      resMap.put("versionPopup",wxCheckConfig.getVersionPopup());
     }
     if(user.isPresent()){
       //判断user的更新时间是否是今天 user.get().getUpdatedAt()
