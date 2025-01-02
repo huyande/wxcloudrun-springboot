@@ -83,7 +83,11 @@ public class WxuserController {
     if(!user.isPresent()) {
       WxUser wxUser =  new WxUser();
       wxUser.setOpenid(openid);
-      wxUser.setFamilyCode(RandomUtil.randomNumbers(6));
+      String numbers = RandomUtil.randomNumbers(6);
+      while (wxuserService.getUserByFamilyCode(numbers).isPresent()) {
+        numbers = RandomUtil.randomNumbers(6);
+      }
+      wxUser.setFamilyCode(numbers);
       wxuserService.upsertUser(wxUser);
       return ApiResponse.ok(wxUser);
     }
