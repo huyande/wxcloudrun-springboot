@@ -28,4 +28,6 @@ public interface MemberPointLogsService {
     List<Map<String, Object>> getMonthlyCheckInRecords(Integer mid, Integer ruleId, String yearMonth);
 
     List<Map<String, Object>> getPointLogsByDateRange(Integer mid, Integer ruleId, String startDay, String endDay);
+
+    List<Map<String, Object>> getYearlyHeatmap(Integer mid, Integer ruleId, Integer year);
 }

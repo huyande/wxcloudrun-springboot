@@ -48,4 +48,6 @@ public interface MemberPointLogsMapper {
 
     List<MemberPointLogs> getPointLogsByDateRange(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId, 
         @Param("startDay") LocalDateTime startDay, @Param("endDay") LocalDateTime endDay);
+
+    List<Map<String, Object>> getYearlyHeatmap(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId, @Param("year") Integer year);
 }

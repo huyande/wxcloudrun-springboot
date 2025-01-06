@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 @Service
 public class MemberServicePointLogsImpl implements MemberPointLogsService {
@@ -202,6 +203,45 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 map.put("num", record.getNum());
                 result.add(map);
             }
+        }
+        
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getYearlyHeatmap(Integer mid, Integer ruleId, Integer year) {
+        // 获取打卡记录
+        List<Map<String, Object>> records = memberPointLogsMapper.getYearlyHeatmap(mid, ruleId, year);
+        
+        // 将打卡记录转换为Map，方便查找
+        Map<String, Integer> checkInMap = new HashMap<>();
+        for (Map<String, Object> record : records) {
+            checkInMap.put((String) record.get("check_date"), 1);
+        }
+        
+        // 生成完整的日期序列
+        List<Map<String, Object>> result = new ArrayList<>();
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = year == LocalDate.now().getYear() ? 
+            LocalDate.now() : LocalDate.of(year, 12, 31);
+        
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            String dateStr = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            Map<String, Object> item = new HashMap<>();
+            item.put("date", dateStr);
+            
+            // 如果有打卡记录，设置value为1，level为1；否则value和level都为0
+            if (checkInMap.containsKey(dateStr)) {
+                item.put("value", 1);
+                item.put("level", 3);
+            } else {
+                item.put("value", 0);
+                item.put("level", 0);
+            }
+            
+            result.add(item);
+            currentDate = currentDate.plusDays(1);
         }
         
         return result;

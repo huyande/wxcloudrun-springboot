@@ -209,4 +209,16 @@
         ORDER BY day ASC
     </select>
 
+    <select id="getYearlyHeatmap" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(day, '%Y-%m-%d') as check_date,
+            1 as value
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND type = 0
+        AND YEAR(day) = #{year}
+        ORDER BY day ASC
+    </select>
+
 </mapper>

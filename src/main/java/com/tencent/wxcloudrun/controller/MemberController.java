@@ -190,13 +190,13 @@ public class MemberController {
                         // 添加周打卡状态
                         boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);
                         Map<String, Boolean> weekStatusMap = new HashMap<>();
-                        weekStatusMap.put("monday", weekStatus[1]);    // 周一
-                        weekStatusMap.put("tuesday", weekStatus[2]);   // 周二
-                        weekStatusMap.put("wednesday", weekStatus[3]); // 周三
-                        weekStatusMap.put("thursday", weekStatus[4]);  // 周四
-                        weekStatusMap.put("friday", weekStatus[5]);    // 周五
-                        weekStatusMap.put("saturday", weekStatus[6]);  // 周六
-                        weekStatusMap.put("sunday", weekStatus[0]);    // 周日
+                        weekStatusMap.put("星期一", weekStatus[1]);    // 周一
+                        weekStatusMap.put("星期二", weekStatus[2]);   // 周二
+                        weekStatusMap.put("星期三", weekStatus[3]); // 周三
+                        weekStatusMap.put("星期四", weekStatus[4]);  // 周四
+                        weekStatusMap.put("星期五", weekStatus[5]);    // 周五
+                        weekStatusMap.put("星期六", weekStatus[6]);  // 周六
+                        weekStatusMap.put("星期日", weekStatus[0]);    // 周日
                         ruleMap.put("weekStatus", weekStatusMap);
                         
                         return ruleMap;
@@ -539,6 +539,31 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取时间段内打卡记录失败", e);
             return ApiResponse.error("获取时间段内打卡记录失败");
+        }
+    }
+
+    /**
+     * 获取规则的年度打卡热力图数据
+     * @param mid 会员ID
+     * @param ruleId 规则ID
+     * @param year 年份
+     * @return 热力图数据
+     */
+    @GetMapping("/heatmap/{mid}/{ruleId}")
+    public ApiResponse getYearlyHeatmap(
+            @PathVariable Integer mid,
+            @PathVariable Integer ruleId,
+            @RequestParam(required = false) Integer year) {
+        try {
+            // 如果未指定年份，使用当前年份
+            if (year == null) {
+                year = LocalDateTime.now().getYear();
+            }
+            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmap(mid, ruleId, year);
+            return ApiResponse.ok(yearlyHeatmap);
+        } catch (Exception e) {
+            logger.error("获取热力图数据失败", e);
+            return ApiResponse.error("获取热力图数据失败");
         }
     }
 }
