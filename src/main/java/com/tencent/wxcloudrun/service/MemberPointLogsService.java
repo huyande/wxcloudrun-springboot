@@ -30,4 +30,10 @@ public interface MemberPointLogsService {
     List<Map<String, Object>> getPointLogsByDateRange(Integer mid, Integer ruleId, String startDay, String endDay);
 
     List<Map<String, Object>> getYearlyHeatmap(Integer mid, Integer ruleId, Integer year);
+
+    Integer getCurrentDayPointSumByMid(Integer mid, String date);
+
+    List<Map<String, Object>> getPointlogCurrentDayDetail(Integer mid, String day);
+
+    List<Map<String, Object>> getPointLogsByDateRangeTotal(Integer mid, String startDay, String endDay);
 }

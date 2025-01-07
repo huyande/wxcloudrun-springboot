@@ -255,7 +255,27 @@ public class MemberController {
         }
     }
 
-    // 根据mid获取统计用户的积分
+    // 根据mid获取统计用户的积分当日的积分请求
+    @GetMapping("/pointCurrentDaySum/{mid}")
+    public ApiResponse getPointCurrentDaySumByMid(@PathVariable Integer mid, @RequestParam String day) {
+        try {
+            Member member = memberService.getMemberById(mid);
+            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
+            Integer pointCurrentSum = memberPointLogsService.getCurrentDayPointSumByMid(mid,day);
+            Integer wishSum =  wishLogService.getSumNumByMid(mid);
+            HashMap<String, Object> result = new HashMap<>();
+            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
+            result.put("pointSum", total+member.getPointTotal());//剩余积分
+            result.put("wishSum", wishSum);//消耗的积分
+            result.put("pointCurrentSum", pointCurrentSum);//当日积分
+            return ApiResponse.ok(result);
+        } catch (Exception e) {
+            logger.error("获取会员积分总和失败", e);
+            return ApiResponse.error("获取会员积分总和失败");
+        }
+    }
+
+
     @GetMapping("/pointsum/{mid}")
     public ApiResponse getPointSumByMid(@PathVariable Integer mid) {
         try {
@@ -499,7 +519,8 @@ public class MemberController {
     }
 
     /**
-     * 获取指定月份的打卡记录
+     * 获取指定月的打卡记录
+     * 特定规则的打卡记录
      * @param mid 会员ID
      * @param ruleId 规则ID
      * @param yearMonth 年月(格式：yyyy-MM)
@@ -543,6 +564,27 @@ public class MemberController {
     }
 
     /**
+     * 获取指定时间段内的打卡记录 按日统计当日所以的打卡规则的总和值
+     * @param mid 会员ID
+     * @param startDay 开始日期(格式：yyyy-MM-dd)
+     * @param endDay 结束日期(格式：yyyy-MM-dd)
+     * @return 打卡记录列表
+     */
+    @GetMapping("/checkinLog/{mid}/rangeTotal")
+    public ApiResponse getPointLogsByDateRangeTotal(
+            @PathVariable Integer mid,
+            @RequestParam String startDay,
+            @RequestParam String endDay) {
+        try {
+            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRangeTotal(mid, startDay, endDay);
+            return ApiResponse.ok(records);
+        } catch (Exception e) {
+            logger.error("获取时间段内打卡记录失败", e);
+            return ApiResponse.error("获取时间段内打卡记录失败");
+        }
+    }
+
+    /**
      * 获取规则的年度打卡热力图数据
      * @param mid 会员ID
      * @param ruleId 规则ID
@@ -564,6 +606,23 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取热力图数据失败", e);
             return ApiResponse.error("获取热力图数据失败");
+        }
+    }
+
+    /**
+     * 获取指定日期的积分详情
+     * @param mid 会员ID
+     * @param day 日期（格式：yyyy-MM-dd HH:mm:ss）
+     * @return 积分详情列表
+     */
+    @GetMapping("/pointlogCurrentDayDetail/{mid}")
+    public ApiResponse getPointlogCurrentDayDetail(@PathVariable Integer mid, @RequestParam String day) {
+        try {
+            List<Map<String, Object>> details = memberPointLogsService.getPointlogCurrentDayDetail(mid, day);
+            return ApiResponse.ok(details);
+        } catch (Exception e) {
+            logger.error("获取积分详情失败", e);
+            return ApiResponse.error("获取积分详情失败");
         }
     }
 }

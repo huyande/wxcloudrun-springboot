@@ -50,4 +50,10 @@ public interface MemberPointLogsMapper {
         @Param("startDay") LocalDateTime startDay, @Param("endDay") LocalDateTime endDay);
 
     List<Map<String, Object>> getYearlyHeatmap(@Param("mid") Integer mid, @Param("ruleId") Integer ruleId, @Param("year") Integer year);
+
+    Integer getCurrentDayPointSumByMid(@Param("mid") Integer mid, @Param("day") String day);
+
+    List<Map<String, Object>> getPointlogCurrentDayDetail(@Param("mid") Integer mid, @Param("day") String day);
+
+    List<MemberPointLogs> getPointLogsByDateRangeTotal(@Param("mid") Integer mid,@Param("startDay") LocalDateTime startDay, @Param("endDay") LocalDateTime endDay);
 }

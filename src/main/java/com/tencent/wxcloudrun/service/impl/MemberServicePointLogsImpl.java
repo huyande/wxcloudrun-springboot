@@ -247,4 +247,87 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         return result;
     }
 
+    @Override
+    public Integer getCurrentDayPointSumByMid(Integer mid, String date) {
+        return memberPointLogsMapper.getCurrentDayPointSumByMid(mid, date);
+    }
+
+    /**
+     * 生成鲜艳的HSL颜色并转换为十六进制
+     * @param index 颜色索引
+     * @return 十六进制颜色代码
+     */
+    private String generateVibrantColor(int index) {
+        // 使用黄金角度来分配色相，确保颜色分布均匀
+        double goldenAngle = 137.508; // 黄金角度
+        double hue = (index * goldenAngle) % 360;
+        // 固定使用高饱和度和亮度，使颜色鲜艳
+        double saturation = 0.8; // 80%饱和度
+        double lightness = 0.6;  // 60%亮度
+        
+        // 将HSL转换为RGB
+        double c = (1 - Math.abs(2 * lightness - 1)) * saturation;
+        double x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+        double m = lightness - c/2;
+        
+        double r, g, b;
+        if (hue < 60) {
+            r = c; g = x; b = 0;
+        } else if (hue < 120) {
+            r = x; g = c; b = 0;
+        } else if (hue < 180) {
+            r = 0; g = c; b = x;
+        } else if (hue < 240) {
+            r = 0; g = x; b = c;
+        } else if (hue < 300) {
+            r = x; g = 0; b = c;
+        } else {
+            r = c; g = 0; b = x;
+        }
+        
+        // 转换为0-255范围
+        int red = (int) Math.round((r + m) * 255);
+        int green = (int) Math.round((g + m) * 255);
+        int blue = (int) Math.round((b + m) * 255);
+        
+        // 转换为十六进制
+        return String.format("#%02X%02X%02X", red, green, blue);
+    }
+
+    @Override
+    public List<Map<String, Object>> getPointlogCurrentDayDetail(Integer mid, String day) {
+        List<Map<String, Object>> records = memberPointLogsMapper.getPointlogCurrentDayDetail(mid, day);
+        
+        int colorIndex = 0;
+        for (Map<String, Object> record : records) {
+            Map<String, String> itemStyle = new HashMap<>();
+            itemStyle.put("color", generateVibrantColor(colorIndex));
+            record.put("itemStyle", itemStyle);
+            colorIndex++;
+        }
+        
+        return records;
+    }
+
+    @Override
+    public List<Map<String, Object>> getPointLogsByDateRangeTotal(Integer mid, String startDay, String endDay) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startDateTime = LocalDateTime.parse(startDay + " 00:00:00", formatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(endDay + " 23:59:59", formatter);
+
+        List<MemberPointLogs> records = memberPointLogsMapper.getPointLogsByDateRangeTotal(mid, startDateTime, endDateTime);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        if (records != null) {
+            for (MemberPointLogs record : records) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("day", record.getDay().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                map.put("num", record.getNum());
+                result.add(map);
+            }
+        }
+
+        return result;
+    }
+
 }

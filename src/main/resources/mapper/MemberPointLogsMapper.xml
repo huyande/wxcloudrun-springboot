@@ -209,6 +209,16 @@
         ORDER BY day ASC
     </select>
 
+    <select id="getPointLogsByDateRangeTotal" resultMap="memberRulesMapper" parameterType="java.util.Map">
+        SELECT day, sum(num) as num
+        FROM member_point_logs
+        WHERE mid = #{mid}
+                  AND type = 0
+                  AND day BETWEEN #{startDay} AND #{endDay}
+        GROUP BY day
+        ORDER BY day ASC
+    </select>
+
     <select id="getYearlyHeatmap" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT 
             DATE_FORMAT(day, '%Y-%m-%d') as check_date,
@@ -219,6 +229,25 @@
         AND type = 0
         AND YEAR(day) = #{year}
         ORDER BY day ASC
+    </select>
+
+    <select id="getCurrentDayPointSumByMid" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT sum(num)
+        FROM member_point_logs
+        WHERE mid = #{mid} and type=0 and day = #{day}
+    </select>
+
+    <select id="getPointlogCurrentDayDetail" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            r.name as name,
+            SUM(l.num) as value
+        FROM member_point_logs l
+        JOIN member_rules r ON l.ruleId = r.id
+        WHERE l.mid = #{mid} 
+        AND l.type = 0
+        AND DATE(l.day) = DATE(#{day})
+        GROUP BY l.ruleId, r.name
+        ORDER BY value DESC
     </select>
 
 </mapper>
