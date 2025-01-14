@@ -610,6 +610,29 @@ public class MemberController {
     }
 
     /**
+     * 获取规则的年度打卡热力图数据
+     * @param mid 会员ID
+     * @param year 年份
+     * @return 热力图数据
+     */
+    @GetMapping("/heatmapAll/{mid}")
+    public ApiResponse getYearlyHeatmapALL(
+            @PathVariable Integer mid,
+            @RequestParam(required = false) Integer year) {
+        try {
+            // 如果未指定年份，使用当前年份
+            if (year == null) {
+                year = LocalDateTime.now().getYear();
+            }
+            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmapAll(mid, year);
+            return ApiResponse.ok(yearlyHeatmap);
+        } catch (Exception e) {
+            logger.error("获取热力图数据失败", e);
+            return ApiResponse.error("获取热力图数据失败");
+        }
+    }
+
+    /**
      * 获取指定日期的积分详情
      * @param mid 会员ID
      * @param day 日期（格式：yyyy-MM-dd HH:mm:ss）

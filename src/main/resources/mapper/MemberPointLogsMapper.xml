@@ -231,6 +231,18 @@
         ORDER BY day ASC
     </select>
 
+    <select id="getYearlyHeatmapALL" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT
+            DATE_FORMAT(day, '%Y-%m-%d') as check_date,
+            count(1) as value
+        FROM member_point_logs
+        WHERE mid = #{mid}
+        AND type = 0
+        AND YEAR(day) = #{year}
+        group by day
+        ORDER BY day ASC
+    </select>
+
     <select id="getCurrentDayPointSumByMid" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT sum(num)
         FROM member_point_logs

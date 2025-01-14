@@ -56,4 +56,6 @@ public interface MemberPointLogsMapper {
     List<Map<String, Object>> getPointlogCurrentDayDetail(@Param("mid") Integer mid, @Param("day") String day);
 
     List<MemberPointLogs> getPointLogsByDateRangeTotal(@Param("mid") Integer mid,@Param("startDay") LocalDateTime startDay, @Param("endDay") LocalDateTime endDay);
+
+    List<Map<String, Object>> getYearlyHeatmapALL(Integer mid, Integer year);
 }

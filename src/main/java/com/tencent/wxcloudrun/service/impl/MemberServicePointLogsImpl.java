@@ -248,6 +248,53 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     }
 
     @Override
+    public List<Map<String, Object>> getYearlyHeatmapAll(Integer mid, Integer year) {
+        // 获取打卡记录
+        List<Map<String, Object>> records = memberPointLogsMapper.getYearlyHeatmapALL(mid, year);
+
+        // 将打卡记录转换为Map，方便查找
+        Map<String, Long> checkInMap = new HashMap<>();
+        for (Map<String, Object> record : records) {
+            checkInMap.put((String) record.get("check_date"), (Long)record.get("value"));
+        }
+
+        // 生成完整的日期序列
+        List<Map<String, Object>> result = new ArrayList<>();
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = year == LocalDate.now().getYear() ?
+                LocalDate.now() : LocalDate.of(year, 12, 31);
+
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            String dateStr = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            Map<String, Object> item = new HashMap<>();
+            item.put("date", dateStr);
+
+            // 如果有打卡记录，设置value为1，level为1；否则value和level都为0
+            if (checkInMap.containsKey(dateStr)) {
+                item.put("value", checkInMap.get(dateStr));
+                if(checkInMap.get(dateStr)>0 && checkInMap.get(dateStr)<=10){
+                    item.put("level", 1);
+                }else if(checkInMap.get(dateStr)>10 && checkInMap.get(dateStr)<=20){
+                    item.put("level", 2);
+                }else{
+                    item.put("level", 3);
+                }
+            } else {
+                item.put("value", 0);
+                item.put("level", 0);
+            }
+
+            result.add(item);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return result;
+    }
+
+
+
+    @Override
     public Integer getCurrentDayPointSumByMid(Integer mid, String date) {
         return memberPointLogsMapper.getCurrentDayPointSumByMid(mid, date);
     }
