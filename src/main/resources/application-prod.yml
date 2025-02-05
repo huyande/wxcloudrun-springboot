@@ -1,9 +1,17 @@
 spring:
+  profiles:
+    active: dev
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
-    username: ${MYSQL_USERNAME}
-    password: ${MySQL_PASSWORD}
+    primary:
+      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
+      username: ${MYSQL_USERNAME}
+      password: ${MYSQL_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    secondary:
+      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE_SECONDARY:drug_record}
+      username: ${MYSQL_USERNAME}
+      password: ${MYSQL_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
   mvc:
     view:
       suffix: .html

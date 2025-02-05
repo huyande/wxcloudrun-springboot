@@ -334,7 +334,6 @@ public class MemberController {
     /**
      * 更新规则的排序值
      * @param id 规则ID
-     * @param sort 新的排序值
      * @return
      */
     @PutMapping("/rule/updateSort/{id}")

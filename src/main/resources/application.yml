@@ -5,3 +5,17 @@ server:
 spring:
   profiles:
     active: dev
+  datasource:
+    primary:
+      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
+      username: ${MYSQL_USERNAME}
+      password: ${MYSQL_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    secondary:
+      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE_SECONDARY:new_business}
+      username: ${MYSQL_USERNAME}
+      password: ${MYSQL_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath*:mapper/*Mapper.xml

@@ -47,7 +47,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 return null;
             }
             //更新
-            memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid());
+            memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark());
             return log;
         }else{
             MemberPointLogs memberPointLogs = new MemberPointLogs();
@@ -60,6 +60,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             memberPointLogs.setRuleId(memberPointLogsRequest.getRuleId());
             memberPointLogs.setNum(memberPointLogsRequest.getNum());
             memberPointLogs.setType(memberPointLogsRequest.getType());
+            memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
             memberPointLogsMapper.insertOne(memberPointLogs);
 
             return memberPointLogs;
@@ -180,6 +181,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("day", record.getDay().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));  // 只返回日期中的天数
                 map.put("num", record.getNum());
+                map.put("remark",record.getRemark());
                 result.add(map);
             }
         }

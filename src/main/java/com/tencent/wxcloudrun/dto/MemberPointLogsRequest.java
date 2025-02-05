@@ -12,4 +12,5 @@ public class MemberPointLogsRequest {
     private Integer uid;//创建人的id
     private Integer ruleId;//规则id
     private Integer type;//类型 0 规则 1 游戏
+    private String remark;
 }

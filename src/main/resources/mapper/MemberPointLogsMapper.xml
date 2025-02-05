@@ -15,7 +15,7 @@
     </resultMap>
 
     <select id="getLogsByMidAndDate" resultMap="memberRulesMapper" parameterType="java.util.Map">
-        SELECT `id`, `day`,`mid`, `uid`, `ruleId`, `num`, `createdAt`,`updatedAt`
+        SELECT `id`, `day`,`mid`, `uid`, `ruleId`, `num`,`remark`, `createdAt`,`updatedAt`
         FROM member_point_logs
         WHERE mid = #{mid} AND day BETWEEN #{startTime} AND #{endTime} and type=0
     </select>
@@ -39,13 +39,16 @@
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberPointLogs">
-            INSERT INTO `member_point_logs`(`day`,`mid`,`uid`,`ruleId`,`num`, `type`) VALUE(#{day},#{mid}, #{uid},  #{ruleId}, #{num}, #{type})
+            INSERT INTO `member_point_logs`(`day`,`mid`,`uid`,`ruleId`,`num`, `type`,`remark`) VALUE(#{day},#{mid}, #{uid},  #{ruleId}, #{num}, #{type},#{remark})
     </insert>
 
 
     <update id="updateById" parameterType="java.util.Map">
         UPDATE `member_point_logs`
         SET  `uid`=#{uid}, `num`=#{num}
+        <if test="remark != null and remark != ''">
+            ,`remark` = #{remark}
+        </if>
         WHERE `id`=#{id}
     </update>
 
@@ -190,7 +193,7 @@
     </select>
 
     <select id="getMonthlyCheckInRecords" resultMap="memberRulesMapper" parameterType="java.util.Map">
-        SELECT `day`,`num`
+        SELECT `day`,`num`,`remark`
         FROM member_point_logs
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}

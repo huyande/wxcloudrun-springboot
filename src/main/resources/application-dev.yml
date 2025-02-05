@@ -1,9 +1,18 @@
+server:
+  port: 80
+
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
-    username: root
-    password: Q8ymN2X4
+    primary:
+      jdbc-url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+      username: root
+      password: Q8ymN2X4
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    secondary:
+      jdbc-url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/drug_record?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+      username: root
+      password: Q8ymN2X4
+      driver-class-name: com.mysql.cj.jdbc.Driver
   mvc:
     view:
       suffix: .html
@@ -11,3 +20,5 @@ spring:
 
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
