@@ -1,7 +1,5 @@
 package com.tencent.wxcloudrun.service.impl.drugRecord;
 
-import com.tencent.wxcloudrun.config.DataSourceKey;
-import com.tencent.wxcloudrun.config.TargetDataSource;
 import com.tencent.wxcloudrun.dao.drugRecord.TagsMapper;
 import com.tencent.wxcloudrun.model.drugRecord.Tags;
 import com.tencent.wxcloudrun.service.drugRecord.TagsService;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@TargetDataSource(DataSourceKey.SECONDARY)
 public class TagsServiceImpl implements TagsService {
     
     @Autowired

@@ -1,7 +1,5 @@
 package com.tencent.wxcloudrun.service.impl.drugRecord;
 
-import com.tencent.wxcloudrun.config.DataSourceKey;
-import com.tencent.wxcloudrun.config.TargetDataSource;
 import com.tencent.wxcloudrun.dao.drugRecord.WxUsersMapper;
 import com.tencent.wxcloudrun.model.WxCheckConfig;
 import com.tencent.wxcloudrun.model.drugRecord.WxUsers;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@TargetDataSource(DataSourceKey.SECONDARY)
 public class WxUsersServiceImpl implements WxUsersService {
     
     @Autowired

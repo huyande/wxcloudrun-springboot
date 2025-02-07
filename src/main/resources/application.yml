@@ -1,21 +1,20 @@
 server:
   port: 80
 
-
 spring:
   profiles:
     active: dev
   datasource:
-    primary:
-      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
-      username: ${MYSQL_USERNAME}
-      password: ${MYSQL_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-    secondary:
-      jdbc-url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE_SECONDARY:new_business}
-      username: ${MYSQL_USERNAME}
-      password: ${MYSQL_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE:drug_record}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
 mybatis:
   mapper-locations: classpath*:mapper/*Mapper.xml

@@ -1,7 +1,5 @@
 package com.tencent.wxcloudrun.service.impl.drugRecord;
 
-import com.tencent.wxcloudrun.config.DataSourceKey;
-import com.tencent.wxcloudrun.config.TargetDataSource;
 import com.tencent.wxcloudrun.dao.drugRecord.DrugsMapper;
 import com.tencent.wxcloudrun.dto.PageResponse;
 import com.tencent.wxcloudrun.model.drugRecord.Drugs;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@TargetDataSource(DataSourceKey.SECONDARY)
 public class DrugsServiceImpl implements DrugsService {
     
     @Autowired
@@ -62,6 +59,4 @@ public class DrugsServiceImpl implements DrugsService {
     public Drugs findByCodeAndOpenid(String code, String openid) {
         return drugsMapper.findByCodeAndOpenid(code,openid);
     }
-
-
 } 

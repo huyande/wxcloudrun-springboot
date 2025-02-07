@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class Drugs {
     private Integer id;
     private String openid;
-    private String manuName;
+    private String manuName;//厂家名称
     private String img;
     private String code;
     private String spec;
