@@ -17,6 +17,7 @@ public class MemberRules implements Serializable {
     private String content;//规则描述
     private Integer sort;//排序
     private Integer status;//状态 0禁用 1启用
+    private Integer quickScore;//设置快捷固定的积分
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

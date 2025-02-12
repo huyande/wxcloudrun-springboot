@@ -186,6 +186,7 @@ public class MemberController {
                         ruleMap.put("stars", 0);
                         ruleMap.put("status", 0);
                         ruleMap.put("row_status", rule.getStatus());
+                        ruleMap.put("quickScore",rule.getQuickScore());
                         
                         // 添加周打卡状态
                         boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);

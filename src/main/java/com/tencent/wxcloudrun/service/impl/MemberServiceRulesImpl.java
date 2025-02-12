@@ -51,6 +51,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setWeeks(memberRuleRequest.getWeeks());
         memberRules.setContent(memberRuleRequest.getContent());
         memberRules.setSort(memberRuleRequest.getSort());
+        memberRules.setQuickScore(memberRuleRequest.getQuickScore());
         memberRulesMapper.insertOne(memberRules);
         return memberRules;
     }
@@ -82,6 +83,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setWeeks(memberRuleRequest.getWeeks());
         memberRules.setContent(memberRuleRequest.getContent());
         memberRules.setSort(memberRuleRequest.getSort());
+        memberRules.setQuickScore(memberRuleRequest.getQuickScore());
         memberRules.setStatus(1);
         memberRulesMapper.updateRuleById(memberRules);
     }
