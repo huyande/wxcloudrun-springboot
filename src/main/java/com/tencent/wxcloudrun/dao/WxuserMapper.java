@@ -5,6 +5,7 @@ import com.tencent.wxcloudrun.model.WxUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -26,4 +27,6 @@ public interface WxuserMapper {
                          @Param("animationEnabled") Integer animationEnabled);
 
   void updateAtUserById(@Param("id")Integer id);
+
+  void updateVipExpiredAt(@Param("id") Integer id, @Param("vipExpiredAt") LocalDateTime vipExpiredAt);
 }

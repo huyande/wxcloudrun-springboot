@@ -17,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import cn.hutool.core.util.RandomUtil;
@@ -68,6 +70,16 @@ public class WxuserController {
       //如果有user 则判断是否有member
 //      Integer memberCount = memberService.getMemberCountByUid(user.get().getId());
       List<Member> members = memberService.getMembersByUid(user.get().getId());
+      if(user.get().getVipExpiredAt()!=null){
+        //判断是否过期
+        if(user.get().getVipExpiredAt().isBefore(LocalDateTime.now())){
+          user.get().setIsVip(false);
+        }else{
+          user.get().setIsVip(true);
+        }
+      }else{
+        user.get().setIsVip(false);
+      }
       resMap.put("user",user);
       resMap.put("members",members);
       return ApiResponse.ok(resMap);
@@ -107,6 +119,32 @@ public class WxuserController {
     return ApiResponse.ok(users);
   }
 
+  @PutMapping("/updateVipExpiredAt/{id}")
+  public ApiResponse updateVipExpiredAt(@PathVariable Integer id) {
+    int days = wxuserService.updateVipExpiredAt(id);
+    WxUser user = wxuserService.getUserById(id);
+    Map<String,Object> res = new HashMap<>();
+    user.setIsVip(true);
+    res.put("user",user);
+    res.put("days",days);
+    return ApiResponse.ok(res);
+  }
+
+  @GetMapping("/vipSignIn/{id}")
+  public ApiResponse vipSignIn(@PathVariable Integer id) {
+     WxUser user = wxuserService.getUserById(id);
+     if(user.getVipSignInAt()!=null){ 
+        //判断是否是今天
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String signInDate = user.getVipSignInAt().toLocalDate().format(formatter);
+        String today = LocalDate.now().format(formatter);
+        if(signInDate.equals(today)){
+            return ApiResponse.error("今天已经签到过啦，明天再来哦！");
+        }
+     }
+     return ApiResponse.ok();
+  }
+
   /**
    * 判断是否已经绑定过
    * @param code
@@ -132,7 +170,7 @@ public class WxuserController {
 
   /**
    * 绑定
-   * @param code
+   * @param
    * @param openid
    * @return
    */

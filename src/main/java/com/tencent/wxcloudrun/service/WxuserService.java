@@ -39,4 +39,6 @@ public interface WxuserService {
   void updateUserSettings(Integer id, Integer soundEnabled, Integer animationEnabled);
 
   void updateAtUserById(Integer id);
+
+  int updateVipExpiredAt(Integer id);
 }

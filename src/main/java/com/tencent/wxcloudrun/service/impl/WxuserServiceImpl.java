@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.time.LocalDateTime;
 
 @Service
 public class WxuserServiceImpl implements WxuserService {
@@ -91,5 +93,38 @@ public class WxuserServiceImpl implements WxuserService {
     @Override
     public void updateAtUserById(Integer id) {
         wxuserMapper.updateAtUserById(id);
+    }
+
+    @Override
+    public int updateVipExpiredAt(Integer id) {
+        // 获取用户信息
+        WxUser user = wxuserMapper.getUserById(id);
+        if (user == null) {
+            return 0;
+        } 
+
+        // 随机生成1-3天的会员时长
+        Random random = new Random();
+        int days = random.nextInt(3) + 1;
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiredAt = user.getVipExpiredAt();
+
+        // 计算新的过期时间
+        LocalDateTime newExpiredAt;
+        if (expiredAt == null) {
+            // 如果之前没有过期时间，从当前时间开始计算
+            newExpiredAt = now.plusDays(days);
+        } else if (expiredAt.isBefore(now)) {
+            // 如果已经过期，从当前时间开始计算
+            newExpiredAt = now.plusDays(days);
+        } else {
+            // 如果未过期，在原过期时间基础上增加天数
+            newExpiredAt = expiredAt.plusDays(days);
+        }
+
+        // 更新过期时间
+        wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
+        return days;
     }
 }

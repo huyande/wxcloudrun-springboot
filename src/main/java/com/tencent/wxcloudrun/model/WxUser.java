@@ -2,6 +2,7 @@ package com.tencent.wxcloudrun.model;
 
 import lombok.Data;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,14 @@ public class WxUser implements Serializable {
   private Integer soundEnabled;
   private Integer animationEnabled;
 
+  private LocalDateTime vipExpiredAt;//vip过期时间
+
+  //不映射数据库字段
+  private transient Boolean isVip;
+
+  //vip签到时间
+  private LocalDateTime vipSignInAt;
+  
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
