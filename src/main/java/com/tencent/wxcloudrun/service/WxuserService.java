@@ -40,5 +40,5 @@ public interface WxuserService {
 
   void updateAtUserById(Integer id);
 
-  int updateVipExpiredAt(Integer id);
+  double updateVipExpiredAt(Integer id);
 }

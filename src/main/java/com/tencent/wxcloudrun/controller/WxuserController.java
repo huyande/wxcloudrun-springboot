@@ -121,7 +121,7 @@ public class WxuserController {
 
   @PutMapping("/updateVipExpiredAt/{id}")
   public ApiResponse updateVipExpiredAt(@PathVariable Integer id) {
-    int days = wxuserService.updateVipExpiredAt(id);
+    double days = wxuserService.updateVipExpiredAt(id);
     WxUser user = wxuserService.getUserById(id);
     Map<String,Object> res = new HashMap<>();
     user.setIsVip(true);

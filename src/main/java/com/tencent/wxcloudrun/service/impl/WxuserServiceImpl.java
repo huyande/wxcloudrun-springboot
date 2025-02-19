@@ -96,35 +96,44 @@ public class WxuserServiceImpl implements WxuserService {
     }
 
     @Override
-    public int updateVipExpiredAt(Integer id) {
-        // 获取用户信息
+    public double updateVipExpiredAt(Integer id) {
         WxUser user = wxuserMapper.getUserById(id);
         if (user == null) {
             return 0;
-        } 
+        }
 
-        // 随机生成1-3天的会员时长
+        // 获取配置参数
+        double minDays = 0; // 最小天数,默认0
+        double maxDays = 3; // 最大天数,默认3
+        double highProbStart = 2; // 高概率区间起始值,默认2
+        double highProbWeight = 0.3; // 高概率权重,默认0.7
+
+        // 生成随机天数
         Random random = new Random();
-        int days = random.nextInt(3) + 1;
+        double randomNum = random.nextDouble();
+        double days;
+        if (randomNum < highProbWeight) {
+            // 30%的概率生成2-3天
+            days = highProbStart + (maxDays - highProbStart) * randomNum;
+        } else {
+            // 70%的概率生成0-2天
+            days = minDays + (highProbStart - minDays) * randomNum;
+        }
+        // 保留1位小数
+        days = Math.round(days * 10.0) / 10.0;
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = user.getVipExpiredAt();
 
         // 计算新的过期时间
         LocalDateTime newExpiredAt;
-        if (expiredAt == null) {
-            // 如果之前没有过期时间，从当前时间开始计算
-            newExpiredAt = now.plusDays(days);
-        } else if (expiredAt.isBefore(now)) {
-            // 如果已经过期，从当前时间开始计算
-            newExpiredAt = now.plusDays(days);
+        if (expiredAt == null || expiredAt.isBefore(now)) {
+            newExpiredAt = now.plusSeconds((long)(days * 24 * 60 * 60));
         } else {
-            // 如果未过期，在原过期时间基础上增加天数
-            newExpiredAt = expiredAt.plusDays(days);
+            newExpiredAt = expiredAt.plusSeconds((long)(days * 24 * 60 * 60));
         }
 
-        // 更新过期时间
         wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
-        return days;
+        return days; // 向上取整返回天数
     }
 }
