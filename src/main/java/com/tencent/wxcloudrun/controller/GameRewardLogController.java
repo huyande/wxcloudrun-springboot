@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/game-reward-log")
@@ -21,6 +22,12 @@ public class GameRewardLogController {
     @PostMapping
     public ApiResponse createGameRewardLog(@RequestBody GameRewardLog gameRewardLog) {
         gameRewardLogService.createGameRewardLog(gameRewardLog);
+        return ApiResponse.ok();
+    }
+
+    @PutMapping("updateStatus/{id}")
+    public ApiResponse updateStatus(@PathVariable Integer id){
+        gameRewardLogService.updateStatus(id);
         return ApiResponse.ok();
     }
 
@@ -56,5 +63,16 @@ public class GameRewardLogController {
             @PathVariable String rewardType) {
         List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMidAndRewardType(mid, rewardType);
         return ApiResponse.ok(logs);
+    }
+
+    @GetMapping("/member/{mid}/group/{gameGroup}/page")
+    public ApiResponse getGameRewardLogsByMidAndGameGroupWithPage(
+            @PathVariable Integer mid,
+            @PathVariable Integer gameGroup,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        Map<String, Object> result = gameRewardLogService.getGameRewardLogsByMidAndGameGroupWithPage(
+                mid, gameGroup, pageNum, pageSize);
+        return ApiResponse.ok(result);
     }
 } 

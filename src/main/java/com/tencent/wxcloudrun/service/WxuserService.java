@@ -41,4 +41,6 @@ public interface WxuserService {
   void updateAtUserById(Integer id);
 
   double updateVipExpiredAt(Integer id);
+
+  void updateFamilyIsRead(String code, Integer uid, Integer isRead);
 }

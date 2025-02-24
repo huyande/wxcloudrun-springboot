@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface GameRewardLogMapper {
@@ -25,4 +26,11 @@ public interface GameRewardLogMapper {
     
     // 根据成员ID和奖励类型查询
     List<GameRewardLog> getByMidAndRewardType(@Param("mid") Integer mid, @Param("rewardType") String rewardType);
-} 
+
+    // 更新状态
+    void updateStatus(@Param("id") Integer id);
+
+    int getByMidAndGameGroupCount(@Param("mid") Integer mid, @Param("gameGroup")Integer gameGroup);
+
+    List<GameRewardLog> getByMidAndGameGroupWithPage(Map<String, Object> params);
+}

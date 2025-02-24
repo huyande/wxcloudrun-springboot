@@ -17,4 +17,6 @@ public class Member implements Serializable {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private transient Integer isRead;
 }

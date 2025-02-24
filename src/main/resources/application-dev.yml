@@ -3,13 +3,7 @@ server:
 
 spring:
   datasource:
-    primary:
-      jdbc-url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
-      username: root
-      password: Q8ymN2X4
-      driver-class-name: com.mysql.cj.jdbc.Driver
-    secondary:
-      jdbc-url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/drug_record?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+      url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
       username: root
       password: Q8ymN2X4
       driver-class-name: com.mysql.cj.jdbc.Driver

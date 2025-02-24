@@ -27,6 +27,8 @@ public class WxUser implements Serializable {
   //不映射数据库字段
   private transient Boolean isVip;
 
+  private transient Integer isRead;
+
   //vip签到时间
   private LocalDateTime vipSignInAt;
   

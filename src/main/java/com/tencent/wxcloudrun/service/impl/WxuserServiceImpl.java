@@ -136,4 +136,9 @@ public class WxuserServiceImpl implements WxuserService {
         wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
         return days; // 向上取整返回天数
     }
+
+    @Override
+    public void updateFamilyIsRead(String code, Integer uid, Integer isRead) {
+        familyMapper.updateIsReadByCodeAndUid(code,uid,isRead);
+    }
 }

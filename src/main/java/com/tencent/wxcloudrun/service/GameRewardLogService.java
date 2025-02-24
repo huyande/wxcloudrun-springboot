@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.service;
 import com.tencent.wxcloudrun.model.GameRewardLog;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GameRewardLogService {
     // 创建游戏中奖记录
@@ -22,4 +23,14 @@ public interface GameRewardLogService {
     
     // 根据成员ID和奖励类型获取记录列表
     List<GameRewardLog> getGameRewardLogsByMidAndRewardType(Integer mid, String rewardType);
+
+    void updateStatus(Integer id);
+
+    // 增加分页参数的接口
+    Map<String, Object> getGameRewardLogsByMidAndGameGroupWithPage(
+            Integer mid, 
+            Integer gameGroup, 
+            Integer pageNum, 
+            Integer pageSize
+    );
 } 

@@ -210,4 +210,18 @@ public class WxuserController {
     }
   }
 
+  @PutMapping("/family/isRead")
+  public ApiResponse updateFamilyIsRead(@RequestBody FamilyRequest familyRequest) {
+    try {
+        Family family = wxuserService.getFamilyByCodeAndUid(familyRequest.getCode(), familyRequest.getUid());
+        if (family == null) {
+            return ApiResponse.error("未找到对应的家庭关系");
+        }
+        wxuserService.updateFamilyIsRead(familyRequest.getCode(), familyRequest.getUid(), familyRequest.getIsRead());
+        return ApiResponse.ok();
+    } catch (Exception e) {
+        return ApiResponse.error("更新失败");
+    }
+  }
+
 }

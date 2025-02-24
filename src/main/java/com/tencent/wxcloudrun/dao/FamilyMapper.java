@@ -18,4 +18,6 @@ public interface FamilyMapper {
     void insertOne(Family family);
 
     void deleteByCodeAndUid(@Param("code") String code, @Param("uid") Integer uid);
+
+    void updateIsReadByCodeAndUid(@Param("code") String code, @Param("uid") Integer uid, @Param("isRead") Integer isRead);
 }

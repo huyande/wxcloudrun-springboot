@@ -6,16 +6,17 @@
         <id property="id" column="id"/>
         <result property="uid" column="uid"/>
         <result property="code" column="code"/>
+        <result property="isRead" column="isRead"/>
     </resultMap>
 
     <select id="getUidsByCode" resultMap="familyMapper" parameterType="java.lang.String">
-        SELECT `id`, `uid`, `code`
+        SELECT `id`, `uid`, `code`,`isRead`
         FROM family
         WHERE code = #{code}
     </select>
 
     <select id="getOneByCodeAndUid" resultMap="familyMapper" parameterType="java.util.Map">
-        SELECT `id`, `uid`, `code`
+        SELECT `id`, `uid`, `code`,`isRead`
         FROM family
         WHERE code = #{code} and uid = #{uid}
     </select>
@@ -41,6 +42,12 @@
         UPDATE wx_users
         SET role = #{role}
         WHERE id = #{id}
+    </update>
+
+    <update id="updateIsReadByCodeAndUid" parameterType="java.util.Map">
+        UPDATE family
+        SET isRead = #{isRead}
+        WHERE code = #{code} and uid = #{uid}
     </update>
 
 </mapper>

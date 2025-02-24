@@ -26,10 +26,10 @@
         WHERE familyCode = #{familyCode}
     </select>
 
-    <select id="getMembersByUid" resultMap="memberMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
-        FROM members
-        WHERE familyCode in (select code from family where uid = #{uId})
+    <select id="getMembersByUid" resultType="com.tencent.wxcloudrun.model.Member" parameterType="java.lang.Integer">
+        SELECT t1.`id`, `name`, `gender`, `pointTotal`,`dakaDays`,t1.`uid`,`familyCode`,`createdAt`,`updatedAt`,`isRead`
+        FROM members as t1,family as t2
+        where t1.familyCode = t2.code and t2.uid = #{uId}
     </select>
 
     <select id="getCountMembersByUid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
