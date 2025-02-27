@@ -19,4 +19,6 @@ public class Member implements Serializable {
     private LocalDateTime updatedAt;
 
     private transient Integer isRead;
+    private transient Integer bindMid;
+    private transient Integer currentUid;//成员自己的uid
 }

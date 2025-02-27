@@ -9,4 +9,5 @@ public class FamilyRequest {
     private Integer role;
     private Integer uid;
     private Integer isRead;
+    private Integer bindMid;
 }

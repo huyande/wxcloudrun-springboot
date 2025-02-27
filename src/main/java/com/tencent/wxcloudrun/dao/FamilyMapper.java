@@ -20,4 +20,6 @@ public interface FamilyMapper {
     void deleteByCodeAndUid(@Param("code") String code, @Param("uid") Integer uid);
 
     void updateIsReadByCodeAndUid(@Param("code") String code, @Param("uid") Integer uid, @Param("isRead") Integer isRead);
+
+    Family findByCodeAndBindMid(@Param("code") String code, @Param("bindMid") Integer bindMid);
 }

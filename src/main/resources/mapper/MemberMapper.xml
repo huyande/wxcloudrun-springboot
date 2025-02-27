@@ -27,7 +27,7 @@
     </select>
 
     <select id="getMembersByUid" resultType="com.tencent.wxcloudrun.model.Member" parameterType="java.lang.Integer">
-        SELECT t1.`id`, `name`, `gender`, `pointTotal`,`dakaDays`,t1.`uid`,`familyCode`,`createdAt`,`updatedAt`,`isRead`
+        SELECT t1.`id`, `name`, `gender`, `pointTotal`,`dakaDays`,t1.`uid`,`familyCode`,`createdAt`,`updatedAt`,`isRead`,`bindMid`, t2.`uid` as currentUid
         FROM members as t1,family as t2
         where t1.familyCode = t2.code and t2.uid = #{uId}
     </select>

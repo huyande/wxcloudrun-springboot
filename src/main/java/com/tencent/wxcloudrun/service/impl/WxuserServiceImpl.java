@@ -59,6 +59,9 @@ public class WxuserServiceImpl implements WxuserService {
             Family family = new Family();
             family.setCode(familyRequest.getCode());
             family.setUid(familyRequest.getUid());
+            if(familyRequest.getBindMid()!=null){
+                family.setBindMid(familyRequest.getBindMid());
+            }
             familyMapper.insertOne(family);
             wxuserMapper.updateRoleUserById(familyRequest.getUid(),familyRequest.getRole());
         }
@@ -140,5 +143,17 @@ public class WxuserServiceImpl implements WxuserService {
     @Override
     public void updateFamilyIsRead(String code, Integer uid, Integer isRead) {
         familyMapper.updateIsReadByCodeAndUid(code,uid,isRead);
+    }
+
+    @Override
+    public boolean hasBindMid(FamilyRequest familyRequest) {
+        if(familyRequest.getRole()!=7 || familyRequest.getBindMid()==null){
+            return false;//不需进行绑定的角色 不是自己的角色
+        }
+        Family family = familyMapper.findByCodeAndBindMid(familyRequest.getCode(),familyRequest.getBindMid());
+        if(family!=null){
+            return true;
+        }
+        return false;
     }
 }

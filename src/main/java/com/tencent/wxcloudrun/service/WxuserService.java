@@ -43,4 +43,6 @@ public interface WxuserService {
   double updateVipExpiredAt(Integer id);
 
   void updateFamilyIsRead(String code, Integer uid, Integer isRead);
+
+  boolean hasBindMid(FamilyRequest familyRequest);
 }

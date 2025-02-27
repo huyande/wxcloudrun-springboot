@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -311,7 +312,21 @@ public class MemberController {
     @GetMapping("/memberlist/{uid}")
     public ApiResponse getMemberListByUid(@PathVariable Integer uid) {
         try {
+            WxUser wxUser = wxuserService.getUserById(uid);
             List<Member> members = memberService.getMembersByUid(uid);
+            if(wxUser.getRole()!=null && wxUser.getRole()==7){//表示角色时 孩子自己
+                List<Member> filteredMembers = new ArrayList<>();
+                for(Member member : members) {
+                    if(member.getCurrentUid() != null &&
+                            member.getCurrentUid().equals(wxUser.getId()) &&
+                            member.getId().equals(member.getBindMid())) {
+                        filteredMembers.add(member);
+                    }
+                }
+                if(filteredMembers.size()!=0){
+                    members = filteredMembers;
+                }
+            }
             return ApiResponse.ok(members);
         } catch (Exception e) {
             logger.error("获取会员列表失败", e);

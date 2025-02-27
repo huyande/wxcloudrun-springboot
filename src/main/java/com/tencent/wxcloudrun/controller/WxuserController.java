@@ -67,9 +67,23 @@ public class WxuserController {
         // The user's update time is today
         wxuserService.updateAtUserById(user.get().getId());
       }
+      List<Member>  members = memberService.getMembersByUid(user.get().getId());;
+      if(user.get().getRole()!=null && user.get().getRole()==7){//表示角色时 孩子自己 
+        List<Member> filteredMembers = new ArrayList<>();
+        for(Member member : members) {
+          if(member.getCurrentUid() != null &&
+            member.getCurrentUid().equals(user.get().getId()) &&
+            member.getId().equals(member.getBindMid())) {
+            filteredMembers.add(member);
+          }
+        }
+        if(filteredMembers.size()!=0){
+          members = filteredMembers;
+        }
+      }
       //如果有user 则判断是否有member
 //      Integer memberCount = memberService.getMemberCountByUid(user.get().getId());
-      List<Member> members = memberService.getMembersByUid(user.get().getId());
+      
       if(user.get().getVipExpiredAt()!=null){
         //判断是否过期
         if(user.get().getVipExpiredAt().isBefore(LocalDateTime.now())){
@@ -180,6 +194,11 @@ public class WxuserController {
     Optional<WxUser> user = wxuserService.getUser(openid);
     if (!user.isPresent()) {
       return ApiResponse.error("openid null");
+    }
+
+    boolean has = wxuserService.hasBindMid(familyRequest);
+    if(has){
+      return ApiResponse.error("此成员已经被绑定过，不能使用自己身份进行绑定，请选用其他角色");
     }
 
     wxuserService.setFailyRela(familyRequest);

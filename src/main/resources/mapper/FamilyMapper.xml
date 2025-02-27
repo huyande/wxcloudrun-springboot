@@ -7,12 +7,19 @@
         <result property="uid" column="uid"/>
         <result property="code" column="code"/>
         <result property="isRead" column="isRead"/>
+        <result property="bindMid" column="bindMid"/>
     </resultMap>
 
     <select id="getUidsByCode" resultMap="familyMapper" parameterType="java.lang.String">
         SELECT `id`, `uid`, `code`,`isRead`
         FROM family
         WHERE code = #{code}
+    </select>
+
+    <select id="findByCodeAndBindMid" resultMap="familyMapper" parameterType="java.util.Map">
+        SELECT `id`, `uid`, `code`,`isRead`,`bindMid`
+        FROM family
+        WHERE code=#{code} and bindMid=#{bindMid}
     </select>
 
     <select id="getOneByCodeAndUid" resultMap="familyMapper" parameterType="java.util.Map">
@@ -34,7 +41,19 @@
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.Family">
-        INSERT INTO `family`(`code`,`uid`) VALUE(#{code}, #{uid})
+        INSERT INTO `family`(
+            `code`,
+            `uid`
+            <if test="bindMid != null">
+                ,`bindMid`
+            </if>
+        ) VALUE(
+            #{code}, 
+            #{uid}
+            <if test="bindMid != null">
+                ,#{bindMid}
+            </if>
+        )
     </insert>
 
 
