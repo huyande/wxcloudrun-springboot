@@ -98,6 +98,21 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         for(MemberRuleRequest memberRuleRequest : memberRuleRequests){
             List<MemberRules> rules = memberRulesMapper.getRuleByNameAndMids(memberRuleRequest.getName(), memberRuleRequest.getMid());
             if(rules.isEmpty()){
+                if(memberRuleRequest.getType().equals("学习")){
+                    memberRuleRequest.setTypeSort(0);
+                }else if(memberRuleRequest.getType().equals("独立")){
+                    memberRuleRequest.setTypeSort(1);
+                }else if(memberRuleRequest.getType().equals("生活")){
+                    memberRuleRequest.setTypeSort(2);
+                }else if(memberRuleRequest.getType().equals("表扬")){
+                    memberRuleRequest.setTypeSort(3);
+                }else if(memberRuleRequest.getType().equals("兴趣")){
+                    memberRuleRequest.setTypeSort(4);
+                }else if(memberRuleRequest.getType().equals("劳动")){
+                    memberRuleRequest.setTypeSort(5);
+                }else if(memberRuleRequest.getType().equals("批评")){
+                    memberRuleRequest.setTypeSort(6);
+                }
                 MemberRules memberRules = insert(memberRuleRequest);
                 list.add(memberRules);
             }
