@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface MemberRulesMapper {
@@ -32,4 +33,8 @@ public interface MemberRulesMapper {
     void deleteByMid(@Param("mid") Integer mid);
 
     void updateStreakById(@Param("id") Integer id, @Param("currentStreak") Integer currentStreak, @Param("longestStreak") Integer longestStreak);
+
+    int updateRuleTypeByMid(@Param("mid") Integer mid, @Param("oldType") String oldType, @Param("newType") String newType);
+
+    List<Map<String, Integer>> getRuleTypesByMid(@Param("mid") Integer mid);
 }

@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.MemberRules;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberRulesService {
     List<MemberRules> getRulesByMid(Integer mId,String day);
@@ -32,4 +33,20 @@ public interface MemberRulesService {
     void swapRuleSort(Integer currentId, Integer targetId);
 
     MemberRules getLastSortByTypeAndMid(Integer mid, String type);
+
+    /**
+     * 批量更新规则分类名称
+     * @param mid 会员ID
+     * @param oldType 旧分类名称
+     * @param newType 新分类名称
+     * @return 更新的记录数
+     */
+    int updateRuleType(Integer mid, String oldType, String newType);
+
+    /**
+     * 获取会员的所有规则分类
+     * @param mid 会员ID
+     * @return 分类名称列表
+     */
+    List<Map<String,Integer>> getRuleTypes(Integer mid);
 }

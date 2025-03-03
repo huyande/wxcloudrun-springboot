@@ -11,6 +11,7 @@ public class MemberRules implements Serializable {
     private Integer mid;
     private String name;
     private String type;
+    private Integer typeSort;
     private String icon;
     private Integer iconType;
     private String weeks;//打卡周期

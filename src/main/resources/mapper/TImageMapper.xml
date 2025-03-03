@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.TImageMapper">
+
+    <resultMap id="tImageMapper" type="com.tencent.wxcloudrun.model.TImage">
+        <id property="id" column="id"/>
+        <result property="imageName" column="image_name"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="location" column="location"/>
+        <result property="groupID" column="groupID"/>
+    </resultMap>
+
+    <select id="getById" resultMap="tImageMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `image_name`, `image_url`, `location`
+        FROM t_image
+        WHERE id = #{id}
+    </select>
+
+    <select id="getAll" resultMap="tImageMapper">
+        SELECT `id`, `image_name`, `image_url`, `location`
+        FROM t_image
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="getByLocation" resultMap="tImageMapper" parameterType="java.lang.String">
+        SELECT `id`, `image_name`, `image_url`, `location`
+        FROM t_image
+        WHERE location = #{location}
+        ORDER BY groupID ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.TImage">
+        INSERT INTO `t_image`(`image_name`, `image_url`, `location`)
+        VALUES(#{imageName}, #{imageUrl}, #{location})
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.TImage">
+        UPDATE t_image
+        SET image_name = #{imageName},
+            image_url = #{imageUrl},
+            location = #{location}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM t_image
+        WHERE id = #{id}
+    </delete>
+
+</mapper> 

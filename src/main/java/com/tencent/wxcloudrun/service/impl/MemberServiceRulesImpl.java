@@ -13,6 +13,8 @@ import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import cn.hutool.core.date.DateUtil;
 
 @Service
@@ -52,6 +54,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setContent(memberRuleRequest.getContent());
         memberRules.setSort(memberRuleRequest.getSort());
         memberRules.setQuickScore(memberRuleRequest.getQuickScore());
+        memberRules.setTypeSort(memberRuleRequest.getTypeSort());
         memberRulesMapper.insertOne(memberRules);
         return memberRules;
     }
@@ -85,6 +88,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setSort(memberRuleRequest.getSort());
         memberRules.setQuickScore(memberRuleRequest.getQuickScore());
         memberRules.setStatus(1);
+        memberRules.setTypeSort(memberRuleRequest.getTypeSort());
         memberRulesMapper.updateRuleById(memberRules);
     }
 
@@ -126,5 +130,21 @@ public class MemberServiceRulesImpl implements MemberRulesService {
     @Override
     public MemberRules getLastSortByTypeAndMid(Integer mid, String type) {
         return memberRulesMapper.getLastSortByTypeAndMid(mid,type);
+    }
+
+    @Override
+    public int updateRuleType(Integer mid, String oldType, String newType) {
+        if (mid == null || oldType == null || newType == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        return memberRulesMapper.updateRuleTypeByMid(mid, oldType, newType);
+    }
+
+    @Override
+    public List<Map<String, Integer>> getRuleTypes(Integer mid) {
+        if (mid == null) {
+            throw new IllegalArgumentException("会员ID不能为空");
+        }
+        return memberRulesMapper.getRuleTypesByMid(mid);
     }
 }

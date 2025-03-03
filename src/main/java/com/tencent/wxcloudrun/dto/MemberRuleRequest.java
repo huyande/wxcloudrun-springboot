@@ -13,4 +13,5 @@ public class MemberRuleRequest {
     private String content;//内容
     private Integer sort;
     private Integer quickScore;
+    private Integer typeSort;
 }

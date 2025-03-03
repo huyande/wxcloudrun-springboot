@@ -188,6 +188,7 @@ public class MemberController {
                         ruleMap.put("status", 0);
                         ruleMap.put("row_status", rule.getStatus());
                         ruleMap.put("quickScore",rule.getQuickScore());
+                        ruleMap.put("content",rule.getContent());
                         
                         // 添加周打卡状态
                         boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);
@@ -213,6 +214,24 @@ public class MemberController {
                     return typeGroup;
                 })
                 .collect(Collectors.toList());
+
+            // 提取每种类型的一个规则，用于获取该类型的排序值
+            Map<String, Integer> typeSortMap = rules.stream()
+                .collect(Collectors.toMap(
+                    MemberRules::getType,
+                    MemberRules::getTypeSort,
+                    (existing, replacement) -> existing,
+                    HashMap::new
+                ));
+
+            // 对分类进行排序
+            formattedRules.sort((a, b) -> {
+                String typeA = (String) a.get("type");
+                String typeB = (String) b.get("type");
+                int sortA = typeSortMap.getOrDefault(typeA, Integer.MAX_VALUE);
+                int sortB = typeSortMap.getOrDefault(typeB, Integer.MAX_VALUE);
+                return Integer.compare(sortA, sortB);
+            });    
 
             // 返回格式化后的规则
             return ApiResponse.ok(formattedRules);
@@ -417,6 +436,24 @@ public class MemberController {
                     return typeGroup;
                 })
                 .collect(Collectors.toList());
+
+            // 提取每种类型的一个规则，用于获取该类型的排序值
+            Map<String, Integer> typeSortMap = rules.stream()
+                .collect(Collectors.toMap(
+                    MemberRules::getType,
+                    MemberRules::getTypeSort,
+                    (existing, replacement) -> existing,
+                    HashMap::new
+                ));
+
+            // 对分类进行排序
+            formattedRules.sort((a, b) -> {
+                String typeA = (String) a.get("type");
+                String typeB = (String) b.get("type");
+                int sortA = typeSortMap.getOrDefault(typeA, Integer.MAX_VALUE);
+                int sortB = typeSortMap.getOrDefault(typeB, Integer.MAX_VALUE);
+                return Integer.compare(sortA, sortB);
+            });    
 
             return ApiResponse.ok(formattedRules);
         } catch (Exception e) {
@@ -661,6 +698,50 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取积分详情失败", e);
             return ApiResponse.error("获取积分详情失败");
+        }
+    }
+
+    /**
+     * 批量更新规则分类名称
+     * @param mid 会员ID
+     * @param oldType 旧分类名称
+     * @param newType 新分类名称
+     * @return 更新结果
+     */
+    @PutMapping("/rules/{mid}/updateType")
+    public ApiResponse updateRuleType(
+            @PathVariable Integer mid,
+            @RequestBody Map<String, String> requestMap) {
+        try {
+            String oldType = requestMap.get("oldType");
+            String newType = requestMap.get("newType");
+            int updatedCount = memberRulesService.updateRuleType(mid, oldType, newType);
+            Map<String, Object> result = new HashMap<>();
+            result.put("updatedCount", updatedCount);
+            return ApiResponse.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error("参数错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("更新规则分类失败", e);
+            return ApiResponse.error("更新规则分类失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取会员的所有规则分类
+     * @param mid 会员ID
+     * @return 分类列表
+     */
+    @GetMapping("/rules/{mid}/types")
+    public ApiResponse getRuleTypes(@PathVariable Integer mid) {
+        try {
+            List<Map<String, Integer>> types = memberRulesService.getRuleTypes(mid);
+            return ApiResponse.ok(types);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error("参数错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("获取规则分类失败", e);
+            return ApiResponse.error("获取规则分类失败: " + e.getMessage());
         }
     }
 }

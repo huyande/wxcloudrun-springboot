@@ -109,7 +109,7 @@ public class WxuserServiceImpl implements WxuserService {
         double minDays = 0; // 最小天数,默认0
         double maxDays = 3; // 最大天数,默认3
         double highProbStart = 2; // 高概率区间起始值,默认2
-        double highProbWeight = 0.7; // 高概率权重,默认0.7
+        double highProbWeight = 0.5; // 高概率权重,默认0.7
 
         // 生成随机天数
         Random random = new Random();
