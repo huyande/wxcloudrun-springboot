@@ -82,13 +82,25 @@ public class WishLogController {
         }
     }
 
+    /**
+     * 根据会员ID分页查询愿望日志列表
+     * @param mid 会员ID
+     * @param page 页码，默认1
+     * @param pageSize 每页数量，默认10
+     * @param status 状态过滤，可选
+     * @return API响应
+     */
     @GetMapping("/member/{mid}")
-    ApiResponse getByMid(@PathVariable Integer mid) {
+    ApiResponse getByMid(
+            @PathVariable Integer mid,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) Integer status) {
         try {
-            List<Map<String, Object>> wishLogs = wishLogService.getByMid(mid);
-            return ApiResponse.ok(wishLogs);
+            Map<String, Object> result = wishLogService.getByMidWithPage(mid, page, pageSize, status);
+            return ApiResponse.ok(result);
         } catch (Exception e) {
-            logger.error("查询所有愿望日志列表失败", e);
+            logger.error("分页查询愿望日志列表失败", e);
             return ApiResponse.error("查询失败");
         }
     }

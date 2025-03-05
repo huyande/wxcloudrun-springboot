@@ -37,4 +37,25 @@ public interface WishLogMapper {
     List<WishLog> getAllLogByMidAndStatus(Integer mid, Integer status);
 
     void deleteByMid(@Param("mid") Integer mid);
+    
+    /**
+     * 统计指定会员和状态的愿望日志数量
+     * @param mid 会员ID
+     * @param status 状态，可为null
+     * @return 总数
+     */
+    int getCountByMidAndStatus(@Param("mid") Integer mid, @Param("status") Integer status);
+    
+    /**
+     * 分页查询指定会员和状态的愿望日志
+     * @param mid 会员ID
+     * @param status 状态，可为null
+     * @param offset 偏移量
+     * @param pageSize 每页大小
+     * @return 愿望日志列表
+     */
+    List<Map<String, Object>> getByMidWithPage(@Param("mid") Integer mid, 
+                                              @Param("status") Integer status, 
+                                              @Param("offset") Integer offset, 
+                                              @Param("pageSize") Integer pageSize);
 }

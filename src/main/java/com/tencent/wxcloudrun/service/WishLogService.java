@@ -35,4 +35,14 @@ public interface WishLogService {
     List<Map<String, Object>> getByMid(Integer mid);
 
     List<WishLog> getAllLogByStatus(Integer mid, Integer status);
+    
+    /**
+     * 根据会员ID分页查询愿望日志列表
+     * @param mid 会员ID
+     * @param page 页码
+     * @param pageSize 每页数量
+     * @param status 状态过滤，可为null
+     * @return 包含分页信息的结果集
+     */
+    Map<String, Object> getByMidWithPage(Integer mid, Integer page, Integer pageSize, Integer status);
 }
