@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.AccountLogMapper">
+    <!-- 插入新交易记录 -->
+    <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.AccountLog" useGeneratedKeys="true" keyProperty="tid">
+        INSERT INTO account_log (uid, mid, type, amount, category, remark)
+        VALUES (#{uid}, #{mid}, #{type}, #{amount}, #{category}, #{remark})
+    </insert>
+
+    <!-- 根据ID查询交易记录 -->
+    <select id="getLogById" resultType="com.tencent.wxcloudrun.model.AccountLog">
+        SELECT * FROM account_log WHERE tid = #{tid}
+    </select>
+
+    <!-- 分页查询成员的交易记录 -->
+    <select id="getLogsByMid" resultType="com.tencent.wxcloudrun.model.AccountLog">
+        SELECT * FROM account_log 
+        WHERE mid = #{mid} 
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 按交易类型分页查询成员的交易记录 -->
+    <select id="getLogsByMidAndType" resultType="com.tencent.wxcloudrun.model.AccountLog">
+        SELECT * FROM account_log 
+        WHERE mid = #{mid} AND type = #{type}
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 按交易分类分页查询成员的交易记录 -->
+    <select id="getLogsByMidAndCategory" resultType="com.tencent.wxcloudrun.model.AccountLog">
+        SELECT * FROM account_log 
+        WHERE mid = #{mid} AND category = #{category}
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询成员的交易记录总数 -->
+    <select id="getLogsCountByMid" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM account_log WHERE mid = #{mid}
+    </select>
+
+    <!-- 按分类统计交易记录数量 -->
+    <select id="getCategoryStats" resultType="java.util.Map">
+        SELECT 
+            category as name,
+            type,
+            sum(amount) as value
+        FROM account_log 
+        WHERE mid = #{mid}
+        GROUP BY category,type
+        ORDER BY value DESC
+    </select>
+
+    <!-- 删除交易记录 -->
+    <delete id="deleteById">
+        DELETE FROM account_log WHERE tid = #{tid}
+    </delete>
+</mapper> 

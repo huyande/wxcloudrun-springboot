@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.AccountMapper">
+    <!-- 插入新账户 -->
+    <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.Account" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO account (uid, mid, balance, total_earnings, last_interest_time, target_amount)
+        VALUES (#{uid}, #{mid}, #{balance}, #{totalEarnings}, #{lastInterestTime}, #{targetAmount})
+    </insert>
+
+    <!-- 根据ID查询账户 -->
+    <select id="getAccountById" resultType="com.tencent.wxcloudrun.model.Account">
+        SELECT * FROM account WHERE id = #{id}
+    </select>
+
+    <!-- 根据成员ID查询账户 -->
+    <select id="getAccountByMid" resultType="com.tencent.wxcloudrun.model.Account">
+        SELECT * FROM account WHERE mid = #{mid}
+    </select>
+
+    <!-- 查询用户的所有账户 -->
+    <select id="getAccountsByUid" resultType="com.tencent.wxcloudrun.model.Account">
+        SELECT * FROM account WHERE uid = #{uid}
+    </select>
+
+    <!-- 更新账户信息 -->
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.Account">
+        UPDATE account
+        SET balance = #{balance},
+            total_earnings = #{totalEarnings},
+            last_interest_time = #{lastInterestTime},
+            target_amount = #{targetAmount},
+            yesterday_interest = #{yesterdayInterest},
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新账户余额 -->
+    <update id="updateBalance" parameterType="com.tencent.wxcloudrun.model.Account">
+        UPDATE account
+        SET balance = #{balance},
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除账户 -->
+    <delete id="deleteById">
+        DELETE FROM account WHERE id = #{id}
+    </delete>
+</mapper> 

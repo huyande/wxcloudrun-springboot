@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.InterestRateMapper">
+    <!-- 插入新利率记录 -->
+    <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.InterestRate" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO interest_rate (mid, annual_rate)
+        VALUES (#{mid}, #{annualRate})
+    </insert>
+
+    <!-- 根据ID查询利率记录 -->
+    <select id="getInterestRateById" resultType="com.tencent.wxcloudrun.model.InterestRate">
+        SELECT * FROM interest_rate WHERE id = #{id}
+    </select>
+
+    <!-- 查询成员当前生效的利率 -->
+    <select id="getCurrentInterestRateByMid" resultType="com.tencent.wxcloudrun.model.InterestRate">
+        SELECT * FROM interest_rate 
+        WHERE mid = #{mid} 
+        ORDER BY id DESC 
+        LIMIT 1
+    </select>
+
+    <!-- 查询成员的利率历史记录 -->
+    <select id="getInterestRateHistoryByMid" resultType="com.tencent.wxcloudrun.model.InterestRate">
+        SELECT * FROM interest_rate 
+        WHERE mid = #{mid} 
+        ORDER BY id DESC
+    </select>
+
+    <!-- 更新利率记录 -->
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.InterestRate">
+        UPDATE interest_rate
+        SET annual_rate = #{annualRate}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除利率记录 -->
+    <delete id="deleteById">
+        DELETE FROM interest_rate WHERE id = #{id}
+    </delete>
+</mapper> 
