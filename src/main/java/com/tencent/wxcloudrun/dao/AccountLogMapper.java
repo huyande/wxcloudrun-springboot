@@ -21,6 +21,12 @@ public interface AccountLogMapper {
     Integer getLogsCountByMid(@Param("mid") Integer mid);
     
     void deleteById(@Param("tid") Integer tid);
+    
+    /**
+     * 更新交易记录
+     * @param accountLog 更新后的交易记录
+     */
+    void updateLog(AccountLog accountLog);
 
     /**
      * 按分类统计交易记录数量

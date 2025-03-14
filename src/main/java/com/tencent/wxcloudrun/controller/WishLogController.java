@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
 import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.model.WishLog;
+import com.tencent.wxcloudrun.service.MemberPointLogsService;
 import com.tencent.wxcloudrun.service.WishLogService;
 import com.tencent.wxcloudrun.service.WishService;
 import org.slf4j.Logger;
@@ -25,10 +26,14 @@ public class WishLogController {
     final WishLogService wishLogService;
     final WishService wishService;
     final Logger logger;
+    final MemberPointLogsService memberPointLogsService;
 
-    public WishLogController(@Autowired WishLogService wishLogService, @Autowired WishService wishService) {
+    public WishLogController(@Autowired WishLogService wishLogService,
+                             @Autowired WishService wishService,
+                             @Autowired MemberPointLogsService memberPointLogsService ) {
         this.wishLogService = wishLogService;
         this.wishService = wishService;
+        this.memberPointLogsService = memberPointLogsService;
         this.logger = LoggerFactory.getLogger(WishLogController.class);
     }
 
@@ -133,17 +138,22 @@ public class WishLogController {
             if (wishLogRequest.getUid() == null || wishLogRequest.getWid() == null || wishLogRequest.getPoint() == null) {
                 return ApiResponse.error("参数不完整");
             }
-            WishLog wishLog = new WishLog();
-            wishLog.setUid(wishLogRequest.getUid());
-            wishLog.setWid(wishLogRequest.getWid());
-            wishLog.setPoint(wishLogRequest.getPoint());
-            wishLog.setMid(wishLogRequest.getMid());
-            wishLog.setInfo(wishLogRequest.getInfo());
-            wishLog.setAmount(wishLogRequest.getAmount());
-            wishLog.setUnitType(wishLogRequest.getUnitType());
-            wishLog.setUnit(wishLogRequest.getUnit());
-            WishLog log = wishLogService.create(wishLog);
-            return ApiResponse.ok(log);
+            Integer lastPointSum = memberPointLogsService.getLastPointSum(wishLogRequest.getMid());
+            if(lastPointSum>= wishLogRequest.getPoint()){
+                WishLog wishLog = new WishLog();
+                wishLog.setUid(wishLogRequest.getUid());
+                wishLog.setWid(wishLogRequest.getWid());
+                wishLog.setPoint(wishLogRequest.getPoint());
+                wishLog.setMid(wishLogRequest.getMid());
+                wishLog.setInfo(wishLogRequest.getInfo());
+                wishLog.setAmount(wishLogRequest.getAmount());
+                wishLog.setUnitType(wishLogRequest.getUnitType());
+                wishLog.setUnit(wishLogRequest.getUnit());
+                WishLog log = wishLogService.create(wishLog);
+                return ApiResponse.ok(log);
+            }else{
+                return ApiResponse.error("积分不足，不能兑换");
+            }
         } catch (Exception e) {
             logger.error("创建愿望日志失败", e);
             return ApiResponse.error("创建失败");

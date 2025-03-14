@@ -41,6 +41,16 @@
         SELECT COUNT(*) FROM account_log WHERE mid = #{mid}
     </select>
 
+    <!-- 更新交易记录 -->
+    <update id="updateLog" parameterType="com.tencent.wxcloudrun.model.AccountLog">
+        UPDATE account_log
+        SET type = #{type},
+            amount = #{amount},
+            category = #{category},
+            remark = #{remark}
+        WHERE tid = #{tid}
+    </update>
+
     <!-- 按分类统计交易记录数量 -->
     <select id="getCategoryStats" resultType="java.util.Map">
         SELECT 

@@ -216,10 +216,107 @@ public class AccountServiceImpl implements AccountService {
                     log.setType("增加");
                     log.setAmount(totalInterest);
                     log.setCategory("利息");
-                    log.setRemark(String.format("利息收入(%d天复利)", daysBetween));
+                    log.setRemark(String.format("(%d天复利)", daysBetween));
                     accountLogMapper.insertOne(log);
                 }
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public AccountDTO updateAccountLog(Integer tid, BigDecimal amount, String category, String remark, String type) {
+        // 查询原交易记录
+        AccountLog oldLog = accountLogMapper.getLogById(tid);
+        if (oldLog == null) {
+            return null;
+        }
+        
+        // 获取账户信息
+        Account account = accountMapper.getAccountByMid(oldLog.getMid());
+        if (account == null) {
+            return null;
+        }
+        
+        // 计算余额调整值
+        BigDecimal balanceAdjustment = BigDecimal.ZERO;
+        
+        // 原交易是增加类型
+        if ("增加".equals(oldLog.getType())) {
+            // 从余额中减去原交易金额
+            balanceAdjustment = balanceAdjustment.subtract(oldLog.getAmount());
+        } else {
+            // 原交易是减少类型，向余额中加回原交易金额
+            balanceAdjustment = balanceAdjustment.add(oldLog.getAmount());
+        }
+        
+        // 新交易是增加类型
+        if ("增加".equals(type)) {
+            // 向余额中加入新交易金额
+            balanceAdjustment = balanceAdjustment.add(amount);
+        } else {
+            // 新交易是减少类型，从余额中减去新交易金额
+            balanceAdjustment = balanceAdjustment.subtract(amount);
+        }
+        
+        // 检查余额是否足够（如果是减少操作）
+        if (account.getBalance().add(balanceAdjustment).compareTo(BigDecimal.ZERO) < 0) {
+            return null; // 余额不足
+        }
+        
+        // 更新账户余额
+        account.setBalance(account.getBalance().add(balanceAdjustment));
+        accountMapper.updateBalance(account);
+        
+        // 更新交易记录
+        oldLog.setAmount(amount);
+        oldLog.setCategory(category);
+        oldLog.setRemark(remark);
+        oldLog.setType(type);
+        accountLogMapper.updateLog(oldLog);
+        
+        return convertToDTO(account);
+    }
+    
+    @Override
+    @Transactional
+    public AccountDTO deleteAccountLog(Integer tid) {
+        // 查询原交易记录
+        AccountLog log = accountLogMapper.getLogById(tid);
+        if (log == null) {
+            return null;
+        }
+        
+        // 获取账户信息
+        Account account = accountMapper.getAccountByMid(log.getMid());
+        if (account == null) {
+            return null;
+        }
+        
+        // 计算余额调整值
+        BigDecimal balanceAdjustment = BigDecimal.ZERO;
+        
+        // 原交易是增加类型
+        if ("增加".equals(log.getType())) {
+            // 从余额中减去原交易金额
+            balanceAdjustment = balanceAdjustment.subtract(log.getAmount());
+        } else {
+            // 原交易是减少类型，向余额中加回原交易金额
+            balanceAdjustment = balanceAdjustment.add(log.getAmount());
+        }
+        
+        // 检查余额是否足够（如果是删除增加类型的交易）
+        if (account.getBalance().add(balanceAdjustment).compareTo(BigDecimal.ZERO) < 0) {
+            return null; // 余额不足
+        }
+        
+        // 更新账户余额
+        account.setBalance(account.getBalance().add(balanceAdjustment));
+        accountMapper.updateBalance(account);
+        
+        // 删除交易记录
+        accountLogMapper.deleteById(tid);
+        
+        return convertToDTO(account);
     }
 } 

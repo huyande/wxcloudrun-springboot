@@ -1,8 +1,11 @@
 package com.tencent.wxcloudrun.service.impl;
 
+import com.tencent.wxcloudrun.dao.MemberMapper;
 import com.tencent.wxcloudrun.dao.MemberPointLogsMapper;
 import com.tencent.wxcloudrun.dao.MemberRulesMapper;
+import com.tencent.wxcloudrun.dao.WishLogMapper;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
+import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
 import com.tencent.wxcloudrun.model.MemberRules;
 import com.tencent.wxcloudrun.service.MemberPointLogsService;
@@ -26,11 +29,17 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     //积分日志
     final MemberPointLogsMapper memberPointLogsMapper;
     final MemberRulesMapper memberRulesMapper;
+    final WishLogMapper wishLogMapper;
+    final MemberMapper memberMapper;
     //构造函数注入
     public MemberServicePointLogsImpl(@Autowired MemberPointLogsMapper memberPointLogsMapper,
-                                    @Autowired MemberRulesMapper memberRulesMapper) {
+                                    @Autowired MemberRulesMapper memberRulesMapper,
+                                      @Autowired WishLogMapper wishLogMapper,
+                                      @Autowired MemberMapper memberMapper) {
         this.memberPointLogsMapper = memberPointLogsMapper;
         this.memberRulesMapper = memberRulesMapper;
+        this.wishLogMapper = wishLogMapper;
+        this.memberMapper = memberMapper;
     }
 
     @Override
@@ -294,6 +303,15 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         return result;
     }
 
+    @Override
+    public Integer getLastPointSum(Integer mid) {
+        Integer pointSum = memberPointLogsMapper.getPointSumByMid(mid);
+        Integer wishPointSum = wishLogMapper.getSumNumByMid(mid);
+        Member member = memberMapper.getMemberById(mid);
+        int  total = (pointSum == null ? 0 : pointSum) - (wishPointSum==null ? 0 :wishPointSum);
+        int memberInitPoint = member.getPointTotal()==null?0:member.getPointTotal();
+        return total + memberInitPoint;
+    }
 
 
     @Override

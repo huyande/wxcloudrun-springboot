@@ -391,7 +391,7 @@ public class AccountController {
     /**
      * 按交易类型分页查询交易记录
      * @param mid 成员ID
-     * @param type 交易类型（增加/减少）
+     * @param type 交易类型（增加/支出）
      * @param page 页码（从1开始）
      * @param pageSize 每页记录数
      * @return 交易记录列表
@@ -406,7 +406,7 @@ public class AccountController {
                 return ApiResponse.error("无效的成员ID");
             }
             
-            if (type == null || (!type.equals("增加") && !type.equals("减少"))) {
+            if (type == null || (!type.equals("增加") && !type.equals("支出"))) {
                 return ApiResponse.error("无效的交易类型");
             }
             
@@ -519,6 +519,77 @@ public class AccountController {
         } catch (Exception e) {
             logger.error("查询交易分类统计异常，mid: {}", mid, e);
             return ApiResponse.error("查询交易分类统计失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改交易记录
+     * @param tid 交易ID
+     * @param request 包含amount(金额)、category(分类)、remark(备注)、type(类型)的请求体
+     * @return 更新后的账户信息
+     */
+    @PutMapping("/log/{tid}")
+    public ApiResponse updateAccountLog(@PathVariable Integer tid, @RequestBody Map<String, Object> request) {
+        try {
+            if (tid == null || tid <= 0) {
+                return ApiResponse.error("无效的交易ID");
+            }
+            
+            // 参数校验
+            if (!request.containsKey("amount")) {
+                return ApiResponse.error("金额不能为空");
+            }
+            
+            BigDecimal amount = new BigDecimal(request.get("amount").toString());
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                return ApiResponse.error("金额必须大于0");
+            }
+            
+            String category = (String) request.get("category");
+            if (category == null || category.trim().isEmpty()) {
+                return ApiResponse.error("交易分类不能为空");
+            }
+            
+            String remark = (String) request.get("remark");
+            String type = (String) request.get("type");
+            if (type == null || (!type.equals("增加") && !type.equals("支出"))) {
+                return ApiResponse.error("无效的交易类型");
+            }
+            
+            AccountDTO accountDTO = accountService.updateAccountLog(tid, amount, category, remark, type);
+            if (accountDTO == null) {
+                return ApiResponse.error("交易记录不存在或余额不足");
+            }
+            return ApiResponse.ok(accountDTO);
+        } catch (NumberFormatException e) {
+            logger.error("金额格式错误，tid: {}", tid, e);
+            return ApiResponse.error("金额格式错误");
+        } catch (Exception e) {
+            logger.error("修改交易记录异常，tid: {}", tid, e);
+            return ApiResponse.error("修改交易记录失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 删除交易记录
+     * @param tid 交易ID
+     * @return 更新后的账户信息
+     */
+    @DeleteMapping("/log/{tid}")
+    public ApiResponse deleteAccountLog(@PathVariable Integer tid) {
+        try {
+            if (tid == null || tid <= 0) {
+                return ApiResponse.error("无效的交易ID");
+            }
+            
+            AccountDTO accountDTO = accountService.deleteAccountLog(tid);
+            if (accountDTO == null) {
+                return ApiResponse.error("交易记录不存在或余额不足");
+            }
+            return ApiResponse.ok(accountDTO);
+        } catch (Exception e) {
+            logger.error("删除交易记录异常，tid: {}", tid, e);
+            return ApiResponse.error("删除交易记录失败：" + e.getMessage());
         }
     }
 } 

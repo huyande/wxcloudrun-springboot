@@ -280,13 +280,15 @@ public class MemberController {
     @GetMapping("/pointCurrentDaySum/{mid}")
     public ApiResponse getPointCurrentDaySumByMid(@PathVariable Integer mid, @RequestParam String day) {
         try {
-            Member member = memberService.getMemberById(mid);
-            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
+//            Member member = memberService.getMemberById(mid);
+//            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
             Integer pointCurrentSum = memberPointLogsService.getCurrentDayPointSumByMid(mid,day);
             Integer wishSum =  wishLogService.getSumNumByMid(mid);
+            memberPointLogsService.getLastPointSum(mid);
             HashMap<String, Object> result = new HashMap<>();
-            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
-            result.put("pointSum", total+member.getPointTotal());//剩余积分
+//            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
+            Integer lastPointSum = memberPointLogsService.getLastPointSum(mid);//计算剩余积分
+            result.put("pointSum", lastPointSum);//剩余积分
             result.put("wishSum", wishSum);//消耗的积分
             result.put("pointCurrentSum", pointCurrentSum);//当日积分
             return ApiResponse.ok(result);

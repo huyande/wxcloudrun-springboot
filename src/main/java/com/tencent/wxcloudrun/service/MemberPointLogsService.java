@@ -38,4 +38,11 @@ public interface MemberPointLogsService {
     List<Map<String, Object>> getPointLogsByDateRangeTotal(Integer mid, String startDay, String endDay);
 
     List<Map<String, Object>> getYearlyHeatmapAll(Integer mid, Integer year);
+
+    /**
+     * 计算剩余积分
+     * @param mid
+     * @return
+     */
+    Integer getLastPointSum(Integer mid);
 }
