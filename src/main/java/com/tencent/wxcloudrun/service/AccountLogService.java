@@ -25,4 +25,6 @@ public interface AccountLogService {
      * @return 分类统计数据列表（适用于echarts饼图）
      */
     List<CategoryStatDTO> getCategoryStats(Integer mid);
+
+    List<CategoryStatDTO> getTypeStats(Integer mid);
 } 

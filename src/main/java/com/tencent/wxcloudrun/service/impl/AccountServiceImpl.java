@@ -208,8 +208,8 @@ public class AccountServiceImpl implements AccountService {
                 account.setYesterdayInterest(yesterdayInterest);
                 accountMapper.updateById(account);
                 
-                // 记录利息收入日志
-                if(totalInterest != BigDecimal.ZERO){
+                // 记录利息收入日志 如果totalInterest大于0，则记录日志  
+                if(totalInterest.compareTo(BigDecimal.ZERO) > 0){
                     AccountLog log = new AccountLog();
                     log.setUid(account.getUid());
                     log.setMid(mid);

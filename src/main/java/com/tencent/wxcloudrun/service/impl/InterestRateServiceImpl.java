@@ -22,11 +22,19 @@ public class InterestRateServiceImpl implements InterestRateService {
     @Override
     @Transactional
     public InterestRate createInterestRate(Integer mid, BigDecimal annualRate) {
-        InterestRate interestRate = new InterestRate();
-        interestRate.setMid(mid);
-        interestRate.setAnnualRate(annualRate);
-        interestRateMapper.insertOne(interestRate);
-        return interestRate;
+        InterestRate currentInterestRateByMid = interestRateMapper.getCurrentInterestRateByMid(mid);
+        if(currentInterestRateByMid!=null){
+            currentInterestRateByMid.setAnnualRate(annualRate);
+            interestRateMapper.updateById(currentInterestRateByMid);
+            return currentInterestRateByMid;
+        }else{
+            // 检查是否存在相同mid的利率
+            InterestRate interestRate = new InterestRate();
+            interestRate.setMid(mid);
+            interestRate.setAnnualRate(annualRate);
+            interestRateMapper.insertOne(interestRate);
+            return interestRate;
+        }
     }
 
     @Override

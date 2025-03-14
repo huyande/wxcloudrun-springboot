@@ -28,4 +28,6 @@ public interface AccountLogMapper {
      * @return 分类及其对应的数量
      */
     List<Map<String, Object>> getCategoryStats(@Param("mid") Integer mid);
+
+    List<Map<String, Object>> getTypeStats(@Param("mid") Integer mid);
 } 

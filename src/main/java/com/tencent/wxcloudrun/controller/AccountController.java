@@ -501,4 +501,24 @@ public class AccountController {
             return ApiResponse.error("查询交易分类统计失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 获取交易分类统计数据（用于饼图展示）
+     * @param mid 成员ID
+     * @return 分类统计数据
+     */
+    @GetMapping("/stats/type/{mid}")
+    public ApiResponse getTypeStats(@PathVariable Integer mid) {
+        try {
+            if (mid == null || mid <= 0) {
+                return ApiResponse.error("无效的成员ID");
+            }
+
+            List<CategoryStatDTO> stats = accountLogService.getTypeStats(mid);
+            return ApiResponse.ok(stats);
+        } catch (Exception e) {
+            logger.error("查询交易分类统计异常，mid: {}", mid, e);
+            return ApiResponse.error("查询交易分类统计失败：" + e.getMessage());
+        }
+    }
 } 

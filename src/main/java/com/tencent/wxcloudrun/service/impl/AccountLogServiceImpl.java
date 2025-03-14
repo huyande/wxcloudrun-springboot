@@ -71,7 +71,18 @@ public class AccountLogServiceImpl implements AccountLogService {
         List<Map<String, Object>> stats = accountLogMapper.getCategoryStats(mid);
         return stats.stream()
                 .map(map -> new CategoryStatDTO(
-                        (String) map.get("type")+"-"+(String) map.get("name"),
+                        (String) map.get("name"),
+                        (BigDecimal) map.get("value")
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryStatDTO> getTypeStats(Integer mid) {
+        List<Map<String, Object>> stats = accountLogMapper.getTypeStats(mid);
+        return stats.stream()
+                .map(map -> new CategoryStatDTO(
+                        (String) map.get("name"),
                         (BigDecimal) map.get("value")
                 ))
                 .collect(Collectors.toList());
