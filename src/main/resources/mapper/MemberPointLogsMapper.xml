@@ -146,6 +146,7 @@
         WHERE 
             mid = #{mid}
             AND type = 0
+            AND num !=0
             AND day BETWEEN #{startTime} AND #{endTime}
         GROUP BY 
             ruleId, DATE_FORMAT(day, '%w')
@@ -177,6 +178,7 @@
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}
         AND type = 0
+        AND num != 0
         ORDER BY day DESC
     </select>
 
@@ -189,7 +191,7 @@
     <select id="getPointLogsCountByMidAndRuleId" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT count(1) as c
         FROM member_point_logs
-        WHERE mid = #{mid} AND ruleId = #{ruleId} and type=0
+        WHERE mid = #{mid} AND ruleId = #{ruleId} and type=0 and num !=0
     </select>
 
     <select id="getMonthlyCheckInRecords" resultMap="memberRulesMapper" parameterType="java.util.Map">
@@ -198,6 +200,7 @@
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}
         AND type = 0
+        AND num !=0
         AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
         ORDER BY day DESC
     </select>
@@ -230,6 +233,7 @@
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}
         AND type = 0
+        AND num !=0
         AND YEAR(day) = #{year}
         ORDER BY day ASC
     </select>

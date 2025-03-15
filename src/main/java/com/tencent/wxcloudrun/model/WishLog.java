@@ -13,7 +13,7 @@ public class WishLog {
     private Integer wid;
     private Integer point;
     private String info;
-    private Integer status; //0 代使用 1 已使用 -1 撤销
+    private Integer status; //0 代使用 1 已使用 -1 撤销 2 是正在运行的任务
     private Integer amount;//兑换的数量
 
     private String unitType;//点数类型

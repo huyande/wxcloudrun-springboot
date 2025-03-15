@@ -265,14 +265,18 @@ public class MemberController {
     public ApiResponse addPointLog(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs) {
         try {
             memberPointLogs.setMid(mid);
-            if(memberPointLogs.getType() ==null){
+            if(memberPointLogs.getType() ==null){//设置积分类型是打卡
                 memberPointLogs.setType(0);
             }
-            memberPointLogsService.insert(memberPointLogs);
-            return ApiResponse.ok();
+            MemberPointLogs pointLogs = memberPointLogsService.insert(memberPointLogs);
+            if(pointLogs!=null){
+                return ApiResponse.ok();
+            }else {
+                return ApiResponse.error("积分为0不能记录");
+            }
         } catch (Exception e) {
             logger.error("添加会员积分日志失败", e);
-            return ApiResponse.error("添加会员积分日志失败");
+            return ApiResponse.error("添加积分失败");
         }
     }
 

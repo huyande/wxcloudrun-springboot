@@ -53,26 +53,29 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         if(log!=null){
             if(memberPointLogsRequest.getNum()==0){
                 memberPointLogsMapper.delete(log.getId());
-                return null;
+                return log;
             }
             //更新
             memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark());
             return log;
         }else{
-            MemberPointLogs memberPointLogs = new MemberPointLogs();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
+            if(memberPointLogsRequest.getNum()!=0){
+                MemberPointLogs memberPointLogs = new MemberPointLogs();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
 
-            memberPointLogs.setDay(dateTime);
-            memberPointLogs.setMid(memberPointLogsRequest.getMid());
-            memberPointLogs.setUid(memberPointLogsRequest.getUid());
-            memberPointLogs.setRuleId(memberPointLogsRequest.getRuleId());
-            memberPointLogs.setNum(memberPointLogsRequest.getNum());
-            memberPointLogs.setType(memberPointLogsRequest.getType());
-            memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
-            memberPointLogsMapper.insertOne(memberPointLogs);
+                memberPointLogs.setDay(dateTime);
+                memberPointLogs.setMid(memberPointLogsRequest.getMid());
+                memberPointLogs.setUid(memberPointLogsRequest.getUid());
+                memberPointLogs.setRuleId(memberPointLogsRequest.getRuleId());
+                memberPointLogs.setNum(memberPointLogsRequest.getNum());
+                memberPointLogs.setType(memberPointLogsRequest.getType());
+                memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
+                memberPointLogsMapper.insertOne(memberPointLogs);
 
-            return memberPointLogs;
+                return memberPointLogs;
+            }
+            return null;
         }
     }
 
