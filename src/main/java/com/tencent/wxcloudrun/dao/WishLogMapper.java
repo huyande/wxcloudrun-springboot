@@ -58,4 +58,42 @@ public interface WishLogMapper {
                                               @Param("status") Integer status, 
                                               @Param("offset") Integer offset, 
                                               @Param("pageSize") Integer pageSize);
+
+    /**
+     * 获取指定时间范围内的心愿兑换总次数
+     * 
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 兑换总次数
+     */
+    Integer getExchangeCountByDateRange(@Param("mid") Integer mid, 
+                                       @Param("startDate") String startDate, 
+                                       @Param("endDate") String endDate);
+    
+    /**
+     * 获取指定时间范围内的积分消耗总数
+     * 
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 积分消耗总数
+     */
+    Integer getConsumedPointsByDateRange(@Param("mid") Integer mid, 
+                                        @Param("startDate") String startDate, 
+                                        @Param("endDate") String endDate);
+    
+    /**
+     * 获取指定时间范围内兑换次数前N的心愿
+     * 
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param limit 限制返回的心愿数量
+     * @return 心愿列表，包含心愿名称和兑换次数
+     */
+    List<Map<String, Object>> getTopWishesByDateRange(@Param("mid") Integer mid, 
+                                                    @Param("startDate") String startDate, 
+                                                    @Param("endDate") String endDate,
+                                                    @Param("limit") Integer limit);
 }

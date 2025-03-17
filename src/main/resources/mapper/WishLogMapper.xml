@@ -102,4 +102,39 @@
         LIMIT #{offset}, #{pageSize}
     </select>
 
+    <select id="getExchangeCountByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*)
+        FROM wish_log
+        WHERE mid = #{mid}
+--         AND status IN (0, 1, 2) <!-- 0:待使用, 1:已使用, 2:正在运行的任务 -->
+        AND createdAt BETWEEN #{startDate} AND #{endDate}
+    </select>
+    
+    <select id="getConsumedPointsByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT SUM(point)
+        FROM wish_log
+        WHERE mid = #{mid}
+--         AND status IN (0, 1, 2) <!-- 0:待使用, 1:已使用, 2:正在运行的任务 -->
+        AND createdAt BETWEEN #{startDate} AND #{endDate}
+    </select>
+    
+    <select id="getTopWishesByDateRange" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            w.title as name,
+            COUNT(*) as count
+        FROM 
+            wish_log l
+        JOIN 
+            wish w ON l.wid = w.id
+        WHERE 
+            l.mid = #{mid}
+--             AND l.status IN (0, 1, 2) <!-- 0:待使用, 1:已使用, 2:正在运行的任务 -->
+            AND l.createdAt BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            l.wid, w.title
+        ORDER BY 
+            count DESC
+        LIMIT #{limit}
+    </select>
+
 </mapper>

@@ -269,4 +269,97 @@
         ORDER BY value DESC
     </select>
 
+    <select id="getPointsStatisticsByMonth" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(day, '%Y-%m') as month,
+            SUM(CASE WHEN num <![CDATA[ > ]]> 0 THEN num ELSE 0 END) as increase,
+            SUM(CASE WHEN num <![CDATA[ < ]]> 0 THEN ABS(num) ELSE 0 END) as decrease
+        FROM 
+            member_point_logs
+        WHERE 
+            mid = #{mid}
+            AND day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            DATE_FORMAT(day, '%Y-%m')
+        ORDER BY 
+            month ASC
+    </select>
+
+    <select id="getTotalPointsByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT SUM(num) as total
+        FROM member_point_logs
+        WHERE mid = #{mid}
+        AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+    
+    <select id="getCheckInCountByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(DISTINCT DATE_FORMAT(day, '%Y-%m-%d'))
+        FROM member_point_logs
+        WHERE mid = #{mid}
+        AND type = 0
+--         AND num > 0
+        AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="getCheckInTimesByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(1)
+        FROM member_point_logs
+        WHERE mid = #{mid}
+        AND type = 0
+        AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+    
+    <select id="getTopTasksByDateRange" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            r.name as name,
+            COUNT(DISTINCT DATE_FORMAT(l.day, '%Y-%m-%d')) as count
+        FROM 
+            member_point_logs l
+        JOIN 
+            member_rules r ON l.ruleId = r.id
+        WHERE 
+            l.mid = #{mid}
+            AND l.type = 0
+--             AND l.num > 0
+            AND l.day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            l.ruleId, r.name
+        ORDER BY 
+            count DESC
+        LIMIT #{limit}
+    </select>
+    
+    <select id="getLotteryPointsByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT SUM(num) as total
+        FROM member_point_logs
+        WHERE mid = #{mid}
+        AND type = 1
+        AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="getCheckInTypePointsRatio" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            CASE 
+                WHEN r.type IS NULL OR r.type = '' THEN r.name
+                ELSE r.type
+            END as name,
+            SUM(l.num) as value
+        FROM 
+            member_point_logs l
+        JOIN 
+            member_rules r ON l.ruleId = r.id
+        WHERE 
+            l.mid = #{mid}
+            AND l.type = 0
+--             AND l.num > 0
+            AND l.day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            CASE 
+                WHEN r.type IS NULL OR r.type = '' THEN r.name
+                ELSE r.type
+            END
+        ORDER BY 
+            value DESC
+    </select>
+
 </mapper>

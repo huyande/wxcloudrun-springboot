@@ -33,4 +33,16 @@ public interface GameRewardLogMapper {
     int getByMidAndGameGroupCount(@Param("mid") Integer mid, @Param("gameGroup")Integer gameGroup);
 
     List<GameRewardLog> getByMidAndGameGroupWithPage(Map<String, Object> params);
+
+    /**
+     * 获取指定时间范围内的积分抽奖总次数
+     * 
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 抽奖总次数
+     */
+    Integer getLotteryCountByDateRange(@Param("mid") Integer mid, 
+                                      @Param("startDate") String startDate, 
+                                      @Param("endDate") String endDate);
 }

@@ -71,4 +71,11 @@
         LIMIT #{offset}, #{pageSize}
     </select>
 
+    <select id="getLotteryCountByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*)
+        FROM game_reward_log
+        WHERE mid = #{mid}
+        AND createdAt BETWEEN #{startDate} AND #{endDate}
+    </select>
+
 </mapper> 
