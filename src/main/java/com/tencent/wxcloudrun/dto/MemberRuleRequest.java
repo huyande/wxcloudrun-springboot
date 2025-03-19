@@ -14,4 +14,6 @@ public class MemberRuleRequest {
     private Integer sort;
     private Integer quickScore;
     private Integer typeSort;
+    private Integer enablePomodoro;//是否开启番茄闹钟
+    private Integer pomodoroTime;//番茄时常
 }

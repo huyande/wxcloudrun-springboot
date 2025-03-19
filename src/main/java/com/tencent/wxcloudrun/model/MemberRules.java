@@ -19,6 +19,8 @@ public class MemberRules implements Serializable {
     private Integer sort;//排序
     private Integer status;//状态 0禁用 1启用
     private Integer quickScore;//设置快捷固定的积分
+    private Integer enablePomodoro;//是否开启番茄闹钟
+    private Integer pomodoroTime;//番茄时常
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

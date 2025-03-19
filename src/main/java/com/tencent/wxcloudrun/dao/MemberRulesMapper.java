@@ -22,6 +22,13 @@ public interface MemberRulesMapper {
     void updateRuleById(MemberRules memberRules);
 
     List<MemberRules> getActiveRulesByMid(@Param("mId") Integer mId);
+    
+    /**
+     * 统计指定mid的活跃规则数量
+     * @param mId 会员ID
+     * @return 规则数量
+     */
+    int countActiveRulesByMid(@Param("mId") Integer mId);
 
     void swapRuleSort(@Param("currentId") Integer currentId, 
                      @Param("targetId") Integer targetId,

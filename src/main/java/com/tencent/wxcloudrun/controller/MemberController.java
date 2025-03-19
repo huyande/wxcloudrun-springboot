@@ -53,14 +53,18 @@ public class MemberController {
 
     @PostMapping("/createRule")
     public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest){
-        MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(),memberRuleRequest.getType());
-        if(lastRule!=null){
-            memberRuleRequest.setSort(lastRule.getSort()+1);
+        if(memberRulesService.canCreateRule(memberRuleRequest.getMid())){
+            MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(),memberRuleRequest.getType());
+            if(lastRule!=null){
+                memberRuleRequest.setSort(lastRule.getSort()+1);
+            }else{
+                memberRuleRequest.setSort(0);
+            }
+            MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
+            return ApiResponse.ok(memberRules);
         }else{
-            memberRuleRequest.setSort(0);
+            return ApiResponse.error("规则数量已达上限(50个)，无法创建新规则，如有需要可以联系我");
         }
-        MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
-        return ApiResponse.ok(memberRules);
     }
 
 
@@ -189,7 +193,8 @@ public class MemberController {
                         ruleMap.put("row_status", rule.getStatus());
                         ruleMap.put("quickScore",rule.getQuickScore());
                         ruleMap.put("content",rule.getContent());
-                        
+                        ruleMap.put("enablePomodoro",rule.getEnablePomodoro());
+                        ruleMap.put("pomodoroTime",rule.getPomodoroTime());
                         // 添加周打卡状态
                         boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);
                         Map<String, Boolean> weekStatusMap = new HashMap<>();

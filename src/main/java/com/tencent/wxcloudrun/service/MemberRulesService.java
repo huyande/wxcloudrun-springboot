@@ -24,6 +24,20 @@ public interface MemberRulesService {
      * @return
      */
     List<MemberRules> getActiveRulesByMid(Integer mId);
+    
+    /**
+     * 获取指定mid的活跃规则数量
+     * @param mId 会员ID
+     * @return 规则数量
+     */
+    int countActiveRulesByMid(Integer mId);
+    
+    /**
+     * 检查是否可以创建新规则
+     * @param mId 会员ID
+     * @return true可以创建，false不能创建
+     */
+    boolean canCreateRule(Integer mId);
 
     /**
      * 交换两个规则的排序值

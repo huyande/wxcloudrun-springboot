@@ -55,6 +55,8 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setSort(memberRuleRequest.getSort());
         memberRules.setQuickScore(memberRuleRequest.getQuickScore());
         memberRules.setTypeSort(memberRuleRequest.getTypeSort());
+        memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
+        memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
         memberRulesMapper.insertOne(memberRules);
         return memberRules;
     }
@@ -89,13 +91,31 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setQuickScore(memberRuleRequest.getQuickScore());
         memberRules.setStatus(1);
         memberRules.setTypeSort(memberRuleRequest.getTypeSort());
+        memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
+        memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
         memberRulesMapper.updateRuleById(memberRules);
     }
 
     @Override
     public List<MemberRules> insertBatch(List<MemberRuleRequest> memberRuleRequests) {
         List<MemberRules> list = new ArrayList();
+        
+        if (memberRuleRequests.isEmpty()) {
+            return list;
+        }
+        
+        // 假设所有请求的mid都相同，取第一个检查
+        Integer mid = memberRuleRequests.get(0).getMid();
+        
+        // 检查当前规则数量
+        int currentCount = countActiveRulesByMid(mid);
+        
         for(MemberRuleRequest memberRuleRequest : memberRuleRequests){
+            // 如果已有规则数量加上当前待处理数量超过50个，则不再处理
+            if (currentCount >= 50) {
+                throw new RuntimeException("规则数量已达上限(50个)，无法创建新规则");
+            }
+            
             List<MemberRules> rules = memberRulesMapper.getRuleByNameAndMids(memberRuleRequest.getName(), memberRuleRequest.getMid());
             if(rules.isEmpty()){
                 if(memberRuleRequest.getType().equals("学习")){
@@ -115,6 +135,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
                 }
                 MemberRules memberRules = insert(memberRuleRequest);
                 list.add(memberRules);
+                currentCount++; // 更新当前规则计数
             }
         }
         return list;
@@ -161,5 +182,16 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             throw new IllegalArgumentException("会员ID不能为空");
         }
         return memberRulesMapper.getRuleTypesByMid(mid);
+    }
+
+    @Override
+    public int countActiveRulesByMid(Integer mId) {
+        return memberRulesMapper.countActiveRulesByMid(mId);
+    }
+    
+    @Override
+    public boolean canCreateRule(Integer mId) {
+        int count = countActiveRulesByMid(mId);
+        return count < 50; // 如果当前规则数量小于50，则可以创建
     }
 }
