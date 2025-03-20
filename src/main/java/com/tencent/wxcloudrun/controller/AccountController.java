@@ -182,7 +182,7 @@ public class AccountController {
     /**
      * 增加账户余额
      * @param mid 成员ID
-     * @param request 包含amount(金额)、category(分类)、remark(备注)的请求体
+     * @param request 包含amount(金额)、category(分类)、remark(备注)、createdAt(记录时间)的请求体
      * @return 更新后的账户信息
      */
     @PostMapping("/add/{mid}")
@@ -204,12 +204,13 @@ public class AccountController {
             
             String category = (String) request.get("category");
             String remark = (String) request.get("remark");
+            String createdAt = (String) request.get("createdAt");
             
             if (category == null || category.trim().isEmpty()) {
                 return ApiResponse.error("交易分类不能为空");
             }
             
-            AccountDTO accountDTO = accountService.addBalance(mid, amount, category, remark);
+            AccountDTO accountDTO = accountService.addBalance(mid, amount, category, remark, createdAt);
             if (accountDTO == null) {
                 return ApiResponse.error("账户不存在");
             }
@@ -226,7 +227,7 @@ public class AccountController {
     /**
      * 减少账户余额
      * @param mid 成员ID
-     * @param request 包含amount(金额)、category(分类)、remark(备注)的请求体
+     * @param request 包含amount(金额)、category(分类)、remark(备注)、type(类型)、createdAt(记录时间)的请求体
      * @return 更新后的账户信息
      */
     @PostMapping("/reduce/{mid}")
@@ -249,12 +250,13 @@ public class AccountController {
             String category = (String) request.get("category");
             String remark = (String) request.get("remark");
             String type = (String) request.get("type");
+            String createdAt = (String) request.get("createdAt");
             
             if (category == null || category.trim().isEmpty()) {
                 return ApiResponse.error("交易分类不能为空");
             }
             
-            AccountDTO accountDTO = accountService.reduceBalance(mid, amount, category, remark,type);
+            AccountDTO accountDTO = accountService.reduceBalance(mid, amount, category, remark, type, createdAt);
             if (accountDTO == null) {
                 return ApiResponse.error("账户不存在或余额不足");
             }
@@ -525,7 +527,7 @@ public class AccountController {
     /**
      * 修改交易记录
      * @param tid 交易ID
-     * @param request 包含amount(金额)、category(分类)、remark(备注)、type(类型)的请求体
+     * @param request 包含amount(金额)、category(分类)、remark(备注)、type(类型)、createdAt(记录时间)的请求体
      * @return 更新后的账户信息
      */
     @PutMapping("/log/{tid}")
@@ -552,11 +554,13 @@ public class AccountController {
             
             String remark = (String) request.get("remark");
             String type = (String) request.get("type");
+            String createdAt = (String) request.get("createdAt");
+            
             if (type == null || (!type.equals("增加") && !type.equals("支出"))) {
                 return ApiResponse.error("无效的交易类型");
             }
             
-            AccountDTO accountDTO = accountService.updateAccountLog(tid, amount, category, remark, type);
+            AccountDTO accountDTO = accountService.updateAccountLog(tid, amount, category, remark, type, createdAt);
             if (accountDTO == null) {
                 return ApiResponse.error("交易记录不存在或余额不足");
             }

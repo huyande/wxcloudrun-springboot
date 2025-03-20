@@ -71,6 +71,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 memberPointLogs.setNum(memberPointLogsRequest.getNum());
                 memberPointLogs.setType(memberPointLogsRequest.getType());
                 memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
+                if(memberPointLogsRequest.getPomodoroTime()!=null){
+                    memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
+                }
                 memberPointLogsMapper.insertOne(memberPointLogs);
 
                 return memberPointLogs;

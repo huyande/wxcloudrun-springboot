@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class AccountServiceImpl implements AccountService {
     final AccountMapper accountMapper;
     final AccountLogMapper accountLogMapper;
     final InterestRateMapper interestRateMapper;
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public AccountServiceImpl(@Autowired AccountMapper accountMapper,
                             @Autowired AccountLogMapper accountLogMapper,
@@ -113,7 +115,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDTO addBalance(Integer mid, BigDecimal amount, String category, String remark) {
+    public AccountDTO addBalance(Integer mid, BigDecimal amount, String category, String remark, String createdAt) {
         Account account = accountMapper.getAccountByMid(mid);
         if (account != null) {
             account.setBalance(account.getBalance().add(amount));
@@ -127,6 +129,19 @@ public class AccountServiceImpl implements AccountService {
             log.setAmount(amount);
             log.setCategory(category);
             log.setRemark(remark);
+            
+            // 设置创建时间，如果没有提供则使用当前时间
+            if (createdAt != null && !createdAt.trim().isEmpty()) {
+                try {
+                    log.setCreatedAt(LocalDateTime.parse(createdAt, dateTimeFormatter));
+                } catch (Exception e) {
+                    // 如果解析失败，使用当前时间
+                    log.setCreatedAt(LocalDateTime.now());
+                }
+            } else {
+                log.setCreatedAt(LocalDateTime.now());
+            }
+            
             accountLogMapper.insertOne(log);
         }
         return convertToDTO(account);
@@ -134,7 +149,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDTO reduceBalance(Integer mid, BigDecimal amount, String category, String remark,String type) {
+    public AccountDTO reduceBalance(Integer mid, BigDecimal amount, String category, String remark, String type, String createdAt) {
         Account account = accountMapper.getAccountByMid(mid);
         if (account != null && account.getBalance().compareTo(amount) >= 0) {
             account.setBalance(account.getBalance().subtract(amount));
@@ -148,9 +163,22 @@ public class AccountServiceImpl implements AccountService {
             log.setAmount(amount);
             log.setCategory(category);
             log.setRemark(remark);
+            
+            // 设置创建时间，如果没有提供则使用当前时间
+            if (createdAt != null && !createdAt.trim().isEmpty()) {
+                try {
+                    log.setCreatedAt(LocalDateTime.parse(createdAt, dateTimeFormatter));
+                } catch (Exception e) {
+                    // 如果解析失败，使用当前时间
+                    log.setCreatedAt(LocalDateTime.now());
+                }
+            } else {
+                log.setCreatedAt(LocalDateTime.now());
+            }
+            
             accountLogMapper.insertOne(log);
             return convertToDTO(account);
-        }else{
+        } else {
             return null;
         }
     }
@@ -217,6 +245,7 @@ public class AccountServiceImpl implements AccountService {
                     log.setAmount(totalInterest);
                     log.setCategory("利息");
                     log.setRemark(String.format("(%d天复利)", daysBetween));
+                    log.setCreatedAt(LocalDateTime.now());
                     accountLogMapper.insertOne(log);
                 }
             }
@@ -225,7 +254,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDTO updateAccountLog(Integer tid, BigDecimal amount, String category, String remark, String type) {
+    public AccountDTO updateAccountLog(Integer tid, BigDecimal amount, String category, String remark, String type, String createdAt) {
         // 查询原交易记录
         AccountLog oldLog = accountLogMapper.getLogById(tid);
         if (oldLog == null) {
@@ -273,6 +302,16 @@ public class AccountServiceImpl implements AccountService {
         oldLog.setCategory(category);
         oldLog.setRemark(remark);
         oldLog.setType(type);
+        
+        // 设置创建时间，如果没有提供则保持原来的时间
+        if (createdAt != null && !createdAt.trim().isEmpty()) {
+            try {
+                oldLog.setCreatedAt(LocalDateTime.parse(createdAt, dateTimeFormatter));
+            } catch (Exception e) {
+                // 如果解析失败，保持原来的时间
+            }
+        }
+        
         accountLogMapper.updateLog(oldLog);
         
         return convertToDTO(account);

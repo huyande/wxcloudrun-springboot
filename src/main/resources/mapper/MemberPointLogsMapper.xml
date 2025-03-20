@@ -39,7 +39,7 @@
     </delete>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberPointLogs">
-            INSERT INTO `member_point_logs`(`day`,`mid`,`uid`,`ruleId`,`num`, `type`,`remark`) VALUE(#{day},#{mid}, #{uid},  #{ruleId}, #{num}, #{type},#{remark})
+            INSERT INTO `member_point_logs`(`day`,`mid`,`uid`,`ruleId`,`num`, `type`,`remark`,`pomodoroTime`) VALUE(#{day},#{mid}, #{uid},  #{ruleId}, #{num}, #{type},#{remark},#{pomodoroTime})
     </insert>
 
 

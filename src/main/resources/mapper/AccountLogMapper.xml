@@ -3,8 +3,8 @@
 <mapper namespace="com.tencent.wxcloudrun.dao.AccountLogMapper">
     <!-- 插入新交易记录 -->
     <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.AccountLog" useGeneratedKeys="true" keyProperty="tid">
-        INSERT INTO account_log (uid, mid, type, amount, category, remark)
-        VALUES (#{uid}, #{mid}, #{type}, #{amount}, #{category}, #{remark})
+        INSERT INTO account_log (uid, mid, type, amount, category, remark, createdAt)
+        VALUES (#{uid}, #{mid}, #{type}, #{amount}, #{category}, #{remark}, #{createdAt})
     </insert>
 
     <!-- 根据ID查询交易记录 -->
@@ -16,7 +16,7 @@
     <select id="getLogsByMid" resultType="com.tencent.wxcloudrun.model.AccountLog">
         SELECT * FROM account_log 
         WHERE mid = #{mid} 
-        ORDER BY createdAt DESC
+        ORDER BY updatedAt DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -24,7 +24,7 @@
     <select id="getLogsByMidAndType" resultType="com.tencent.wxcloudrun.model.AccountLog">
         SELECT * FROM account_log 
         WHERE mid = #{mid} AND type = #{type}
-        ORDER BY createdAt DESC
+        ORDER BY updatedAt DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -32,7 +32,7 @@
     <select id="getLogsByMidAndCategory" resultType="com.tencent.wxcloudrun.model.AccountLog">
         SELECT * FROM account_log 
         WHERE mid = #{mid} AND category = #{category}
-        ORDER BY createdAt DESC
+        ORDER BY updatedAt DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -47,7 +47,8 @@
         SET type = #{type},
             amount = #{amount},
             category = #{category},
-            remark = #{remark}
+            remark = #{remark},
+            createdAt = #{createdAt}
         WHERE tid = #{tid}
     </update>
 

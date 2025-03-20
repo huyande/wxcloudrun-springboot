@@ -52,8 +52,8 @@
     </delete>
 
     <update id="upsertUser" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.WxUser">
-        INSERT INTO `wx_users`(`openid`, `name`,`role`,`familyCode`)
-        VALUES( #{openid}, #{name}, #{role},#{familyCode})
+        INSERT INTO `wx_users`(`openid`, `name`,`role`,`familyCode`,`channel`)
+        VALUES( #{openid}, #{name}, #{role},#{familyCode},#{channel})
             ON DUPLICATE KEY UPDATE `name`=#{name}, `role` = #{role}
     </update>
 

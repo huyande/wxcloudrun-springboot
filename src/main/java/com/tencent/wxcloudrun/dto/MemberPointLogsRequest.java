@@ -13,4 +13,5 @@ public class MemberPointLogsRequest {
     private Integer ruleId;//规则id
     private Integer type;//类型 0 规则 1 游戏
     private String remark;
+    private Integer pomodoroTime;//番茄时常
 }

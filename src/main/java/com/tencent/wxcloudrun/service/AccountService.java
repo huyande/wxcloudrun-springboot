@@ -19,9 +19,9 @@ public interface AccountService {
     
     void deleteAccount(Integer id);
     
-    AccountDTO addBalance(Integer mid, BigDecimal amount, String category, String remark);
+    AccountDTO addBalance(Integer mid, BigDecimal amount, String category, String remark, String createdAt);
     
-    AccountDTO reduceBalance(Integer mid, BigDecimal amount, String category, String remark,String type);
+    AccountDTO reduceBalance(Integer mid, BigDecimal amount, String category, String remark, String type, String createdAt);
     
     void calculateDailyInterest(Integer mid);
     
@@ -32,9 +32,10 @@ public interface AccountService {
      * @param category 新的交易分类
      * @param remark 新的交易备注
      * @param type 新的交易类型（增加/减少）
+     * @param createdAt 新的交易时间
      * @return 更新后的账户信息
      */
-    AccountDTO updateAccountLog(Integer tid, BigDecimal amount, String category, String remark, String type);
+    AccountDTO updateAccountLog(Integer tid, BigDecimal amount, String category, String remark, String type, String createdAt);
     
     /**
      * 删除交易记录并重新计算账户余额

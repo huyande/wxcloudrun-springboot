@@ -104,11 +104,17 @@ public class WxuserController {
   }
 
   @PostMapping("/create")
-  public  ApiResponse add(@RequestHeader(value = "X-WX-OPENID")String openid) {
+  public  ApiResponse add(@RequestHeader(value = "X-WX-OPENID")String openid,@RequestBody(required = false) Map<String, String> requestMap) {
     Optional<WxUser> user = wxuserService.getUser(openid);
     if(!user.isPresent()) {
       WxUser wxUser =  new WxUser();
       wxUser.setOpenid(openid);
+      if(requestMap!=null){
+        String channel = requestMap.get("channel");
+        if(channel!=null){
+          wxUser.setChannel(channel);
+        }
+      }
       String numbers = RandomUtil.randomNumbers(6);
       while (wxuserService.getUserByFamilyCode(numbers).isPresent()) {
         numbers = RandomUtil.randomNumbers(6);

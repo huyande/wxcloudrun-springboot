@@ -31,6 +31,8 @@ public class WxUser implements Serializable {
 
   //vip签到时间
   private LocalDateTime vipSignInAt;
+
+  private String channel;//渠道值，用于统计此用户是那个用户分享来的，这个值和分享人的 familyCode 一致
   
   private LocalDateTime createdAt;
 
