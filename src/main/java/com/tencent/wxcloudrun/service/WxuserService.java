@@ -45,4 +45,8 @@ public interface WxuserService {
   void updateFamilyIsRead(String code, Integer uid, Integer isRead);
 
   boolean hasBindMid(FamilyRequest familyRequest);
+
+  void updateVipExpiredAtByFamilyCode(String channel, int day,String openid);
+
+  Integer getShareVipCount(String openid);
 }

@@ -156,4 +156,42 @@ public class WxuserServiceImpl implements WxuserService {
         }
         return false;
     }
+
+    /**
+     *
+     * @param code 渠道code
+     * @param day 奖励天数
+     * @param sourceOpenid 来源的openid
+     */
+    @Override
+    public void updateVipExpiredAtByFamilyCode(String code, int day,String sourceOpenid) {
+        WxUser user = wxuserMapper.getUserByFamilyCode(code);
+        //检查是否已经添加过奖励，不能重复新增
+        VipConvertLog vipConvertLog = wxuserMapper.getVipLog(sourceOpenid, code, user.getOpenid());
+        if(vipConvertLog!=null){
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiredAt = user.getVipExpiredAt();
+
+        // 计算新的过期时间
+        LocalDateTime newExpiredAt;
+        if (expiredAt == null || expiredAt.isBefore(now)) {
+            newExpiredAt = now.plusSeconds((long)(day * 24 * 60 * 60));
+        } else {
+            newExpiredAt = expiredAt.plusSeconds((long)(day * 24 * 60 * 60));
+        }
+
+        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt);
+        VipConvertLog vipConvertLog_ = new VipConvertLog();
+        vipConvertLog_.setSourceOpenid(sourceOpenid);
+        vipConvertLog_.setChannel(code);
+        vipConvertLog_.setTargetOpenid(user.getOpenid());
+        wxuserMapper.insertVipLog(vipConvertLog_);
+    }
+
+    @Override
+    public Integer getShareVipCount(String openid) {
+        return wxuserMapper.getShareVipCount(openid);
+    }
 }

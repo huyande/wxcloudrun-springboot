@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.dao;
 
+import com.tencent.wxcloudrun.model.VipConvertLog;
 import com.tencent.wxcloudrun.model.WxCheckConfig;
 import com.tencent.wxcloudrun.model.WxUser;
 import org.apache.ibatis.annotations.Mapper;
@@ -29,4 +30,9 @@ public interface WxuserMapper {
   void updateAtUserById(@Param("id")Integer id);
 
   void updateVipExpiredAt(@Param("id") Integer id, @Param("vipExpiredAt") LocalDateTime vipExpiredAt);
+
+  void insertVipLog(VipConvertLog vipConvertLog);
+  VipConvertLog getVipLog(@Param("sourceOpenid") String sourceOpenid, @Param("channel") String channel, @Param("targetOpenid") String targetOpenid);
+
+  Integer getShareVipCount(@Param("openid") String openid);
 }

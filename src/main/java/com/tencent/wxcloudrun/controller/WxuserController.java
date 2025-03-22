@@ -113,6 +113,8 @@ public class WxuserController {
         String channel = requestMap.get("channel");
         if(channel!=null){
           wxUser.setChannel(channel);
+          //奖励会员
+          wxuserService.updateVipExpiredAtByFamilyCode(channel,30,openid);
         }
       }
       String numbers = RandomUtil.randomNumbers(6);
@@ -249,4 +251,10 @@ public class WxuserController {
     }
   }
 
+  @GetMapping("/shareVipCount")
+  public ApiResponse getShareCount(@RequestHeader(value = "X-WX-OPENID")String openid){
+    //获取分享获取到的vip人的数量
+    Integer num = wxuserService.getShareVipCount(openid);
+    return ApiResponse.ok(num);
+  }
 }

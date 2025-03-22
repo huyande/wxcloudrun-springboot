@@ -83,5 +83,20 @@
             vipSignInAt = now()
         WHERE id = #{id}
     </update>
+    <insert id="insertVipLog" parameterType="com.tencent.wxcloudrun.model.VipConvertLog">
+        INSERT INTO vip_convert_log ( sourceOpenid, channel, targetOpenid)
+        VALUES (#{sourceOpenid}, #{channel}, #{targetOpenid})
+    </insert>
 
+    <select id="getVipLog" resultType="com.tencent.wxcloudrun.model.VipConvertLog">
+        SELECT * FROM vip_convert_log
+        WHERE sourceOpenid = #{sourceOpenid}
+        AND channel = #{channel}
+        AND targetOpenid = #{targetOpenid}
+    </select>
+
+    <select id="getShareVipCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT count(1) FROM vip_convert_log
+        WHERE targetOpenid = #{openid}
+    </select>
 </mapper>
