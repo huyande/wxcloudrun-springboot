@@ -10,24 +10,25 @@
         <result property="dakaDays" column="dakaDays"/>
         <result property="uid" column="uid"/>
         <result property="familyCode" column="familyCode"/>
+        <result property="avatar" column="avatar"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
     <select id="getMemberById" resultMap="memberMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`avatar`,`createdAt`,`updatedAt`
         FROM members
         WHERE id = #{id}
     </select>
 
     <select id="getMembersByFamilyCode" resultMap="memberMapper" parameterType="java.lang.String">
-        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`createdAt`,`updatedAt`
+        SELECT `id`, `name`, `gender`, `pointTotal`,`dakaDays`,`uid`,`familyCode`,`avatar`,`createdAt`,`updatedAt`
         FROM members
         WHERE familyCode = #{familyCode}
     </select>
 
     <select id="getMembersByUid" resultType="com.tencent.wxcloudrun.model.Member" parameterType="java.lang.Integer">
-        SELECT t1.`id`, `name`, `gender`, `pointTotal`,`dakaDays`,t1.`uid`,`familyCode`,`createdAt`,`updatedAt`,`isRead`,`bindMid`, t2.`uid` as currentUid
+        SELECT t1.`id`, `name`, `gender`, `pointTotal`,`dakaDays`,t1.`uid`,`familyCode`,`avatar`,`createdAt`,`updatedAt`,`isRead`,`bindMid`, t2.`uid` as currentUid
         FROM members as t1,family as t2
         where t1.familyCode = t2.code and t2.uid = #{uId}
     </select>
@@ -51,7 +52,8 @@
     <update id="updateById" parameterType="com.tencent.wxcloudrun.model.Member">
         UPDATE members 
         SET name = #{name},
-            gender = #{gender}
+            gender = #{gender},
+            avatar = #{avatar}
         WHERE id = #{id}
     </update>
 

@@ -12,4 +12,5 @@ public class TImage implements Serializable {
     private String imageUrl;
     private String location;
     private String groupID; // 分组ID
+    private String groupName; // 分组名称
 }

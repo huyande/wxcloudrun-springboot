@@ -116,6 +116,9 @@ public class MemberServiceImpl implements MemberService {
         if(memberRequest.getGender()!=null){
             member.setGender(memberRequest.getGender());
         }
+        if(memberRequest.getAvatar()!=null){
+            member.setAvatar(memberRequest.getAvatar());
+        }
 
 //        member.setPointTotal(memberRequest.getPointTotalCount());
         

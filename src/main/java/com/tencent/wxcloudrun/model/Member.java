@@ -14,11 +14,13 @@ public class Member implements Serializable {
     private Integer dakaDays;//打卡天数
     private Integer uid;//创建成员的uid
     private String familyCode;
+    private String avatar;//头像
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    private transient Integer isRead;
-    private transient Integer bindMid;
+    //这块是做身份是7的 只读模式
+    private transient Integer isRead;//是否已读
+    private transient Integer bindMid;//绑定成员的id 
     private transient Integer currentUid;//成员自己的uid
 }

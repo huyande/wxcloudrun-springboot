@@ -496,7 +496,7 @@ public class MemberController {
     /**
      * 更新member信息
      * @param id member的id
-     * @param memberRequest 更新的member信息
+     * @param memberRequest 更新的member信息，可以包含name、gender、avatar等字段
      * @return 更新后的member信息
      */
     @PutMapping("/{id}")
@@ -753,6 +753,31 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取规则分类失败", e);
             return ApiResponse.error("获取规则分类失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 专门用于更新成员头像
+     * @param id 成员ID
+     * @param request 包含avatar字段的请求体
+     * @return 更新结果
+     */
+    @PutMapping("/{id}/avatar")
+    public ApiResponse updateMemberAvatar(@PathVariable Integer id, @RequestBody Map<String, String> request) {
+        try {
+            String avatar = request.get("avatar");
+            if (avatar == null || avatar.trim().isEmpty()) {
+                return ApiResponse.error("头像URL不能为空");
+            }
+            
+            MemberRequest memberRequest = new MemberRequest();
+            memberRequest.setAvatar(avatar);
+            
+            Member updatedMember = memberService.updateMember(id, memberRequest);
+            return ApiResponse.ok(updatedMember);
+        } catch (Exception e) {
+            logger.error("更新成员头像失败", e);
+            return ApiResponse.error("更新成员头像失败: " + e.getMessage());
         }
     }
 }

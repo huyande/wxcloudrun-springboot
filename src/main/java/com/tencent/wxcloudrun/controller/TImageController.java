@@ -39,6 +39,17 @@ public class TImageController {
         return ApiResponse.ok(tImageService.getImagesByLocation(location));
     }
 
+    /**
+     * 根据location获取按groupName分组的图片列表
+     * @param location 位置
+     * @return 分组后的图片列表，格式为[{groupName: xxx, items: []}]
+     */
+    @GetMapping("/group/{location}")
+    public ApiResponse getGroupedImagesByLocation(@PathVariable String location) {
+        logger.info("/api/images/group/{} GET request", location);
+        return ApiResponse.ok(tImageService.getGroupedImagesByLocation(location));
+    }
+
     @PostMapping
     public ApiResponse createImage(@RequestBody TImage image) {
         logger.info("/api/images POST request");

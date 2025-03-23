@@ -8,6 +8,7 @@
         <result property="imageUrl" column="image_url"/>
         <result property="location" column="location"/>
         <result property="groupID" column="groupID"/>
+        <result property="groupName" column="groupName"/>
     </resultMap>
 
     <select id="getById" resultMap="tImageMapper" parameterType="java.lang.Integer">
@@ -23,10 +24,10 @@
     </select>
 
     <select id="getByLocation" resultMap="tImageMapper" parameterType="java.lang.String">
-        SELECT `id`, `image_name`, `image_url`, `location`
+        SELECT `id`, `image_name`, `image_url`, `location`, `groupID`, `groupName`
         FROM t_image
         WHERE location = #{location}
-        ORDER BY groupID ASC
+        ORDER BY groupID ASC, id ASC
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.TImage">
