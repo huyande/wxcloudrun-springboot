@@ -96,4 +96,16 @@ public interface WishLogMapper {
                                                     @Param("startDate") String startDate, 
                                                     @Param("endDate") String endDate,
                                                     @Param("limit") Integer limit);
+    
+    /**
+     * 按月份获取心愿兑换消耗的积分
+     * 
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 月份积分消耗列表，包含月份和对应的积分消耗
+     */
+    List<Map<String, Object>> getWishConsumedPointsByMonth(@Param("mid") Integer mid, 
+                                                         @Param("startDate") String startDate, 
+                                                         @Param("endDate") String endDate);
 }

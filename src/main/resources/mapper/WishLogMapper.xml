@@ -137,4 +137,19 @@
         LIMIT #{limit}
     </select>
 
+    <select id="getWishConsumedPointsByMonth" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(createdAt, '%Y-%m') as month,
+            SUM(point) as points
+        FROM 
+            wish_log
+        WHERE 
+            mid = #{mid}
+            AND createdAt BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            month
+        ORDER BY 
+            month
+    </select>
+
 </mapper>

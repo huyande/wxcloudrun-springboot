@@ -44,6 +44,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 直接通过mapper查询按月份统计的积分数据
         List<Map<String, Object>> monthlyStats = memberPointLogsMapper.getPointsStatisticsByMonth(mid, startDate, endDate);
         
+        // 查询按月份统计的心愿兑换消耗积分数据
+        List<Map<String, Object>> wishMonthlyStats = wishLogMapper.getWishConsumedPointsByMonth(mid, startDate, endDate);
+        
         // 生成从开始月份到结束月份的完整月份列表
         List<String> allMonths = generateCompleteMonthsList(startDate, endDate);
         
@@ -58,6 +61,20 @@ public class StatisticsServiceImpl implements StatisticsService {
             for (Map<String, Object> stat : monthlyStats) {
                 String month = (String) stat.get("month");
                 monthStatsMap.put(month, stat);
+            }
+        }
+        
+        // 用于快速查找月份对应的心愿兑换消耗积分数据
+        Map<String, Integer> wishMonthStatsMap = new HashMap<>();
+        if (wishMonthlyStats != null) {
+            for (Map<String, Object> stat : wishMonthlyStats) {
+                String month = (String) stat.get("month");
+                Object pointsObj = stat.get("points");
+                int points = 0;
+                if (pointsObj instanceof Number) {
+                    points = ((Number) pointsObj).intValue();
+                }
+                wishMonthStatsMap.put(month, points);
             }
         }
         
@@ -80,6 +97,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (decreaseObj instanceof Number) {
                     decreaseValue = ((Number) decreaseObj).intValue();
                 }
+            }
+            
+            // 加上心愿兑换消耗的积分到减少数据中
+            Integer wishPointsConsumed = wishMonthStatsMap.get(month);
+            if (wishPointsConsumed != null) {
+                decreaseValue += wishPointsConsumed;
             }
             
             // 添加到对应数组
