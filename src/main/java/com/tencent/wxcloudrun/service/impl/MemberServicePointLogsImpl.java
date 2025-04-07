@@ -99,6 +99,12 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     }
 
     @Override
+    public List<Map<String, Object>> getPointLogsByMidAndSpecificMonth(Integer mid, String yearMonth) {
+        List<Map<String, Object>> result = memberPointLogsMapper.getPointLogsByMidAndSpecificMonth(mid, yearMonth);
+        return result;
+    }
+
+    @Override
     public Integer getAllCountLogsByDayMid(Integer mid) {
         return memberPointLogsMapper.getAllCountLogsByDayMid(mid);
     }

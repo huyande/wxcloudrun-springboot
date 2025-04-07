@@ -70,6 +70,13 @@
         WHERE mid = #{mid} and type=0 AND day BETWEEN DATE_FORMAT(NOW() ,'%Y-%m-01') AND CURDATE() GROUP BY day
     </select>
 
+    <select id="getPointLogsByMidAndSpecificMonth" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT DATE_FORMAT(day,'%Y-%m-%d') as day
+        FROM member_point_logs
+        WHERE mid = #{mid} and type=0 
+        AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        GROUP BY day
+    </select>
 
     <delete id="deleteByMid" parameterType="java.lang.Integer">
         DELETE FROM member_point_logs WHERE mid = #{mid}

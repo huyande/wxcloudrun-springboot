@@ -328,42 +328,22 @@ public class MemberController {
     }
 
     @GetMapping("/pointlogMonthDay/{mid}")
-    public ApiResponse getPointMonthDay(@PathVariable Integer mid) {
+    public ApiResponse getPointMonthDay(@PathVariable Integer mid, @RequestParam(required = false) String yearMonth) {
         try {
-            List<Map<String, Object>> logs = memberPointLogsService.getPointLogsByMidAndMonth(mid);
+            List<Map<String, Object>> logs;
+            if (yearMonth != null && !yearMonth.isEmpty()) {
+                // 如果提供了yearMonth参数，查询指定月份的数据
+                logs = memberPointLogsService.getPointLogsByMidAndSpecificMonth(mid, yearMonth);
+            } else {
+                // 没有提供yearMonth参数，查询当月数据
+                logs = memberPointLogsService.getPointLogsByMidAndMonth(mid);
+            }
             return ApiResponse.ok(logs);
         } catch (Exception e) {
             logger.error("获取会员积分详情失败", e);
             return ApiResponse.error("获取会员积分详情失败");
         }
     }
-
-    // 根据uid获取memberlist
-    @GetMapping("/memberlist/{uid}")
-    public ApiResponse getMemberListByUid(@PathVariable Integer uid) {
-        try {
-            WxUser wxUser = wxuserService.getUserById(uid);
-            List<Member> members = memberService.getMembersByUid(uid);
-            if(wxUser.getRole()!=null && wxUser.getRole()==7){//表示角色时 孩子自己
-                List<Member> filteredMembers = new ArrayList<>();
-                for(Member member : members) {
-                    if(member.getCurrentUid() != null &&
-                            member.getCurrentUid().equals(wxUser.getId()) &&
-                            member.getId().equals(member.getBindMid())) {
-                        filteredMembers.add(member);
-                    }
-                }
-                if(filteredMembers.size()!=0){
-                    members = filteredMembers;
-                }
-            }
-            return ApiResponse.ok(members);
-        } catch (Exception e) {
-            logger.error("获取会员列表失败", e);
-            return ApiResponse.error("获取会员列表失败");
-        }
-    }
-
 
     // 根据mid获取member
     @GetMapping("/logCount/{mid}")
@@ -778,6 +758,32 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("更新成员头像失败", e);
             return ApiResponse.error("更新成员头像失败: " + e.getMessage());
+        }
+    }
+
+    // 根据uid获取memberlist
+    @GetMapping("/memberlist/{uid}")
+    public ApiResponse getMemberListByUid(@PathVariable Integer uid) {
+        try {
+            WxUser wxUser = wxuserService.getUserById(uid);
+            List<Member> members = memberService.getMembersByUid(uid);
+            if(wxUser.getRole()!=null && wxUser.getRole()==7){//表示角色时 孩子自己
+                List<Member> filteredMembers = new ArrayList<>();
+                for(Member member : members) {
+                    if(member.getCurrentUid() != null &&
+                            member.getCurrentUid().equals(wxUser.getId()) &&
+                            member.getId().equals(member.getBindMid())) {
+                        filteredMembers.add(member);
+                    }
+                }
+                if(filteredMembers.size()!=0){
+                    members = filteredMembers;
+                }
+            }
+            return ApiResponse.ok(members);
+        } catch (Exception e) {
+            logger.error("获取会员列表失败", e);
+            return ApiResponse.error("获取会员列表失败");
         }
     }
 }
