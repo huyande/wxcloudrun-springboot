@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.RuleAchievementDao">
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.RuleAchievement">
+        <id column="id" property="id"/>
+        <result column="ruleId" property="ruleId"/>
+        <result column="title" property="title"/>
+        <result column="img" property="img"/>
+        <result column="conditionType" property="conditionType"/>
+        <result column="conditionValue" property="conditionValue"/>
+        <result column="rewardType" property="rewardType"/>
+        <result column="rewardValue" property="rewardValue"/>
+        <result column="status" property="status"/>
+        <result column="createdAt" property="createdAt"/>
+        <result column="updatedAt" property="updatedAt"/>
+    </resultMap>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT * FROM rule_achievements WHERE id = #{id} AND status = 0
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT * FROM rule_achievements WHERE status = 0
+    </select>
+
+    <select id="getByRuleId" resultMap="BaseResultMap">
+        SELECT * FROM rule_achievements WHERE ruleId = #{ruleId} AND status = 0
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.RuleAchievement" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rule_achievements(ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status)
+        VALUES(#{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, 0)
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.RuleAchievement">
+        UPDATE rule_achievements
+        SET ruleId=#{ruleId}, title=#{title}, img=#{img},
+            conditionType=#{conditionType}, conditionValue=#{conditionValue},
+            rewardType=#{rewardType}, rewardValue=#{rewardValue},
+            updatedAt=CURRENT_TIMESTAMP
+        WHERE id=#{id} AND status = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE rule_achievements SET status = 1, updatedAt = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+</mapper> 

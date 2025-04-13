@@ -57,6 +57,9 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setTypeSort(memberRuleRequest.getTypeSort());
         memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
         memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
+        if(memberRuleRequest.getIsAchievement()!=null){
+            memberRules.setIsAchievement(memberRuleRequest.getIsAchievement());
+        }
         memberRulesMapper.insertOne(memberRules);
         return memberRules;
     }
@@ -93,6 +96,9 @@ public class MemberServiceRulesImpl implements MemberRulesService {
         memberRules.setTypeSort(memberRuleRequest.getTypeSort());
         memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
         memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
+        if(memberRuleRequest.getIsAchievement()!=null){
+            memberRules.setIsAchievement(memberRuleRequest.getIsAchievement());
+        }
         memberRulesMapper.updateRuleById(memberRules);
     }
 
