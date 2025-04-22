@@ -1,9 +1,11 @@
 package com.tencent.wxcloudrun.dao;
 
 import com.tencent.wxcloudrun.model.RuleAchievement;
-import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface RuleAchievementDao {
+import java.util.List;
+@Mapper
+public interface RuleAchievementMapper {
     RuleAchievement getById(Integer id);
     List<RuleAchievement> list();
     List<RuleAchievement> getByRuleId(Integer ruleId);

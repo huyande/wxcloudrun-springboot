@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/rule-achievement-logs")
@@ -31,6 +32,12 @@ public class RuleAchievementLogController {
     public ApiResponse getByAchievementId(@PathVariable Integer raId) {
         List<RuleAchievementLog> logs = ruleAchievementLogService.getByAchievementId(raId);
         return ApiResponse.ok(logs);
+    }
+
+    @GetMapping("/member-achievements/{mid}")
+    public ApiResponse getMemberAchievements(@PathVariable Integer mid) {
+        List<Map<String, Object>> achievements = ruleAchievementLogService.getMemberAchievements(mid);
+        return ApiResponse.ok(achievements);
     }
 
     @PostMapping

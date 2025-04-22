@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.tencent.wxcloudrun.dao.RuleAchievementLogDao">
+<mapper namespace="com.tencent.wxcloudrun.dao.RuleAchievementLogMapper">
     <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.RuleAchievementLog">
         <id column="id" property="id"/>
         <result column="raId" property="raId"/>
@@ -19,6 +19,25 @@
 
     <select id="getByAchievementId" resultMap="BaseResultMap">
         SELECT * FROM rule_achievement_logs WHERE raId = #{raId}
+    </select>
+
+    <select id="getByAchievementAndMember" resultMap="BaseResultMap">
+        SELECT * FROM rule_achievement_logs WHERE raId = #{raId} AND mid = #{mid} LIMIT 1
+    </select>
+
+    <select id="getMemberAchievements" resultType="java.util.Map">
+        SELECT 
+            ra.title as achievementTitle,
+            ra.img as achievementImg,
+            ral.createdAt as achievementTime,
+            ra.conditionType as achievementType,
+            ra.conditionValue as achievementCondition,
+            ra.rewardType as rewardType,
+            ra.rewardValue as rewardValue
+        FROM rule_achievement_logs ral
+        JOIN rule_achievements ra ON ral.raId = ra.id
+        WHERE ral.mid = #{mid} AND ra.status = 0
+        ORDER BY ral.createdAt DESC
     </select>
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.RuleAchievementLog" useGeneratedKeys="true" keyProperty="id">

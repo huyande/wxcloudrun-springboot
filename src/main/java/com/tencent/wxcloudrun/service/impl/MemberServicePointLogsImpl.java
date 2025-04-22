@@ -7,17 +7,15 @@ import com.tencent.wxcloudrun.dao.WishLogMapper;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
-import com.tencent.wxcloudrun.model.MemberRules;
+import com.tencent.wxcloudrun.model.RuleAchievement;
 import com.tencent.wxcloudrun.service.MemberPointLogsService;
+import com.tencent.wxcloudrun.service.RuleAchievementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.beans.Transient;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.ArrayList;
@@ -31,15 +29,18 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     final MemberRulesMapper memberRulesMapper;
     final WishLogMapper wishLogMapper;
     final MemberMapper memberMapper;
+    final RuleAchievementService ruleAchievementService;
     //构造函数注入
     public MemberServicePointLogsImpl(@Autowired MemberPointLogsMapper memberPointLogsMapper,
-                                    @Autowired MemberRulesMapper memberRulesMapper,
+                                      @Autowired MemberRulesMapper memberRulesMapper,
                                       @Autowired WishLogMapper wishLogMapper,
-                                      @Autowired MemberMapper memberMapper) {
+                                      @Autowired MemberMapper memberMapper,
+                                      @Autowired RuleAchievementService ruleAchievementService) {
         this.memberPointLogsMapper = memberPointLogsMapper;
         this.memberRulesMapper = memberRulesMapper;
         this.wishLogMapper = wishLogMapper;
         this.memberMapper = memberMapper;
+        this.ruleAchievementService = ruleAchievementService;
     }
 
     @Override
@@ -79,6 +80,49 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             memberPointLogsMapper.insertOne(memberPointLogs);
 
             return memberPointLogs;
+        }
+    }
+
+    @Override
+    public Map<String,Object> insertAndCheckRule(MemberPointLogsRequest memberPointLogsRequest){
+        Map<String,Object> res = new HashMap<>();
+        MemberPointLogs log = memberPointLogsMapper.getLogsByDayMidAndRuleId(memberPointLogsRequest.getDay(), memberPointLogsRequest.getMid(), memberPointLogsRequest.getRuleId());
+        if(log!=null){
+            res.put("log",log);
+            if(memberPointLogsRequest.getNum()==0){
+                memberPointLogsMapper.delete(log.getId());
+                return res;
+            }
+            //更新
+            memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark());
+            return res;
+        }else{
+            if(memberPointLogsRequest.getNum()==0 && memberPointLogsRequest.getType()==0){
+                return null;
+            }
+            MemberPointLogs memberPointLogs = new MemberPointLogs();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
+
+            memberPointLogs.setDay(dateTime);
+            memberPointLogs.setMid(memberPointLogsRequest.getMid());
+            memberPointLogs.setUid(memberPointLogsRequest.getUid());
+            memberPointLogs.setRuleId(memberPointLogsRequest.getRuleId());
+            memberPointLogs.setNum(memberPointLogsRequest.getNum());
+            memberPointLogs.setType(memberPointLogsRequest.getType());
+            memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
+            if(memberPointLogsRequest.getPomodoroTime()!=null){
+                memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
+            }
+            memberPointLogsMapper.insertOne(memberPointLogs);
+            res.put("log",memberPointLogs);
+            if(memberPointLogsRequest.getRuleId()!=null && memberPointLogsRequest.getNum()>0){
+                List<RuleAchievement> rules = ruleAchievementService.checkAchievementRules(memberPointLogsRequest.getRuleId(), memberPointLogsRequest.getMid());
+                if(rules!=null && rules.size()!=0){
+                    res.put("achievements",rules);
+                }
+            }
+            return res;
         }
     }
 

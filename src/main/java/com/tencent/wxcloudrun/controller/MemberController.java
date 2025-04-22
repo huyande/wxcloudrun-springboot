@@ -4,10 +4,7 @@ import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.dto.MemberRuleRequest;
-import com.tencent.wxcloudrun.model.Member;
-import com.tencent.wxcloudrun.model.MemberPointLogs;
-import com.tencent.wxcloudrun.model.MemberRules;
-import com.tencent.wxcloudrun.model.WxUser;
+import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,9 +270,13 @@ public class MemberController {
             if(memberPointLogs.getType() ==null){//设置积分类型是打卡
                 memberPointLogs.setType(0);
             }
-            MemberPointLogs pointLogs = memberPointLogsService.insert(memberPointLogs);
-            if(pointLogs!=null){
-                return ApiResponse.ok();
+            Map<String, Object> map = memberPointLogsService.insertAndCheckRule(memberPointLogs);
+            if(!map.isEmpty()){
+                List<RuleAchievement> achievements = null;
+                if(map.containsKey("achievements")){
+                    achievements = (List<RuleAchievement>) map.get("achievements");
+                }
+                return ApiResponse.ok(achievements);
             }else {
                 return ApiResponse.error("积分为0不能记录");
             }

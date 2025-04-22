@@ -12,6 +12,7 @@ import java.util.Map;
 public interface MemberPointLogsService {
     List<MemberPointLogs> getLogsByMidAndDate(Integer mid, LocalDateTime startAt,LocalDateTime endAt);
     MemberPointLogs insert(MemberPointLogsRequest memberPointLogs);
+    Map<String,Object> insertAndCheckRule(MemberPointLogsRequest memberPointLogs);
     Integer getPointSumByMid(Integer mid);
     //根据mid获取统计用户的积分
     Integer getPointDaysByMid(Integer mid);
