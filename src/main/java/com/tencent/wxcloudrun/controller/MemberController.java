@@ -271,15 +271,14 @@ public class MemberController {
                 memberPointLogs.setType(0);
             }
             Map<String, Object> map = memberPointLogsService.insertAndCheckRule(memberPointLogs);
-            if(!map.isEmpty()){
+            if(map!=null && !map.isEmpty()){
                 List<RuleAchievement> achievements = null;
                 if(map.containsKey("achievements")){
                     achievements = (List<RuleAchievement>) map.get("achievements");
                 }
                 return ApiResponse.ok(achievements);
-            }else {
-                return ApiResponse.error("积分为0不能记录");
             }
+            return ApiResponse.ok();
         } catch (Exception e) {
             logger.error("添加会员积分日志失败", e);
             return ApiResponse.error("添加积分失败");
