@@ -312,15 +312,16 @@ public class MemberController {
     @GetMapping("/pointsum/{mid}")
     public ApiResponse getPointSumByMid(@PathVariable Integer mid) {
         try {
-            Member member = memberService.getMemberById(mid);
-            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
-            Integer days = memberPointLogsService.getPointDaysByMid(mid);
-            Integer wishSum =  wishLogService.getSumNumByMid(mid);
-            HashMap<String, Object> result = new HashMap<>();
-            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
-            result.put("pointSum", total+member.getPointTotal());
-            result.put("days", days);
-            result.put("originalPointSum", (pointSum == null ? 0 : pointSum)+member.getPointTotal());//累计的积分，不减去wishSum的积分
+//            Member member = memberService.getMemberById(mid);
+//            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
+//            Integer days = memberPointLogsService.getPointDaysByMid(mid);
+//            Integer wishSum =  wishLogService.getSumNumByMid(mid);
+//            HashMap<String, Object> result = new HashMap<>();
+//            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
+//            result.put("pointSum", total+member.getPointTotal());
+//            result.put("days", days);
+//            result.put("originalPointSum", (pointSum == null ? 0 : pointSum)+member.getPointTotal());//累计的积分，不减去wishSum的积分
+            HashMap<String, Integer> result = memberPointLogsService.getPointInfoByMid(mid);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             logger.error("获取会员积分总和失败", e);

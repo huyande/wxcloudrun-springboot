@@ -15,4 +15,6 @@ public interface RuleAchievementLogMapper {
     int insert(RuleAchievementLog log);
     int deleteById(Integer id);
     int deleteByAchievementAndMember(Integer raId, Integer mid);
+
+    Integer getSumRewardValue(Integer mid);
 } 

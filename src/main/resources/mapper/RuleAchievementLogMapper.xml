@@ -40,9 +40,13 @@
         ORDER BY ral.createdAt DESC
     </select>
 
+    <select id="getSumRewardValue" resultType="java.lang.Integer">
+        SELECT sum(rewardValue) as c FROM rule_achievement_logs WHERE mid = #{mid}
+    </select>
+
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.RuleAchievementLog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rule_achievement_logs(raId, mid)
-        VALUES(#{raId}, #{mid})
+        INSERT INTO rule_achievement_logs(raId, mid,rewardValue)
+        VALUES(#{raId}, #{mid},#{rewardValue})
     </insert>
 
     <delete id="deleteById">

@@ -6,6 +6,7 @@ import com.tencent.wxcloudrun.model.MemberPointLogs;
 import com.tencent.wxcloudrun.model.MemberRules;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,4 +48,6 @@ public interface MemberPointLogsService {
      * @return
      */
     Integer getLastPointSum(Integer mid);
+
+    HashMap<String, Integer> getPointInfoByMid(Integer mid);
 }

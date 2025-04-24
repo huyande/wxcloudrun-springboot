@@ -1,9 +1,6 @@
 package com.tencent.wxcloudrun.service.impl;
 
-import com.tencent.wxcloudrun.dao.MemberMapper;
-import com.tencent.wxcloudrun.dao.MemberPointLogsMapper;
-import com.tencent.wxcloudrun.dao.MemberRulesMapper;
-import com.tencent.wxcloudrun.dao.WishLogMapper;
+import com.tencent.wxcloudrun.dao.*;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.MemberPointLogs;
@@ -30,17 +27,20 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     final WishLogMapper wishLogMapper;
     final MemberMapper memberMapper;
     final RuleAchievementService ruleAchievementService;
+    final RuleAchievementLogMapper ruleAchievementLogMapper;
     //构造函数注入
     public MemberServicePointLogsImpl(@Autowired MemberPointLogsMapper memberPointLogsMapper,
                                       @Autowired MemberRulesMapper memberRulesMapper,
                                       @Autowired WishLogMapper wishLogMapper,
                                       @Autowired MemberMapper memberMapper,
-                                      @Autowired RuleAchievementService ruleAchievementService) {
+                                      @Autowired RuleAchievementService ruleAchievementService,
+                                      @Autowired RuleAchievementLogMapper ruleAchievementLogMapper) {
         this.memberPointLogsMapper = memberPointLogsMapper;
         this.memberRulesMapper = memberRulesMapper;
         this.wishLogMapper = wishLogMapper;
         this.memberMapper = memberMapper;
         this.ruleAchievementService = ruleAchievementService;
+        this.ruleAchievementLogMapper = ruleAchievementLogMapper;
     }
 
     @Override
@@ -364,9 +364,27 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         Integer pointSum = memberPointLogsMapper.getPointSumByMid(mid);
         Integer wishPointSum = wishLogMapper.getSumNumByMid(mid);
         Member member = memberMapper.getMemberById(mid);
-        int  total = (pointSum == null ? 0 : pointSum) - (wishPointSum==null ? 0 :wishPointSum);
+        Integer rewardValueSum = ruleAchievementLogMapper.getSumRewardValue(mid);
+        int  total = (pointSum == null ? 0 : pointSum) - (wishPointSum==null ? 0 :wishPointSum) + (rewardValueSum==null?0:rewardValueSum);
         int memberInitPoint = member.getPointTotal()==null?0:member.getPointTotal();
         return total + memberInitPoint;
+    }
+
+    @Override
+    public HashMap<String, Integer> getPointInfoByMid(Integer mid) {
+        Integer pointSum = memberPointLogsMapper.getPointSumByMid(mid);
+        Integer wishPointSum = wishLogMapper.getSumNumByMid(mid);
+        Member member = memberMapper.getMemberById(mid);
+        Integer rewardValueSum = ruleAchievementLogMapper.getSumRewardValue(mid);
+        int memberInitPoint = member.getPointTotal()==null?0:member.getPointTotal();
+        int  total = (pointSum == null ? 0 : pointSum) - (wishPointSum==null ? 0 :wishPointSum) + (rewardValueSum==null?0:rewardValueSum) + memberInitPoint;
+        Integer days = memberPointLogsMapper.getPointDaysByMid(mid);
+
+        HashMap<String, Integer> result = new HashMap<>();
+        result.put("pointSum",total);
+        result.put("days", days);
+        result.put("originalPointSum", total+member.getPointTotal());//累计的积分，不减去wishSum的积分
+        return result;
     }
 
 
