@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.BannerImageMapper">
+
+    <resultMap id="bannerImageMapper" type="com.tencent.wxcloudrun.model.BannerImage">
+        <id property="id" column="id"/>
+        <result property="img" column="img"/>
+        <result property="url" column="url"/>
+        <result property="status" column="status"/>
+        <result property="sort" column="sort"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="getById" resultMap="bannerImageMapper" parameterType="java.lang.Integer">
+        SELECT `id`, `img`, `url`, `status`, `sort`, `created_at`, `updated_at`
+        FROM banner_image
+        WHERE id = #{id}
+    </select>
+
+    <select id="getAll" resultMap="bannerImageMapper">
+        SELECT `id`, `img`, `url`, `status`, `sort`, `created_at`, `updated_at`
+        FROM banner_image
+        ORDER BY sort ASC, created_at DESC
+    </select>
+
+    <select id="getAllEnabled" resultMap="bannerImageMapper">
+        SELECT `id`, `img`, `url`, `status`, `sort`, `created_at`, `updated_at`
+        FROM banner_image
+        WHERE status = 1
+        ORDER BY sort ASC, created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.BannerImage">
+        INSERT INTO `banner_image`(`img`, `url`, `status`, `sort`, `created_at`, `updated_at`)
+        VALUES(#{img}, #{url}, #{status}, #{sort}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.BannerImage">
+        UPDATE banner_image
+        SET img = #{img},
+            url = #{url},
+            status = #{status},
+            sort = #{sort},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE banner_image
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM banner_image
+        WHERE id = #{id}
+    </delete>
+
+</mapper> 
