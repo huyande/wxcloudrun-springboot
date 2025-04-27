@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: dev
   datasource:
       url: ${MYSQL_ADDRESS}/${MYSQL_DATABASE:springboot_demo}
       username: ${MYSQL_USERNAME}

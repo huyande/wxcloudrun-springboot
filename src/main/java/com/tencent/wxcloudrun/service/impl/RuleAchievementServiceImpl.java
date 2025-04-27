@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +88,7 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
             switch (achievement.getConditionType()) {
                 case "连续":
                     // 计算连续打卡天数
-                    currentValue = calculateConsecutiveCheckIns(mid, ruleId);
+                    currentValue = calculateConsecutiveCheckIns(mid, ruleId, achievement.getConditionValue());
                     // 连续打卡天数达到要求
                     if (currentValue >= achievement.getConditionValue()) {
                         isAchieved = true;
@@ -136,9 +137,28 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
      * 计算连续打卡天数
      * @param mid 成员ID
      * @param ruleId 规则ID
+     * @param conditionValue 目标连续天数
+     * @return 是否满足连续打卡天数条件
+     */
+    private Integer calculateConsecutiveCheckIns(Integer mid, Integer ruleId, Integer conditionValue) {
+        // 计算开始日期（当前日期减去目标天数）
+        LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime startDate = endDate.minusDays(conditionValue - 1).withHour(0).withMinute(0).withSecond(0);
+        
+        // 查询指定日期范围内的打卡记录数量
+        Integer checkInCount = memberPointLogsMapper.getCheckInCountBetweenDates(mid, ruleId, startDate, endDate);
+        
+        // 如果打卡记录数量等于目标天数，说明每天都打卡了
+        return checkInCount;
+    }
+
+    /**
+     * 计算连续打卡天数（旧方法，保留作为参考）
+     * @param mid 成员ID
+     * @param ruleId 规则ID
      * @return 当前连续打卡天数
      */
-    private Integer calculateConsecutiveCheckIns(Integer mid, Integer ruleId) {
+    private Integer calculateConsecutiveCheckInsOld(Integer mid, Integer ruleId) {
         // 获取该规则下的所有打卡记录
         List<MemberPointLogs> checkInRecords = memberPointLogsMapper.getCheckInRecords(mid, ruleId);
         if (checkInRecords == null || checkInRecords.isEmpty()) {
@@ -163,11 +183,6 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
             
             // 更新最大连续天数
             maxConsecutiveDays = Math.max(maxConsecutiveDays, consecutiveDays);
-            
-//            // 连续打卡天数最大为31
-//            if (maxConsecutiveDays >= 31) {
-//                return 31;
-//            }
         }
         
         return maxConsecutiveDays;

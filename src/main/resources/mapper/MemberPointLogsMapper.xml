@@ -369,4 +369,14 @@
             value DESC
     </select>
 
+    <select id="getCheckInCountBetweenDates" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(DISTINCT DATE(day)) as count
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND type = 0
+        AND num != 0
+        AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
 </mapper>

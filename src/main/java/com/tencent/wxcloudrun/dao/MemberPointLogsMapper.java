@@ -147,4 +147,14 @@ public interface MemberPointLogsMapper {
                                                       @Param("startDate") String startDate, 
                                                       @Param("endDate") String endDate);
 
+    /**
+     * 检查指定时间范围内的连续打卡记录
+     * @param mid 会员ID
+     * @param ruleId 规则ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 该日期范围内的打卡记录数量
+     */
+    Integer getCheckInCountBetweenDates(Integer mid, Integer ruleId, LocalDateTime startDate, LocalDateTime endDate);
+
 }

@@ -27,7 +27,7 @@
         SELECT `id`, `image_name`, `image_url`, `location`, `groupID`, `groupName`
         FROM t_image
         WHERE location = #{location}
-        ORDER BY groupID ASC, id ASC
+        ORDER BY groupID DESC
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.TImage">
