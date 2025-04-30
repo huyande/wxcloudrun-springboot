@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.AchievementCategoryMapper">
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.AchievementCategory">
+        <id column="id" property="id"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="achievement_name" property="achievementName"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="createAchievementCategory" parameterType="com.tencent.wxcloudrun.model.AchievementCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO achievement_category(category_name, achievement_name, status)
+        VALUES(#{categoryName}, #{achievementName}, 0)
+    </insert>
+
+    <select id="getAllAchievementCategories" resultMap="BaseResultMap">
+        SELECT * FROM achievement_category
+    </select>
+
+    <select id="getAchievementCategoriesByCategory" resultMap="BaseResultMap">
+        SELECT * FROM achievement_category WHERE category_name = #{categoryName}
+    </select>
+
+    <select id="getAllCategoryNames" resultType="java.lang.String">
+        SELECT DISTINCT category_name FROM achievement_category
+    </select>
+
+    <update id="updateAchievementCategory" parameterType="com.tencent.wxcloudrun.model.AchievementCategory">
+        UPDATE achievement_category
+        SET category_name = #{categoryName}, achievement_name = #{achievementName}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteAchievementCategory">
+        UPDATE achievement_category SET status = 1, updated_at = NOW() WHERE id = #{id}
+    </update>
+</mapper> 
