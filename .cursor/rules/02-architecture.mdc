@@ -3,3 +3,29 @@ description:
 globs:
 alwaysApply: false
 ---
+# 项目架构
+
+## MVC架构
+本项目遵循MVC（Model-View-Controller）架构：
+- Model：[model](mdc:src/main/java/com/tencent/wxcloudrun/model)目录包含数据模型定义
+- View：通过Spring MVC返回数据
+- Controller：[controller](mdc:src/main/java/com/tencent/wxcloudrun/controller)目录包含控制器
+
+## 分层架构
+- 控制层（Controller）：处理HTTP请求，调用服务层
+- 服务层（Service）：封装业务逻辑，位于[service](mdc:src/main/java/com/tencent/wxcloudrun/service)目录
+- 数据访问层（DAO）：与数据库交互，位于[dao](mdc:src/main/java/com/tencent/wxcloudrun/dao)目录
+- 实体层（Model）：定义数据结构，位于[model](mdc:src/main/java/com/tencent/wxcloudrun/model)目录
+
+## 数据流向
+1. HTTP请求 → Controller
+2. Controller → Service
+3. Service → DAO
+4. DAO ↔ 数据库
+5. 数据返回按相反顺序流回
+
+## 配置管理
+- 配置文件位于[src/main/resources](mdc:src/main/resources)目录
+- 不同环境使用不同配置文件：
+  - 开发环境：application-dev.yml
+  - 生产环境：application-prod.yml

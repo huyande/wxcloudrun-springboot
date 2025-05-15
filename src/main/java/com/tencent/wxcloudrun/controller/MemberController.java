@@ -5,17 +5,22 @@ import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.*;
-import com.tencent.wxcloudrun.service.*;
+import com.tencent.wxcloudrun.service.MemberPointLogsService;
+import com.tencent.wxcloudrun.service.MemberRulesService;
+import com.tencent.wxcloudrun.service.MemberService;
+import com.tencent.wxcloudrun.service.RuleAchievementService;
+import com.tencent.wxcloudrun.service.WishLogService;
+import com.tencent.wxcloudrun.service.WxuserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.temporal.WeekFields;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -785,6 +790,36 @@ public class MemberController {
         } catch (Exception e) {
             logger.error("获取会员列表失败", e);
             return ApiResponse.error("获取会员列表失败");
+        }
+    }
+
+    /**
+     * 根据mid修改积分
+     * @param mid 会员ID
+     * @param memberPointLogs 积分日志请求
+     * @return ApiResponse
+     */
+    @PostMapping("/updatePoints/{mid}")
+    public ApiResponse updateMemberPoints(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs) {
+        try {
+            memberPointLogs.setMid(mid);
+            // 设置积分类型为3，表示用户自行修改的积分
+            memberPointLogs.setType(3);
+            
+            // 设置当前时间
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String currentTime = LocalDateTime.now().format(formatter);
+            memberPointLogs.setDay(currentTime);
+            
+            // 插入积分记录
+            MemberPointLogs result = memberPointLogsService.insert(memberPointLogs);
+            if (result != null) {
+                return ApiResponse.ok(result);
+            }
+            return ApiResponse.error("修改积分失败");
+        } catch (Exception e) {
+            logger.error("修改会员积分失败", e);
+            return ApiResponse.error("修改积分失败: " + e.getMessage());
         }
     }
 }

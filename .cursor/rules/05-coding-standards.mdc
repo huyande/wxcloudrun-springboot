@@ -3,3 +3,37 @@ description:
 globs:
 alwaysApply: false
 ---
+# 编码规范
+
+## 包结构
+项目遵循标准的Java包结构命名规范：
+- 根包名：`com.tencent.wxcloudrun`
+- 分层子包：
+  - `controller`：控制器类
+  - `service`：服务接口与实现
+  - `dao`：数据访问对象
+  - `model`：数据模型
+  - `dto`：数据传输对象
+  - `config`：配置类
+  - `interceptor`：拦截器
+  - `utils`：工具类
+
+## 命名规范
+- 类名：使用大驼峰命名法（如`CounterController`）
+- 方法名：使用小驼峰命名法（如`getCounter`）
+- 常量：全大写，下划线分隔（如`MAX_COUNT`）
+- 变量：使用小驼峰命名法（如`counterValue`）
+- 包名：全小写（如`controller`）
+
+## 代码风格
+- 使用4个空格缩进
+- 大括号采用K&R风格（左括号不换行，右括号独占一行）
+- 类注释应包含类的用途、作者等信息
+- 方法注释应包含方法功能、参数、返回值等信息
+- 使用Lombok简化模型类的getter/setter
+
+## 数据库规范
+- 表名：首字母大写，驼峰命名法（如`Counters`）
+- 字段名：小写，驼峰命名法（如`createdAt`）
+- 主键：使用`id`字段命名
+- 时间字段：创建时间`createdAt`，更新时间`updatedAt`
