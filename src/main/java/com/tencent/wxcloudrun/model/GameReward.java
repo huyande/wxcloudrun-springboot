@@ -15,6 +15,7 @@ public class GameReward implements Serializable {
     private String icon;      // 图标
     private Double weight;    // 权重
     private String rewardType; // 0 积分 1其他
+    private Long seasonId;    // 赛季ID，为null表示常规数据
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

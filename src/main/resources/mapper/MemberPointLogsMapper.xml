@@ -147,7 +147,7 @@
         SELECT 
             ruleId,
             DATE_FORMAT(day, '%w') as weekday,
-            COUNT(*) as count
+            SUM(num) as totalNum
         FROM 
             member_point_logs
         WHERE 
@@ -296,16 +296,15 @@
         SELECT SUM(num) as total
         FROM member_point_logs
         WHERE mid = #{mid}
-        AND day BETWEEN #{startDate} AND #{endDate}
+            AND day BETWEEN #{startDate} AND #{endDate}
     </select>
     
     <select id="getCheckInCountByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT COUNT(DISTINCT DATE_FORMAT(day, '%Y-%m-%d'))
         FROM member_point_logs
         WHERE mid = #{mid}
-        AND type = 0
---         AND num > 0
-        AND day BETWEEN #{startDate} AND #{endDate}
+            AND type = 0
+            AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
     <select id="getCheckInTimesByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
@@ -319,7 +318,7 @@
     <select id="getTopTasksByDateRange" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT 
             r.name as name,
-            COUNT(DISTINCT DATE_FORMAT(l.day, '%Y-%m-%d')) as count
+            COUNT(*) as count
         FROM 
             member_point_logs l
         JOIN 
@@ -327,7 +326,6 @@
         WHERE 
             l.mid = #{mid}
             AND l.type = 0
---             AND l.num > 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             l.ruleId, r.name
@@ -340,8 +338,8 @@
         SELECT SUM(num) as total
         FROM member_point_logs
         WHERE mid = #{mid}
-        AND type = 1
-        AND day BETWEEN #{startDate} AND #{endDate}
+            AND type = 1
+            AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
     <select id="getCheckInTypePointsRatio" resultType="java.util.Map" parameterType="java.util.Map">
@@ -358,7 +356,6 @@
         WHERE 
             l.mid = #{mid}
             AND l.type = 0
---             AND l.num > 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             CASE 
@@ -375,7 +372,7 @@
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}
         AND type = 0
-        AND num != 0
+        AND num <![CDATA[ > ]]> 0
         AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 

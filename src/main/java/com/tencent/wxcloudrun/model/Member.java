@@ -15,6 +15,8 @@ public class Member implements Serializable {
     private Integer uid;//创建成员的uid
     private String familyCode;
     private String avatar;//头像
+    private String mode;//积分模式 0:积分模式 1:赛季模式
+    private Long currentSeasonId;//当模式是赛季模式 的当前赛季id
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

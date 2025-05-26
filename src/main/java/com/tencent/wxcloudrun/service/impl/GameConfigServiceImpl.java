@@ -25,50 +25,85 @@ public class GameConfigServiceImpl implements GameConfigService {
     }
 
     @Override
-    public void createGameConfig(GameConfig gameConfig) {
+    public void createGameConfig(GameConfig gameConfig, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameConfig.setSeasonId(seasonId);
+        }
         gameConfigMapper.insertOne(gameConfig);
     }
 
     @Override
-    public GameConfig getGameConfigById(Integer id) {
-        return gameConfigMapper.getById(id);
+    public GameConfig getGameConfigById(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameConfigMapper.getByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            return gameConfigMapper.getById(id);
+        }
     }
 
     @Override
-    public GameConfig getGameConfigByUidAndType(Integer uid, String type) {
-        return gameConfigMapper.getByUidAndType(uid, type);
+    public GameConfig getGameConfigByUidAndType(Integer uid, String type, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameConfigMapper.getByUidAndTypeAndSeasonId(uid, type, seasonId);
+        } else {
+            // 常规模式
+            return gameConfigMapper.getByUidAndType(uid, type);
+        }
     }
 
     @Override
-    public List<GameConfig> getGameConfigsByUid(Integer uid) {
-        return gameConfigMapper.getByUid(uid);
+    public List<GameConfig> getGameConfigsByUid(Integer uid, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameConfigMapper.getByUidAndSeasonId(uid, seasonId);
+        } else {
+            // 常规模式
+            return gameConfigMapper.getByUid(uid);
+        }
     }
 
     @Override
-    public void updateGameConfig(GameConfig gameConfig) {
-        gameConfigMapper.updateById(gameConfig);
+    public void updateGameConfig(GameConfig gameConfig, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameConfig.setSeasonId(seasonId);
+            gameConfigMapper.updateByIdAndSeasonId(gameConfig);
+        } else {
+            // 常规模式
+            gameConfigMapper.updateById(gameConfig);
+        }
     }
 
     @Override
-    public void deleteGameConfig(Integer id) {
-        gameConfigMapper.deleteById(id);
+    public void deleteGameConfig(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameConfigMapper.deleteByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            gameConfigMapper.deleteById(id);
+        }
     }
 
     @Override
     @Transactional
-    public void saveGameConfigWithRewards(GameConfigWithRewardsRequest request) {
+    public void saveGameConfigWithRewards(GameConfigWithRewardsRequest request, Long seasonId) {
         // 处理游戏配置
         GameConfig gameConfig = request.getGameConfig();
         if (gameConfig.getId() == null) {
             // 新建配置
-            createGameConfig(gameConfig);
+            createGameConfig(gameConfig, seasonId);
         } else {
             // 更新配置
-            updateGameConfig(gameConfig);
+            updateGameConfig(gameConfig, seasonId);
         }
 
         //删除奖励配置
-        gameRewardService.deleteGameRewardsByGid(gameConfig.getId());
+        gameRewardService.deleteGameRewardsByGid(gameConfig.getId(), seasonId);
 
         // 处理奖励配置
         List<GameReward> rewards = request.getRewards();
@@ -77,10 +112,10 @@ public class GameConfigServiceImpl implements GameConfigService {
             reward.setGid(gameConfig.getId());
             if (reward.getId() == null) {
                 // 新建奖励
-                gameRewardService.createGameReward(reward);
+                gameRewardService.createGameReward(reward, seasonId);
             } else {
                 // 更新奖励
-                gameRewardService.updateGameReward(reward);
+                gameRewardService.updateGameReward(reward, seasonId);
             }
         }
     }

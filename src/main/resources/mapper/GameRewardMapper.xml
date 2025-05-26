@@ -11,50 +11,88 @@
         <result property="icon" column="icon"/>
         <result property="weight" column="weight"/>
         <result property="rewardType" column="rewardType"/>
+        <result property="seasonId" column="seasonId"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"/>
     </resultMap>
 
     <select id="getById" resultMap="gameRewardMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </select>
+
+    <select id="getByIdAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByGid" resultMap="gameRewardMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE gid = #{gid}
+        WHERE gid = #{gid} AND seasonId IS NULL
+    </select>
+
+    <select id="getByGidAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE gid = #{gid} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByUid" resultMap="gameRewardMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE uid = #{uid}
+        WHERE uid = #{uid} AND seasonId IS NULL
+    </select>
+
+    <select id="getByUidAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE uid = #{uid} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByType" resultMap="gameRewardMapper" parameterType="java.lang.String">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE type = #{type}
+        WHERE type = #{type} AND seasonId IS NULL
+    </select>
+
+    <select id="getByTypeAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE type = #{type} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByGidAndType" resultMap="gameRewardMapper" parameterType="java.util.Map">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE gid = #{gid} AND type = #{type}
+        WHERE gid = #{gid} AND type = #{type} AND seasonId IS NULL
+    </select>
+
+    <select id="getByGidAndTypeAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE gid = #{gid} AND type = #{type} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByUidAndType" resultMap="gameRewardMapper" parameterType="java.util.Map">
-        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward
-        WHERE uid = #{uid} AND type = #{type}
+        WHERE uid = #{uid} AND type = #{type} AND seasonId IS NULL
+        ORDER BY weight DESC
+    </select>
+
+    <select id="getByUidAndTypeAndSeasonId" resultMap="gameRewardMapper">
+        SELECT `id`, `uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward
+        WHERE uid = #{uid} AND type = #{type} AND seasonId = #{seasonId}
         ORDER BY weight DESC
     </select>
 
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.GameReward">
-        INSERT INTO `game_reward`(`uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`)
-        VALUES(#{uid}, #{gid}, #{name}, #{type}, #{icon}, #{weight}, #{rewardType})
+        INSERT INTO `game_reward`(`uid`, `gid`, `name`, `type`, `icon`, `weight`, `rewardType`, `seasonId`)
+        VALUES(#{uid}, #{gid}, #{name}, #{type}, #{icon}, #{weight}, #{rewardType}, #{seasonId})
     </insert>
 
     <update id="updateById" parameterType="com.tencent.wxcloudrun.model.GameReward">
@@ -64,16 +102,37 @@
             icon = #{icon},
             weight = #{weight},
             rewardType = #{rewardType}
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </update>
+
+    <update id="updateByIdAndSeasonId" parameterType="com.tencent.wxcloudrun.model.GameReward">
+        UPDATE game_reward
+        SET name = #{name},
+            type = #{type},
+            icon = #{icon},
+            weight = #{weight},
+            rewardType = #{rewardType}
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
         DELETE FROM game_reward
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
     </delete>
+
+    <delete id="deleteByIdAndSeasonId">
+        DELETE FROM game_reward
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </delete>
+
     <delete id="deleteByGid" parameterType="java.lang.Integer">
         DELETE FROM game_reward
-        WHERE gid = #{gid}
+        WHERE gid = #{gid} AND seasonId IS NULL
+    </delete>
+
+    <delete id="deleteByGidAndSeasonId">
+        DELETE FROM game_reward
+        WHERE gid = #{gid} AND seasonId = #{seasonId}
     </delete>
 
 </mapper> 

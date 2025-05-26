@@ -3,16 +3,16 @@ package com.tencent.wxcloudrun.controller;
 import cn.hutool.core.date.DateUtil;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
+import com.tencent.wxcloudrun.dto.MemberDto;
 import com.tencent.wxcloudrun.dto.SettingRequest;
-import com.tencent.wxcloudrun.model.Family;
-import com.tencent.wxcloudrun.model.Member;
-import com.tencent.wxcloudrun.model.WxCheckConfig;
-import com.tencent.wxcloudrun.model.WxUser;
+import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.MemberService;
+import com.tencent.wxcloudrun.service.SeasonConfigService;
 import com.tencent.wxcloudrun.service.WxuserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,11 +33,13 @@ public class WxuserController {
 
   final WxuserService wxuserService;
   final MemberService memberService;
+  final SeasonConfigService seasonConfigService;
   final Logger logger;
 
-  public WxuserController(@Autowired WxuserService wxuserService, @Autowired MemberService memberService) {
+  public WxuserController(@Autowired WxuserService wxuserService, @Autowired MemberService memberService, @Autowired SeasonConfigService seasonConfigService) {
     this.wxuserService = wxuserService;
     this.memberService = memberService;
+    this.seasonConfigService = seasonConfigService;
     this.logger = LoggerFactory.getLogger(WxuserController.class);
   }
 
@@ -67,18 +69,39 @@ public class WxuserController {
         // The user's update time is today
         wxuserService.updateAtUserById(user.get().getId());
       }
-      List<Member>  members = memberService.getMembersByUid(user.get().getId());;
+      List<Member>  members = memberService.getMembersByUid(user.get().getId());
+      List<MemberDto> filteredMembers = new ArrayList<>();
       if(user.get().getRole()!=null && user.get().getRole()==7){//表示角色时 孩子自己 
-        List<Member> filteredMembers = new ArrayList<>();
         for(Member member : members) {
-          if(member.getCurrentUid() != null &&
+          MemberDto memberDto = new MemberDto();
+          //将member的属性赋值给memberDto
+          BeanUtils.copyProperties(member, memberDto);
+
+          if(member.getMode()!=null && member.getMode().equals("seasonMode")){
+            SeasonConfig seasonConfig = seasonConfigService.getById(member.getCurrentSeasonId());
+            memberDto.setSeasonConfig(seasonConfig);
+          }
+
+          if(memberDto.getCurrentUid() != null &&
             member.getCurrentUid().equals(user.get().getId()) &&
             member.getId().equals(member.getBindMid())) {
-            filteredMembers.add(member);
+            filteredMembers.add(memberDto);
           }
+
         }
-        if(filteredMembers.size()!=0){
-          members = filteredMembers;
+        // if(filteredMembers.size()!=0){
+        //   members = filteredMembers;
+        // }
+      }else{
+        for(Member member : members) {
+          MemberDto memberDto = new MemberDto();
+          //将member的属性赋值给memberDto
+          BeanUtils.copyProperties(member, memberDto);
+          if(member.getMode()!=null && member.getMode().equals("seasonMode")){
+            SeasonConfig seasonConfig = seasonConfigService.getById(member.getCurrentSeasonId());
+            memberDto.setSeasonConfig(seasonConfig);
+          }
+          filteredMembers.add(memberDto);
         }
       }
       //如果有user 则判断是否有member
@@ -95,7 +118,7 @@ public class WxuserController {
         user.get().setIsVip(false);
       }
       resMap.put("user",user);
-      resMap.put("members",members);
+      resMap.put("members",filteredMembers);
       return ApiResponse.ok(resMap);
     }
     resMap.put("user",null);

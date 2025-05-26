@@ -2,9 +2,12 @@ package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
+import com.tencent.wxcloudrun.model.SeasonConfig;
+import com.tencent.wxcloudrun.model.SeasonWishLog;
 import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.model.WishLog;
 import com.tencent.wxcloudrun.service.MemberPointLogsService;
+import com.tencent.wxcloudrun.service.SeasonConfigService;
 import com.tencent.wxcloudrun.service.WishLogService;
 import com.tencent.wxcloudrun.service.WishService;
 import org.slf4j.Logger;
@@ -13,11 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("wishLog")
@@ -27,47 +28,90 @@ public class WishLogController {
     final WishService wishService;
     final Logger logger;
     final MemberPointLogsService memberPointLogsService;
+    final SeasonConfigService seasonConfigService;
 
     public WishLogController(@Autowired WishLogService wishLogService,
                              @Autowired WishService wishService,
-                             @Autowired MemberPointLogsService memberPointLogsService ) {
+                             @Autowired MemberPointLogsService memberPointLogsService,
+                             @Autowired SeasonConfigService seasonConfigService) {
         this.wishLogService = wishLogService;
         this.wishService = wishService;
         this.memberPointLogsService = memberPointLogsService;
+        this.seasonConfigService = seasonConfigService;
         this.logger = LoggerFactory.getLogger(WishLogController.class);
     }
 
     /**
      * 根据ID查询愿望日志
+     * @param seasonId 季节ID
      * @param id 愿望日志ID
      * @return API响应
      */
     @GetMapping("/{id}")
-    ApiResponse get(@PathVariable Integer id) {
+    ApiResponse get(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId, 
+                    @PathVariable Integer id) {
         try {
-            WishLog wishLog = wishLogService.getById(id);
-            if (wishLog == null) {
+            Object wishLogData;
+            Class<?> expectedWishLogType;
+            Class<?> expectedWishType;
+
+            if (seasonId != null) {
+                expectedWishLogType = SeasonWishLog.class;
+                expectedWishType = com.tencent.wxcloudrun.model.SeasonWish.class;
+                wishLogData = wishLogService.getById(id, seasonId, SeasonWishLog.class);
+            } else {
+                expectedWishLogType = WishLog.class;
+                expectedWishType = Wish.class;
+                wishLogData = wishLogService.getById(id, null, WishLog.class);
+            }
+
+            if (wishLogData == null) {
                 return ApiResponse.error("愿望日志不存在");
             }
-            Wish wish = wishService.getWishById(wishLog.getWid());
+
             Map<String,Object> res = new HashMap<>();
-            res.put("wishLog", wishLog);
-            res.put("wish", wish);
+            res.put("wishLog", wishLogData);
+
+            Integer widToFetch = null;
+            if (wishLogData instanceof WishLog) {
+                widToFetch = ((WishLog) wishLogData).getWid();
+            } else if (wishLogData instanceof SeasonWishLog) {
+                Long seasonWishLogWid = ((SeasonWishLog) wishLogData).getWid(); 
+                if (seasonWishLogWid != null) {
+                    if (seasonWishLogWid > Integer.MAX_VALUE || seasonWishLogWid < Integer.MIN_VALUE) {
+                        logger.warn("SeasonWishLog WID " + seasonWishLogWid + " is too large for Integer, cannot fetch associated SeasonWish via current wishService.getWishById signature");
+                    } else {
+                        widToFetch = seasonWishLogWid.intValue();
+                    }
+                }            
+            }
+
+            if (widToFetch != null) {
+                Object wishData = wishService.getWishById(widToFetch, seasonId, expectedWishType);
+                res.put("wish", wishData);
+            } else {
+                res.put("wish", null);
+            }
+            
             return ApiResponse.ok(res);
         } catch (Exception e) {
             logger.error("查询愿望日志失败", e);
-            return ApiResponse.error("查询失败");
+            return ApiResponse.error("查询失败: " + e.getMessage());
         }
     }
 
     @GetMapping("/getAllLogByStatus/{mid}")
-    ApiResponse getAllLogByStatus(@PathVariable Integer mid,@RequestParam Integer status) {
+    ApiResponse getAllLogByStatus(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                                  @PathVariable Integer mid, @RequestParam Integer status) {
         try {
-            List<WishLog> wishLogs = wishLogService.getAllLogByStatus(mid,status);
-            return ApiResponse.ok(wishLogs);
+            if (seasonId != null) {
+                return ApiResponse.ok(wishLogService.getAllLogByStatus(mid, status, seasonId, SeasonWishLog.class));
+            } else {
+                return ApiResponse.ok(wishLogService.getAllLogByStatus(mid, status, null, WishLog.class));
+            }
         } catch (Exception e) {
             logger.error("查询愿望日志失败", e);
-            return ApiResponse.error("查询失败");
+            return ApiResponse.error("查询失败: " + e.getMessage());
         }
     }
 
@@ -77,13 +121,17 @@ public class WishLogController {
      * @return API响应
      */
     @GetMapping("/user/{uid}")
-    ApiResponse getByUid(@PathVariable String uid) {
+    ApiResponse getByUid(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                         @PathVariable String uid) {
         try {
-            List<WishLog> wishLogs = wishLogService.getByUid(uid);
-            return ApiResponse.ok(wishLogs);
+            if (seasonId != null) {
+                return ApiResponse.ok(wishLogService.getByUid(uid, seasonId, SeasonWishLog.class));
+            } else {
+                return ApiResponse.ok(wishLogService.getByUid(uid, null, WishLog.class));
+            }
         } catch (Exception e) {
             logger.error("查询用户愿望日志列表失败", e);
-            return ApiResponse.error("查询失败");
+            return ApiResponse.error("查询失败: " + e.getMessage());
         }
     }
 
@@ -96,17 +144,17 @@ public class WishLogController {
      * @return API响应
      */
     @GetMapping("/member/{mid}")
-    ApiResponse getByMid(
+    ApiResponse getByMid(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
             @PathVariable Integer mid,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Integer status) {
         try {
-            Map<String, Object> result = wishLogService.getByMidWithPage(mid, page, pageSize, status);
+            Map<String, Object> result = wishLogService.getByMidWithPage(mid, page, pageSize, status, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             logger.error("分页查询愿望日志列表失败", e);
-            return ApiResponse.error("查询失败");
+            return ApiResponse.error("查询失败: " + e.getMessage());
         }
     }
 
@@ -116,13 +164,17 @@ public class WishLogController {
      * @return API响应
      */
     @GetMapping("/wish/{wid}")
-    ApiResponse getByWid(@PathVariable Integer wid) {
+    ApiResponse getByWid(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                         @PathVariable Integer wid) {
         try {
-            List<WishLog> wishLogs = wishLogService.getByWid(wid);
-            return ApiResponse.ok(wishLogs);
+            if (seasonId != null) {
+                return ApiResponse.ok(wishLogService.getByWid(wid, seasonId, SeasonWishLog.class));
+            } else {
+                return ApiResponse.ok(wishLogService.getByWid(wid, null, WishLog.class));
+            }
         } catch (Exception e) {
             logger.error("查询愿望相关日志列表失败", e);
-            return ApiResponse.error("查询失败");
+            return ApiResponse.error("查询失败: " + e.getMessage());
         }
     }
 
@@ -132,31 +184,30 @@ public class WishLogController {
      * @return API响应
      */
     @PostMapping
-    ApiResponse create(@RequestBody WishLogRequest wishLogRequest) {
+    ApiResponse create(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                       @RequestBody WishLogRequest wishLogRequest) {
         try {
-            // 参数校验
-            if (wishLogRequest.getUid() == null || wishLogRequest.getWid() == null || wishLogRequest.getPoint() == null) {
-                return ApiResponse.error("参数不完整");
+            if (wishLogRequest.getUid() == null || wishLogRequest.getWid() == null || wishLogRequest.getPoint() == null || wishLogRequest.getMid() == null) {
+                return ApiResponse.error("参数不完整 (uid, wid, mid, point are required)");
             }
-            Integer lastPointSum = memberPointLogsService.getLastPointSum(wishLogRequest.getMid());
-            if(lastPointSum>= wishLogRequest.getPoint()){
-                WishLog wishLog = new WishLog();
-                wishLog.setUid(wishLogRequest.getUid());
-                wishLog.setWid(wishLogRequest.getWid());
-                wishLog.setPoint(wishLogRequest.getPoint());
-                wishLog.setMid(wishLogRequest.getMid());
-                wishLog.setInfo(wishLogRequest.getInfo());
-                wishLog.setAmount(wishLogRequest.getAmount());
-                wishLog.setUnitType(wishLogRequest.getUnitType());
-                wishLog.setUnit(wishLogRequest.getUnit());
-                WishLog log = wishLogService.create(wishLog);
+
+            if (seasonId != null) {
+                SeasonConfig seasonConfig = seasonConfigService.getById(seasonId);
+                if(seasonConfig.getEndTime()!=null && seasonConfig.getEndTime().isBefore(LocalDateTime.now())){
+                    return ApiResponse.error("赛季已结束,不能兑换");
+                }
+                if(seasonConfig.getStartTime()!=null && seasonConfig.getStartTime().isAfter(LocalDateTime.now())){
+                    return ApiResponse.error("赛季未开始,不能兑换");
+                }
+                SeasonWishLog log = wishLogService.createWishLog(wishLogRequest, seasonId, SeasonWishLog.class);
                 return ApiResponse.ok(log);
-            }else{
-                return ApiResponse.error("积分不足，不能兑换");
+            } else {
+                WishLog log = wishLogService.createWishLog(wishLogRequest, null, WishLog.class);
+                return ApiResponse.ok(log);
             }
         } catch (Exception e) {
             logger.error("创建愿望日志失败", e);
-            return ApiResponse.error("创建失败");
+            return ApiResponse.error("创建失败: " + e.getMessage()); 
         }
     }
 
@@ -167,25 +218,19 @@ public class WishLogController {
      * @return API响应
      */
     @PutMapping("/{id}")
-    ApiResponse update(@PathVariable Integer id, @RequestBody WishLogRequest wishLogRequest) {
+    ApiResponse update(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                       @PathVariable Integer id, @RequestBody WishLogRequest wishLogRequest) {
         try {
-            // 检查是否存在
-            WishLog existingLog = wishLogService.getById(id);
-            if (existingLog == null) {
-                return ApiResponse.error("愿望日志不存在");
+            if (seasonId != null) {
+                SeasonWishLog updatedLog = wishLogService.updateWishLog(id, wishLogRequest, seasonId, SeasonWishLog.class);
+                return ApiResponse.ok(updatedLog);
+            } else {
+                WishLog updatedLog = wishLogService.updateWishLog(id, wishLogRequest, null, WishLog.class);
+                return ApiResponse.ok(updatedLog);
             }
-
-            existingLog.setStatus(wishLogRequest.getStatus());
-            if(wishLogRequest.getEndTime() != null){
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime localDateTime = LocalDateTime.parse(wishLogRequest.getEndTime(), formatter);
-                existingLog.setEndTime(localDateTime);
-            }
-            wishLogService.update(existingLog);
-            return ApiResponse.ok(existingLog);
         } catch (Exception e) {
             logger.error("更新愿望日志失败", e);
-            return ApiResponse.error("更新失败");
+            return ApiResponse.error("更新失败: " + e.getMessage());
         }
     }
 
@@ -195,19 +240,14 @@ public class WishLogController {
      * @return API响应
      */
     @DeleteMapping("/{id}")
-    ApiResponse delete(@PathVariable Integer id) {
+    ApiResponse delete(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                       @PathVariable Integer id) {
         try {
-            // 检查是否存在
-            WishLog existingLog = wishLogService.getById(id);
-            if (existingLog == null) {
-                return ApiResponse.error("愿望日志不存在");
-            }
-
-            wishLogService.deleteById(id);
+            wishLogService.deleteById(id, seasonId);
             return ApiResponse.ok();
         } catch (Exception e) {
             logger.error("删除愿望日志失败", e);
-            return ApiResponse.error("删除失败");
+            return ApiResponse.error("删除失败: " + e.getMessage());
         }
     }
 

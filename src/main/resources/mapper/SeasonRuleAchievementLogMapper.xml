@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonRuleAchievementLogMapper">
+    <resultMap id="seasonRuleAchievementLogResultMap" type="com.tencent.wxcloudrun.model.SeasonRuleAchievementLog">
+        <id column="id" property="id"/>
+        <result column="seasonId" property="seasonId"/>
+        <result column="sraId" property="sraId"/>
+        <result column="mid" property="mid"/>
+        <result column="rewardValue" property="rewardValue"/>
+        <result column="createdAt" property="createdAt"/>
+        <result column="updatedAt" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, seasonId, sraId, mid, rewardValue, createdAt, updatedAt
+    </sql>
+
+    <!-- 根据ID和SeasonID获取赛季成就日志 -->
+    <select id="getByIdAndSeasonId" resultMap="seasonRuleAchievementLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievement_logs
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </select>
+
+    <!-- 获取某赛季下某成员的所有成就日志 -->
+    <select id="getBySeasonIdAndMid" resultMap="seasonRuleAchievementLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        ORDER BY createdAt DESC
+    </select>
+
+    <!-- 获取某赛季下某成就的所有成就日志 -->
+    <select id="getBySeasonIdAndSraId" resultMap="seasonRuleAchievementLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND sraId = #{sraId}
+        ORDER BY createdAt DESC
+    </select>
+
+    <!-- 检查某赛季下某成员是否已获得某成就 -->
+    <select id="getBySeasonIdAndSraIdAndMid" resultMap="seasonRuleAchievementLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND sraId = #{sraId} AND mid = #{mid}
+        LIMIT 1
+    </select>
+
+    <!-- 获取某赛季下某成员已获得的成就列表（带成就详情） -->
+    <select id="getMemberSeasonAchievements" resultType="java.util.Map">
+        SELECT 
+            sra.title as achievementTitle,
+            sra.img as achievementImg,
+            sral.createdAt as achievementTime,
+            sra.conditionType as achievementType,
+            sra.conditionValue as achievementCondition,
+            sra.rewardType as rewardType,
+            sra.rewardValue as rewardValue
+        FROM season_rule_achievement_logs sral
+        JOIN season_rule_achievements sra ON sral.sraId = sra.id
+        WHERE sral.seasonId = #{seasonId} AND sral.mid = #{mid} AND sra.status = 0
+        ORDER BY sral.createdAt DESC
+    </select>
+
+    <!-- 插入赛季成就日志 -->
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRuleAchievementLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_rule_achievement_logs (
+            seasonId, sraId, mid, rewardValue, createdAt, updatedAt
+        ) 
+        VALUES (
+            #{seasonId}, #{sraId}, #{mid}, #{rewardValue}, NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 删除赛季成就日志 -->
+    <delete id="deleteByIdAndSeasonId">
+        DELETE FROM season_rule_achievement_logs
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </delete>
+
+    <!-- 删除某赛季下某成员某成就的日志 -->
+    <delete id="deleteBySeasonIdAndSraIdAndMid">
+        DELETE FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND sraId = #{sraId} AND mid = #{mid}
+    </delete>
+
+    <!-- 获取成员在赛季中获得的奖励总值 -->
+    <select id="getSumRewardValueBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT SUM(rewardValue) 
+        FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <!-- 根据赛季ID删除所有成就日志 -->
+    <delete id="deleteBySeasonId">
+        DELETE FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId}
+    </delete>
+
+    <select id="getSumRewardValue" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(rewardValue),0)
+        FROM season_rule_achievement_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+</mapper> 

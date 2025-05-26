@@ -1,18 +1,15 @@
 package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
+import com.tencent.wxcloudrun.dto.MemberDto;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
 import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.*;
-import com.tencent.wxcloudrun.service.MemberPointLogsService;
-import com.tencent.wxcloudrun.service.MemberRulesService;
-import com.tencent.wxcloudrun.service.MemberService;
-import com.tencent.wxcloudrun.service.RuleAchievementService;
-import com.tencent.wxcloudrun.service.WishLogService;
-import com.tencent.wxcloudrun.service.WxuserService;
+import com.tencent.wxcloudrun.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,18 +29,21 @@ public class MemberController {
     final MemberRulesService memberRulesService;
     final MemberPointLogsService memberPointLogsService;
     final WishLogService wishLogService;
+    final SeasonConfigService seasonConfigService;
     final Logger logger;
 
     public MemberController(MemberService memberService,
                             WxuserService wxuserService,
                             MemberRulesService memberRulesService,
                             MemberPointLogsService memberPointLogsService,
-                            WishLogService wishLogService) {
+                            WishLogService wishLogService,
+                            SeasonConfigService seasonConfigService) {
         this.memberService = memberService;
         this.wxuserService = wxuserService;
         this.memberRulesService = memberRulesService;
         this.memberPointLogsService = memberPointLogsService;
         this.wishLogService = wishLogService;
+        this.seasonConfigService = seasonConfigService;
         this.logger =  LoggerFactory.getLogger(MemberController.class);
     }
 
@@ -54,21 +54,33 @@ public class MemberController {
     }
 
     @PostMapping("/createRule")
-    public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest){
-        if(memberRulesService.canCreateRule(memberRuleRequest.getMid())){
-            MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(),memberRuleRequest.getType());
-            if(lastRule!=null){
-                memberRuleRequest.setSort(lastRule.getSort()+1);
-            }else{
-                memberRuleRequest.setSort(0);
+    public ApiResponse createRule(@RequestBody MemberRuleRequest memberRuleRequest, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId){
+        if(memberRulesService.canCreateRule(memberRuleRequest.getMid(), seasonId)){
+            if (seasonId != null) {
+                SeasonRule lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(), memberRuleRequest.getType(), seasonId, SeasonRule.class);
+                if(lastRule != null){
+                    memberRuleRequest.setSort(lastRule.getSort()+1);
+                } else {
+                    memberRuleRequest.setSort(0);
+                }
+                
+                SeasonRule seasonRule = memberRulesService.insert(memberRuleRequest, seasonId, SeasonRule.class);
+                return ApiResponse.ok(seasonRule);
+            } else {
+                MemberRules lastRule = memberRulesService.getLastSortByTypeAndMid(memberRuleRequest.getMid(), memberRuleRequest.getType(), seasonId, MemberRules.class);
+                if(lastRule != null){
+                    memberRuleRequest.setSort(lastRule.getSort()+1);
+                } else {
+                    memberRuleRequest.setSort(0);
+                }
+                
+                MemberRules memberRules = memberRulesService.insert(memberRuleRequest, seasonId, MemberRules.class);
+                return ApiResponse.ok(memberRules);
             }
-            MemberRules memberRules = memberRulesService.insert(memberRuleRequest);
-            return ApiResponse.ok(memberRules);
-        }else{
+        } else {
             return ApiResponse.error("规则数量已达上限(50个)，无法创建新规则，如有需要可以联系我");
         }
     }
-
 
     /**
      *  批量添加规则
@@ -76,9 +88,14 @@ public class MemberController {
      * @return
      */
     @PostMapping("/batchAddRules")
-    public ApiResponse createRules(@RequestBody List<MemberRuleRequest> memberRuleRequests){
-        List<MemberRules> memberRules = memberRulesService.insertBatch(memberRuleRequests);
-        return ApiResponse.ok(memberRules);
+    public ApiResponse createRules(@RequestBody List<MemberRuleRequest> memberRuleRequests, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId){
+        if (seasonId != null) {
+            List<SeasonRule> seasonRules = memberRulesService.insertBatch(memberRuleRequests, seasonId, SeasonRule.class);
+            return ApiResponse.ok(seasonRules);
+        } else {
+            List<MemberRules> memberRules = memberRulesService.insertBatch(memberRuleRequests, seasonId, MemberRules.class);
+            return ApiResponse.ok(memberRules);
+        }
     }
 
     /**
@@ -87,13 +104,22 @@ public class MemberController {
      * @return
      */
     @GetMapping("/ruleById/{id}")
-    public ApiResponse getRuleById(@PathVariable Integer id) {
+    public ApiResponse getRuleById(@PathVariable Integer id, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            MemberRules rule = memberRulesService.getRuleById(id);
-            if (rule != null) {
-                return ApiResponse.ok(rule);
+            if (seasonId != null) {
+                SeasonRule rule = memberRulesService.getRuleById(id, seasonId, SeasonRule.class);
+                if (rule != null) {
+                    return ApiResponse.ok(rule);
+                } else {
+                    return ApiResponse.ok(null);
+                }
             } else {
-                return ApiResponse.ok(null);
+                MemberRules rule = memberRulesService.getRuleById(id, seasonId, MemberRules.class);
+                if (rule != null) {
+                    return ApiResponse.ok(rule);
+                } else {
+                    return ApiResponse.ok(null);
+                }
             }
         } catch (Exception e) {
             logger.error("获取规则失败", e);
@@ -108,19 +134,34 @@ public class MemberController {
      * @return
      */
     @GetMapping("/rule/{mid}")
-    public ApiResponse getRuleByNameAndMid(@PathVariable Integer mid ,@RequestParam String name) {
+    public ApiResponse getRuleByNameAndMid(@PathVariable Integer mid, @RequestParam String name, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            MemberRules rule = memberRulesService.getRuleByNameAndMid(name, mid);
-            if (rule != null) {
-                Map<String, Object> ruleMap = new HashMap<>();
-                ruleMap.put("id", rule.getId());
-                ruleMap.put("name", rule.getName());
-                ruleMap.put("icon", rule.getIcon());
-                ruleMap.put("iconType", rule.getIconType());
-                ruleMap.put("type", rule.getType());
-                return ApiResponse.ok(ruleMap);
+            Map<String, Object> ruleMap = new HashMap<>();
+            
+            if (seasonId != null) {
+                SeasonRule rule = memberRulesService.getRuleByNameAndMid(name, mid, seasonId, SeasonRule.class);
+                if (rule != null) {
+                    ruleMap.put("id", rule.getId());
+                    ruleMap.put("name", rule.getName());
+                    ruleMap.put("icon", rule.getIcon());
+                    ruleMap.put("iconType", rule.getIconType());
+                    ruleMap.put("type", rule.getType());
+                    return ApiResponse.ok(ruleMap);
+                } else {
+                    return ApiResponse.ok(null);
+                }
             } else {
-                return ApiResponse.ok(null);
+                MemberRules rule = memberRulesService.getRuleByNameAndMid(name, mid, seasonId, MemberRules.class);
+                if (rule != null) {
+                    ruleMap.put("id", rule.getId());
+                    ruleMap.put("name", rule.getName());
+                    ruleMap.put("icon", rule.getIcon());
+                    ruleMap.put("iconType", rule.getIconType());
+                    ruleMap.put("type", rule.getType());
+                    return ApiResponse.ok(ruleMap);
+                } else {
+                    return ApiResponse.ok(null);
+                }
             }
         } catch (Exception e) {
             logger.error("获取规则失败", e);
@@ -129,9 +170,9 @@ public class MemberController {
     }
 
     @PutMapping("/updateRule/{id}")
-    public ApiResponse updateRuleById(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest) {
+    public ApiResponse updateRuleById(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            memberRulesService.updateRuleById(id, memberRuleRequest);
+            memberRulesService.updateRuleById(id, memberRuleRequest, seasonId);
             return ApiResponse.ok("更新成功");
         } catch (Exception e) {
             logger.error("更新规则失败", e);
@@ -141,9 +182,9 @@ public class MemberController {
 
 
     @DeleteMapping("/rule/{id}")
-    public ApiResponse deleteRuleById(@PathVariable Integer id) {
+    public ApiResponse deleteRuleById(@PathVariable Integer id, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            memberRulesService.delete(id);
+            memberRulesService.delete(id, seasonId);
             return ApiResponse.ok("删除成功");
         } catch (Exception e) {
             logger.error("删除规则失败", e);
@@ -157,10 +198,8 @@ public class MemberController {
      * @return
      */
     @GetMapping("/rules/{mid}")
-    public ApiResponse getRulesByMid(@PathVariable Integer mid, @RequestParam String day) {
+    public ApiResponse getRulesByMid(@PathVariable Integer mid, @RequestParam String day, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<MemberRules> rules = memberRulesService.getRulesByMid(mid,day);
-            
             // 获取一周的开始和结束时间
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime currentDate = LocalDateTime.parse(day, formatter);
@@ -168,49 +207,118 @@ public class MemberController {
             LocalDateTime weekEnd = weekStart.plusDays(7).minusSeconds(1);
             
             // 获取一周内的打卡记录
-            List<Map<String, Object>> weeklyLogs = memberPointLogsService.getWeeklyPointLogs(mid, weekStart, weekEnd);
+            List<Map<String, Object>> weeklyLogs = memberPointLogsService.getWeeklyPointLogs(mid, weekStart, weekEnd, seasonId);
             
-            // 创建规则ID到周打卡状态的映射
-            Map<Integer, boolean[]> ruleWeekStatus = new HashMap<>();
+            // 创建规则ID到周打卡积分的映射
+            Map<Integer, int[]> ruleWeekScores = new HashMap<>();
             for (Map<String, Object> log : weeklyLogs) {
                 Integer ruleId = Integer.parseInt(log.get("ruleId").toString());
                 int weekday = Integer.parseInt(log.get("weekday").toString());
-                if (!ruleWeekStatus.containsKey(ruleId)) {
-                    ruleWeekStatus.put(ruleId, new boolean[7]);
+                int totalNum = 0;
+                if (log.get("totalNum") != null) {
+                    // 安全地解析积分值
+                    try {
+                        totalNum = Integer.parseInt(log.get("totalNum").toString());
+                    } catch (NumberFormatException e) {
+                        logger.warn("解析规则 {} 在星期 {} 的积分失败. 原始值: {}", ruleId, weekday, log.get("totalNum"));
+                        // 解析失败时保持积分为0
+                    }
                 }
-                ruleWeekStatus.get(ruleId)[weekday] = true;
+
+                if (!ruleWeekScores.containsKey(ruleId)) {
+                    ruleWeekScores.put(ruleId, new int[7]); // 初始化为长度为7的int数组，所有元素默认为0
+                }
+                ruleWeekScores.get(ruleId)[weekday] = totalNum; // 存储积分
             }
             
-            // 将规则按类型分组
-            Map<String, List<Map<String, Object>>> groupedRules = rules.stream()
-                .collect(Collectors.groupingBy(MemberRules::getType,
-                    Collectors.mapping(rule -> {
-                        Map<String, Object> ruleMap = new HashMap<>();
-                        ruleMap.put("id", rule.getId());
-                        ruleMap.put("name", rule.getName());
-                        ruleMap.put("icon", rule.getIcon());
-                        ruleMap.put("iconType", rule.getIconType());
-                        ruleMap.put("stars", 0);
-                        ruleMap.put("status", 0);
-                        ruleMap.put("row_status", rule.getStatus());
-                        ruleMap.put("quickScore",rule.getQuickScore());
-                        ruleMap.put("content",rule.getContent());
-                        ruleMap.put("enablePomodoro",rule.getEnablePomodoro());
-                        ruleMap.put("pomodoroTime",rule.getPomodoroTime());
-                        // 添加周打卡状态
-                        boolean[] weekStatus = ruleWeekStatus.getOrDefault(rule.getId(), new boolean[7]);
-                        Map<String, Boolean> weekStatusMap = new HashMap<>();
-                        weekStatusMap.put("星期一", weekStatus[1]);    // 周一
-                        weekStatusMap.put("星期二", weekStatus[2]);   // 周二
-                        weekStatusMap.put("星期三", weekStatus[3]); // 周三
-                        weekStatusMap.put("星期四", weekStatus[4]);  // 周四
-                        weekStatusMap.put("星期五", weekStatus[5]);    // 周五
-                        weekStatusMap.put("星期六", weekStatus[6]);  // 周六
-                        weekStatusMap.put("星期日", weekStatus[0]);    // 周日
-                        ruleMap.put("weekStatus", weekStatusMap);
+            Map<String, List<Map<String, Object>>> groupedRules;
+            Map<String, Integer> typeSortMap;
+            
+            if (seasonId != null) {
+                // 赛季模式处理
+                List<SeasonRule> rules = memberRulesService.getRulesByMid(mid, day, seasonId, SeasonRule.class);
+                
+                groupedRules = rules.stream()
+                    .collect(Collectors.groupingBy(SeasonRule::getType,
+                        Collectors.mapping(rule -> {
+                            Map<String, Object> ruleMap = new HashMap<>();
+                            ruleMap.put("id", rule.getId());
+                            ruleMap.put("name", rule.getName());
+                            ruleMap.put("icon", rule.getIcon());
+                            ruleMap.put("iconType", rule.getIconType());
+                            ruleMap.put("stars", 0);
+                            ruleMap.put("status", 0);
+                            ruleMap.put("row_status", rule.getStatus());
+                            ruleMap.put("quickScore", rule.getQuickScore());
+                            ruleMap.put("content", rule.getContent());
+                            ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
+                            ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            // 添加周打卡状态和积分
+                            int[] weekScores = ruleWeekScores.getOrDefault(rule.getId().intValue(), new int[7]);
+                            Map<String, Integer> weekStatusMap = new LinkedHashMap<>();
+                            weekStatusMap.put("星期一", weekScores[1]);    // 周一
+                            weekStatusMap.put("星期二", weekScores[2]);   // 周二
+                            weekStatusMap.put("星期三", weekScores[3]); // 周三
+                            weekStatusMap.put("星期四", weekScores[4]);  // 周四
+                            weekStatusMap.put("星期五", weekScores[5]);    // 周五
+                            weekStatusMap.put("星期六", weekScores[6]);  // 周六
+                            weekStatusMap.put("星期日", weekScores[0]);    // 周日
+                            ruleMap.put("weekStatus", weekStatusMap);
+                            
+                            return ruleMap;
+                        }, Collectors.toList())));
                         
-                        return ruleMap;
-                    }, Collectors.toList())));
+                // 获取分类排序信息
+                typeSortMap = rules.stream()
+                    .collect(Collectors.toMap(
+                        SeasonRule::getType,
+                        SeasonRule::getTypeSort,
+                        (existing, replacement) -> existing,
+                        HashMap::new
+                    ));
+            } else {
+                // 常规模式处理
+                List<MemberRules> rules = memberRulesService.getRulesByMid(mid, day, seasonId, MemberRules.class);
+                
+                groupedRules = rules.stream()
+                    .collect(Collectors.groupingBy(MemberRules::getType,
+                        Collectors.mapping(rule -> {
+                            Map<String, Object> ruleMap = new HashMap<>();
+                            ruleMap.put("id", rule.getId());
+                            ruleMap.put("name", rule.getName());
+                            ruleMap.put("icon", rule.getIcon());
+                            ruleMap.put("iconType", rule.getIconType());
+                            ruleMap.put("stars", 0);
+                            ruleMap.put("status", 0);
+                            ruleMap.put("row_status", rule.getStatus());
+                            ruleMap.put("quickScore", rule.getQuickScore());
+                            ruleMap.put("content", rule.getContent());
+                            ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
+                            ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            // 添加周打卡状态和积分
+                            int[] weekScores = ruleWeekScores.getOrDefault(rule.getId(), new int[7]);
+                            Map<String, Integer> weekStatusMap = new LinkedHashMap<>();
+                            weekStatusMap.put("星期一", weekScores[1]);    // 周一
+                            weekStatusMap.put("星期二", weekScores[2]);   // 周二
+                            weekStatusMap.put("星期三", weekScores[3]); // 周三
+                            weekStatusMap.put("星期四", weekScores[4]);  // 周四
+                            weekStatusMap.put("星期五", weekScores[5]);    // 周五
+                            weekStatusMap.put("星期六", weekScores[6]);  // 周六
+                            weekStatusMap.put("星期日", weekScores[0]);    // 周日
+                            ruleMap.put("weekStatus", weekStatusMap);
+                            
+                            return ruleMap;
+                        }, Collectors.toList())));
+                        
+                // 获取分类排序信息
+                typeSortMap = rules.stream()
+                    .collect(Collectors.toMap(
+                        MemberRules::getType,
+                        MemberRules::getTypeSort,
+                        (existing, replacement) -> existing,
+                        HashMap::new
+                    ));
+            }
 
             // 构建最终的输出格式
             List<Map<String, Object>> formattedRules = groupedRules.entrySet().stream()
@@ -221,15 +329,6 @@ public class MemberController {
                     return typeGroup;
                 })
                 .collect(Collectors.toList());
-
-            // 提取每种类型的一个规则，用于获取该类型的排序值
-            Map<String, Integer> typeSortMap = rules.stream()
-                .collect(Collectors.toMap(
-                    MemberRules::getType,
-                    MemberRules::getTypeSort,
-                    (existing, replacement) -> existing,
-                    HashMap::new
-                ));
 
             // 对分类进行排序
             formattedRules.sort((a, b) -> {
@@ -249,18 +348,24 @@ public class MemberController {
     }
 
     @GetMapping("/pointlogs/{mid}")
-    public ApiResponse getPointLogsByMid(@PathVariable Integer mid, @RequestParam String date) {
+    public ApiResponse getPointLogsByMid(@PathVariable Integer mid, @RequestParam String date, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
             LocalDateTime startOfDay = dateTime.toLocalDate().atStartOfDay();
             LocalDateTime endOfDay = dateTime.toLocalDate().atTime(23, 59, 59);
-            List<MemberPointLogs> logs = memberPointLogsService.getLogsByMidAndDate(mid, startOfDay,endOfDay);
+            if(seasonId!=null){ 
+                List<SeasonPointLog> logs = memberPointLogsService.getLogsByMidAndDate(mid, startOfDay,endOfDay, seasonId, SeasonPointLog.class);
+                return ApiResponse.ok(logs);
+            }else{
+                List<MemberPointLogs> logs = memberPointLogsService.getLogsByMidAndDate(mid, startOfDay,endOfDay, seasonId, MemberPointLogs.class);
+return ApiResponse.ok(logs);
+            }
             
 //            HashMap<String, Object> result = new HashMap<>();
 //            result.put("logs", logs);
             
-            return ApiResponse.ok(logs);
+            
         } catch (Exception e) {
             logger.error("获取会员积分日志失败", e);
             return ApiResponse.error("获取会员积分日志失败");
@@ -269,13 +374,23 @@ public class MemberController {
 
 
     @PostMapping("/pointlogs/{mid}")
-    public ApiResponse addPointLog(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs) {
+    public ApiResponse addPointLog(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             memberPointLogs.setMid(mid);
             if(memberPointLogs.getType() ==null){//设置积分类型是打卡
                 memberPointLogs.setType(0);
             }
-            Map<String, Object> map = memberPointLogsService.insertAndCheckRule(memberPointLogs);
+            //如果是赛季模式，则需要判断赛季是否开始和结束
+            if(seasonId!=null){
+                SeasonConfig seasonConfig = seasonConfigService.getById(seasonId);
+                if(seasonConfig.getEndTime()!=null && seasonConfig.getEndTime().isBefore(LocalDateTime.now())){
+                    return ApiResponse.error("赛季已结束,请等待下一个赛季");
+                }
+                if(seasonConfig.getStartTime()!=null && seasonConfig.getStartTime().isAfter(LocalDateTime.now())){
+                    return ApiResponse.error("赛季未开始,请等待赛季开始");
+                }
+            }
+            Map<String, Object> map = memberPointLogsService.insertAndCheckRule(memberPointLogs, seasonId);
             if(map!=null && !map.isEmpty()){
                 List<RuleAchievement> achievements = null;
                 if(map.containsKey("achievements")){
@@ -292,16 +407,16 @@ public class MemberController {
 
     // 根据mid获取统计用户的积分当日的积分请求
     @GetMapping("/pointCurrentDaySum/{mid}")
-    public ApiResponse getPointCurrentDaySumByMid(@PathVariable Integer mid, @RequestParam String day) {
+    public ApiResponse getPointCurrentDaySumByMid(@PathVariable Integer mid, @RequestParam String day, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
 //            Member member = memberService.getMemberById(mid);
 //            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
-            Integer pointCurrentSum = memberPointLogsService.getCurrentDayPointSumByMid(mid,day);
-            Integer wishSum =  wishLogService.getSumNumByMid(mid);
-            memberPointLogsService.getLastPointSum(mid);
+            Integer pointCurrentSum = memberPointLogsService.getCurrentDayPointSumByMid(mid,day, seasonId);
+            Integer wishSum =  wishLogService.getSumNumByMid(mid, seasonId);
+            memberPointLogsService.getLastPointSum(mid, seasonId);
             HashMap<String, Object> result = new HashMap<>();
 //            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
-            Integer lastPointSum = memberPointLogsService.getLastPointSum(mid);//计算剩余积分
+            Integer lastPointSum = memberPointLogsService.getLastPointSum(mid, seasonId);//计算剩余积分
             result.put("pointSum", lastPointSum);//剩余积分
             result.put("wishSum", wishSum);//消耗的积分
             result.put("pointCurrentSum", pointCurrentSum);//当日积分
@@ -314,7 +429,7 @@ public class MemberController {
 
 
     @GetMapping("/pointsum/{mid}")
-    public ApiResponse getPointSumByMid(@PathVariable Integer mid) {
+    public ApiResponse getPointSumByMid(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
 //            Member member = memberService.getMemberById(mid);
 //            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
@@ -325,7 +440,7 @@ public class MemberController {
 //            result.put("pointSum", total+member.getPointTotal());
 //            result.put("days", days);
 //            result.put("originalPointSum", (pointSum == null ? 0 : pointSum)+member.getPointTotal());//累计的积分，不减去wishSum的积分
-            HashMap<String, Integer> result = memberPointLogsService.getPointInfoByMid(mid);
+            HashMap<String, Integer> result = memberPointLogsService.getPointInfoByMid(mid, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             logger.error("获取会员积分总和失败", e);
@@ -334,15 +449,13 @@ public class MemberController {
     }
 
     @GetMapping("/pointlogMonthDay/{mid}")
-    public ApiResponse getPointMonthDay(@PathVariable Integer mid, @RequestParam(required = false) String yearMonth) {
+    public ApiResponse getPointMonthDay(@PathVariable Integer mid, @RequestParam(required = false) String yearMonth, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             List<Map<String, Object>> logs;
             if (yearMonth != null && !yearMonth.isEmpty()) {
-                // 如果提供了yearMonth参数，查询指定月份的数据
-                logs = memberPointLogsService.getPointLogsByMidAndSpecificMonth(mid, yearMonth);
+                logs = memberPointLogsService.getPointLogsByMidAndSpecificMonth(mid, yearMonth, seasonId);
             } else {
-                // 没有提供yearMonth参数，查询当月数据
-                logs = memberPointLogsService.getPointLogsByMidAndMonth(mid);
+                logs = memberPointLogsService.getPointLogsByMidAndMonth(mid, seasonId);
             }
             return ApiResponse.ok(logs);
         } catch (Exception e) {
@@ -353,9 +466,9 @@ public class MemberController {
 
     // 根据mid获取member
     @GetMapping("/logCount/{mid}")
-    public ApiResponse getMemberLogCountByMid(@PathVariable Integer mid) {
+    public ApiResponse getMemberLogCountByMid(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            Integer count = memberPointLogsService.getAllCountLogsByDayMid(mid);
+            Integer count = memberPointLogsService.getAllCountLogsByDayMid(mid, seasonId);
             return ApiResponse.ok(count);
         } catch (Exception e) {
             logger.error("获取会员信息失败", e);
@@ -369,15 +482,47 @@ public class MemberController {
      * @return
      */
     @PutMapping("/rule/updateSort/{id}")
-    public ApiResponse updateRuleSort(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest) {
+    public ApiResponse updateRuleSort(@PathVariable Integer id, @RequestBody MemberRuleRequest memberRuleRequest, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            MemberRules rule = memberRulesService.getRuleById(id);
-            if (rule == null) {
-                return ApiResponse.error("规则不存在");
+            if (seasonId != null) {
+                SeasonRule rule = memberRulesService.getRuleById(id, seasonId, SeasonRule.class);
+                if (rule == null) {
+                    return ApiResponse.error("规则不存在");
+                }
+                
+                // 由于updateRule方法需要MemberRules类型参数，我们需要创建一个临时的MemberRules对象
+                MemberRules tempRule = new MemberRules();
+                tempRule.setId(rule.getId().intValue());
+                tempRule.setSort(memberRuleRequest.getSort());
+                // 设置其他必要字段
+                tempRule.setName(rule.getName());
+                tempRule.setType(rule.getType());
+                tempRule.setMid(rule.getMId());
+                tempRule.setIcon(rule.getIcon());
+                tempRule.setIconType(rule.getIconType());
+                tempRule.setWeeks(rule.getWeeks());
+                tempRule.setContent(rule.getContent());
+                tempRule.setQuickScore(rule.getQuickScore());
+                tempRule.setStatus(rule.getStatus());
+                tempRule.setTypeSort(rule.getTypeSort());
+                tempRule.setEnablePomodoro(rule.getEnablePomodoro());
+                tempRule.setPomodoroTime(rule.getPomodoroTime());
+                
+                memberRulesService.updateRule(tempRule, seasonId);
+                
+                // 重新获取更新后的规则
+                rule = memberRulesService.getRuleById(id, seasonId, SeasonRule.class);
+                return ApiResponse.ok(rule);
+            } else {
+                MemberRules rule = memberRulesService.getRuleById(id, seasonId, MemberRules.class);
+                if (rule == null) {
+                    return ApiResponse.error("规则不存在");
+                }
+                
+                rule.setSort(memberRuleRequest.getSort());
+                memberRulesService.updateRule(rule, seasonId);
+                return ApiResponse.ok(rule);
             }
-            rule.setSort(memberRuleRequest.getSort());
-            memberRulesService.updateRule(rule);
-            return ApiResponse.ok(rule);
         } catch (Exception e) {
             logger.error("更新规则排序失败", e);
             return ApiResponse.error("更新规则排序失败");
@@ -391,9 +536,9 @@ public class MemberController {
      * @return
      */
     @PutMapping("/rule/swapSort/{currentId}/{targetId}")
-    public ApiResponse swapRuleSort(@PathVariable Integer currentId, @PathVariable Integer targetId) {
+    public ApiResponse swapRuleSort(@PathVariable Integer currentId, @PathVariable Integer targetId, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            memberRulesService.swapRuleSort(currentId, targetId);
+            memberRulesService.swapRuleSort(currentId, targetId, seasonId);
             return ApiResponse.ok("交换排序成功");
         } catch (Exception e) {
             logger.error("交换规则排序失败", e);
@@ -407,22 +552,62 @@ public class MemberController {
      * @return
      */
     @GetMapping("/rules/active/{mid}")
-    public ApiResponse getActiveRulesByMid(@PathVariable Integer mid) {
+    public ApiResponse getActiveRulesByMid(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<MemberRules> rules = memberRulesService.getActiveRulesByMid(mid);
-            // 将规则按类型分组
-            Map<String, List<Map<String, Object>>> groupedRules = rules.stream()
-                .collect(Collectors.groupingBy(MemberRules::getType,
-                    Collectors.mapping(rule -> {
-                        Map<String, Object> ruleMap = new HashMap<>();
-                        ruleMap.put("id", rule.getId());
-                        ruleMap.put("name", rule.getName());
-                        ruleMap.put("icon", rule.getIcon());
-                        ruleMap.put("iconType", rule.getIconType());
-                        ruleMap.put("stars", 0);
-                        ruleMap.put("status", 0);
-                        return ruleMap;
-                    }, Collectors.toList())));
+            Map<String, List<Map<String, Object>>> groupedRules;
+            Map<String, Integer> typeSortMap;
+            
+            if (seasonId != null) {
+                // 赛季模式处理
+                List<SeasonRule> rules = memberRulesService.getActiveRulesByMid(mid, seasonId, SeasonRule.class);
+                
+                groupedRules = rules.stream()
+                    .collect(Collectors.groupingBy(SeasonRule::getType,
+                        Collectors.mapping(rule -> {
+                            Map<String, Object> ruleMap = new HashMap<>();
+                            ruleMap.put("id", rule.getId());
+                            ruleMap.put("name", rule.getName());
+                            ruleMap.put("icon", rule.getIcon());
+                            ruleMap.put("iconType", rule.getIconType());
+                            ruleMap.put("stars", 0);
+                            ruleMap.put("status", 0);
+                            return ruleMap;
+                        }, Collectors.toList())));
+                            
+                // 获取分类排序信息
+                typeSortMap = rules.stream()
+                    .collect(Collectors.toMap(
+                        SeasonRule::getType,
+                        SeasonRule::getTypeSort,
+                        (existing, replacement) -> existing,
+                        HashMap::new
+                    ));
+            } else {
+                // 常规模式处理
+                List<MemberRules> rules = memberRulesService.getActiveRulesByMid(mid, seasonId, MemberRules.class);
+                
+                groupedRules = rules.stream()
+                    .collect(Collectors.groupingBy(MemberRules::getType,
+                        Collectors.mapping(rule -> {
+                            Map<String, Object> ruleMap = new HashMap<>();
+                            ruleMap.put("id", rule.getId());
+                            ruleMap.put("name", rule.getName());
+                            ruleMap.put("icon", rule.getIcon());
+                            ruleMap.put("iconType", rule.getIconType());
+                            ruleMap.put("stars", 0);
+                            ruleMap.put("status", 0);
+                            return ruleMap;
+                        }, Collectors.toList())));
+                            
+                // 获取分类排序信息
+                typeSortMap = rules.stream()
+                    .collect(Collectors.toMap(
+                        MemberRules::getType,
+                        MemberRules::getTypeSort,
+                        (existing, replacement) -> existing,
+                        HashMap::new
+                    ));
+            }
 
             // 构建最终的输出格式
             List<Map<String, Object>> formattedRules = groupedRules.entrySet().stream()
@@ -433,15 +618,6 @@ public class MemberController {
                     return typeGroup;
                 })
                 .collect(Collectors.toList());
-
-            // 提取每种类型的一个规则，用于获取该类型的排序值
-            Map<String, Integer> typeSortMap = rules.stream()
-                .collect(Collectors.toMap(
-                    MemberRules::getType,
-                    MemberRules::getTypeSort,
-                    (existing, replacement) -> existing,
-                    HashMap::new
-                ));
 
             // 对分类进行排序
             formattedRules.sort((a, b) -> {
@@ -540,9 +716,9 @@ public class MemberController {
     }
 
     @GetMapping("/pointlogHistory/{mid}/{page}")
-    public ApiResponse getPointLogsByMid(@PathVariable Integer mid, @PathVariable Integer page) {
+    public ApiResponse getPointLogsByMid(@PathVariable Integer mid, @PathVariable Integer page, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            Map<String, Object> data  = memberPointLogsService.getPointLogsByMid(mid,page);
+            Map<String, Object> data  = memberPointLogsService.getPointLogsByMid(mid,page, seasonId);
             return ApiResponse.ok(data);
         } catch (Exception e) {
             logger.error("获取会员积分详情失败", e);
@@ -557,9 +733,9 @@ public class MemberController {
      * @return 连续打卡天数信息
      */
     @GetMapping("/streak/{mid}/{ruleId}")
-    public ApiResponse getStreakInfo(@PathVariable Integer mid, @PathVariable Integer ruleId) {
+    public ApiResponse getStreakInfo(@PathVariable Integer mid, @PathVariable Integer ruleId, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            Map<String, Integer> streakInfo = memberPointLogsService.getStreakInfo(mid, ruleId);
+            Map<String, Integer> streakInfo = memberPointLogsService.getStreakInfo(mid, ruleId, seasonId);
             return ApiResponse.ok(streakInfo);
         } catch (Exception e) {
             logger.error("获取连续打卡天数失败", e);
@@ -579,9 +755,10 @@ public class MemberController {
     public ApiResponse getMonthlyCheckInRecords(
             @PathVariable Integer mid,
             @PathVariable Integer ruleId,
-            @RequestParam String yearMonth) {
+            @RequestParam String yearMonth,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Object>> records = memberPointLogsService.getMonthlyCheckInRecords(mid, ruleId, yearMonth);
+            List<Map<String, Object>> records = memberPointLogsService.getMonthlyCheckInRecords(mid, ruleId, yearMonth, seasonId);
             return ApiResponse.ok(records);
         } catch (Exception e) {
             logger.error("获取月度打卡记录失败", e);
@@ -602,9 +779,10 @@ public class MemberController {
             @PathVariable Integer mid,
             @PathVariable Integer ruleId,
             @RequestParam String startDay,
-            @RequestParam String endDay) {
+            @RequestParam String endDay,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRange(mid, ruleId, startDay, endDay);
+            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRange(mid, ruleId, startDay, endDay, seasonId);
             return ApiResponse.ok(records);
         } catch (Exception e) {
             logger.error("获取时间段内打卡记录失败", e);
@@ -623,9 +801,10 @@ public class MemberController {
     public ApiResponse getPointLogsByDateRangeTotal(
             @PathVariable Integer mid,
             @RequestParam String startDay,
-            @RequestParam String endDay) {
+            @RequestParam String endDay,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRangeTotal(mid, startDay, endDay);
+            List<Map<String, Object>> records = memberPointLogsService.getPointLogsByDateRangeTotal(mid, startDay, endDay, seasonId);
             return ApiResponse.ok(records);
         } catch (Exception e) {
             logger.error("获取时间段内打卡记录失败", e);
@@ -644,13 +823,14 @@ public class MemberController {
     public ApiResponse getYearlyHeatmap(
             @PathVariable Integer mid,
             @PathVariable Integer ruleId,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             // 如果未指定年份，使用当前年份
             if (year == null) {
                 year = LocalDateTime.now().getYear();
             }
-            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmap(mid, ruleId, year);
+            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmap(mid, ruleId, year, seasonId);
             return ApiResponse.ok(yearlyHeatmap);
         } catch (Exception e) {
             logger.error("获取热力图数据失败", e);
@@ -667,13 +847,14 @@ public class MemberController {
     @GetMapping("/heatmapAll/{mid}")
     public ApiResponse getYearlyHeatmapALL(
             @PathVariable Integer mid,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             // 如果未指定年份，使用当前年份
             if (year == null) {
                 year = LocalDateTime.now().getYear();
             }
-            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmapAll(mid, year);
+            List<Map<String, Object>> yearlyHeatmap = memberPointLogsService.getYearlyHeatmapAll(mid, year, seasonId);
             return ApiResponse.ok(yearlyHeatmap);
         } catch (Exception e) {
             logger.error("获取热力图数据失败", e);
@@ -688,9 +869,9 @@ public class MemberController {
      * @return 积分详情列表
      */
     @GetMapping("/pointlogCurrentDayDetail/{mid}")
-    public ApiResponse getPointlogCurrentDayDetail(@PathVariable Integer mid, @RequestParam String day) {
+    public ApiResponse getPointlogCurrentDayDetail(@PathVariable Integer mid, @RequestParam String day, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Object>> details = memberPointLogsService.getPointlogCurrentDayDetail(mid, day);
+            List<Map<String, Object>> details = memberPointLogsService.getPointlogCurrentDayDetail(mid, day, seasonId);
             return ApiResponse.ok(details);
         } catch (Exception e) {
             logger.error("获取积分详情失败", e);
@@ -701,18 +882,18 @@ public class MemberController {
     /**
      * 批量更新规则分类名称
      * @param mid 会员ID
-     * @param oldType 旧分类名称
-     * @param newType 新分类名称
+     * @param requestMap 包含oldType和newType的请求体
      * @return 更新结果
      */
     @PutMapping("/rules/{mid}/updateType")
     public ApiResponse updateRuleType(
             @PathVariable Integer mid,
-            @RequestBody Map<String, String> requestMap) {
+            @RequestBody Map<String, String> requestMap,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             String oldType = requestMap.get("oldType");
             String newType = requestMap.get("newType");
-            int updatedCount = memberRulesService.updateRuleType(mid, oldType, newType);
+            int updatedCount = memberRulesService.updateRuleType(mid, oldType, newType, seasonId);
             Map<String, Object> result = new HashMap<>();
             result.put("updatedCount", updatedCount);
             return ApiResponse.ok(result);
@@ -730,9 +911,9 @@ public class MemberController {
      * @return 分类列表
      */
     @GetMapping("/rules/{mid}/types")
-    public ApiResponse getRuleTypes(@PathVariable Integer mid) {
+    public ApiResponse getRuleTypes(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Integer>> types = memberRulesService.getRuleTypes(mid);
+            List<Map<String, Integer>> types = memberRulesService.getRuleTypes(mid, seasonId);
             return ApiResponse.ok(types);
         } catch (IllegalArgumentException e) {
             return ApiResponse.error("参数错误: " + e.getMessage());
@@ -772,21 +953,38 @@ public class MemberController {
     public ApiResponse getMemberListByUid(@PathVariable Integer uid) {
         try {
             WxUser wxUser = wxuserService.getUserById(uid);
+            List<MemberDto> memberDtos = new ArrayList<>();
             List<Member> members = memberService.getMembersByUid(uid);
             if(wxUser.getRole()!=null && wxUser.getRole()==7){//表示角色时 孩子自己
-                List<Member> filteredMembers = new ArrayList<>();
+//                List<Member> filteredMembers = new ArrayList<>();
                 for(Member member : members) {
+                    MemberDto memberDto = new MemberDto();
+                    //将member的属性赋值给memberDto
+                    BeanUtils.copyProperties(member, memberDto);
+
+                    if(member.getMode()!=null && member.getMode().equals("seasonMode")){
+                        SeasonConfig seasonConfig = seasonConfigService.getById(member.getCurrentSeasonId());
+                        memberDto.setSeasonConfig(seasonConfig);
+                    }
                     if(member.getCurrentUid() != null &&
                             member.getCurrentUid().equals(wxUser.getId()) &&
                             member.getId().equals(member.getBindMid())) {
-                        filteredMembers.add(member);
+                        memberDtos.add(memberDto);
                     }
                 }
-                if(filteredMembers.size()!=0){
-                    members = filteredMembers;
+            }else{
+                for(Member member : members) {
+                    MemberDto memberDto = new MemberDto();
+                    //将member的属性赋值给memberDto
+                    BeanUtils.copyProperties(member, memberDto);
+                    if(member.getMode()!=null && member.getMode().equals("seasonMode")){
+                        SeasonConfig seasonConfig = seasonConfigService.getById(member.getCurrentSeasonId());
+                        memberDto.setSeasonConfig(seasonConfig);
+                    }
+                    memberDtos.add(memberDto);
                 }
             }
-            return ApiResponse.ok(members);
+            return ApiResponse.ok(memberDtos);
         } catch (Exception e) {
             logger.error("获取会员列表失败", e);
             return ApiResponse.error("获取会员列表失败");
@@ -800,26 +998,91 @@ public class MemberController {
      * @return ApiResponse
      */
     @PostMapping("/updatePoints/{mid}")
-    public ApiResponse updateMemberPoints(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs) {
+    public ApiResponse updateMemberPoints(@PathVariable Integer mid, @RequestBody MemberPointLogsRequest memberPointLogs, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            memberPointLogs.setMid(mid);
-            // 设置积分类型为3，表示用户自行修改的积分
-            memberPointLogs.setType(3);
             
-            // 设置当前时间
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String currentTime = LocalDateTime.now().format(formatter);
+            memberPointLogs.setMid(mid);
+            memberPointLogs.setType(3);
             memberPointLogs.setDay(currentTime);
-            
-            // 插入积分记录
-            MemberPointLogs result = memberPointLogsService.insert(memberPointLogs);
-            if (result != null) {
-                return ApiResponse.ok(result);
+            if(seasonId!=null){
+                SeasonPointLog result = memberPointLogsService.insert(memberPointLogs, seasonId, SeasonPointLog.class);
+                if (result != null) {
+                    return ApiResponse.ok(result);
+                }
+            }else{
+                
+                MemberPointLogs result = memberPointLogsService.insert(memberPointLogs, seasonId, MemberPointLogs.class);
+                if (result != null) {
+                    return ApiResponse.ok(result);
+                }
             }
+            
             return ApiResponse.error("修改积分失败");
         } catch (Exception e) {
             logger.error("修改会员积分失败", e);
             return ApiResponse.error("修改积分失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 切换成员的模式（常规/赛季）
+     * @param mid 成员ID
+     * @param requestMap 请求参数，包括mode和seasonId
+     * @return API响应
+     */
+    /**
+     * 切换成员的模式（常规/赛季）
+     * @param mid 成员ID
+     * @param requestMap 请求参数，包括mode
+     * @return API响应
+     */
+    @PostMapping("/{mid}/switchMode")
+    public ApiResponse switchMode(
+            @PathVariable Integer mid,
+            @RequestBody Map<String, Object> requestMap) {
+        try {
+            String mode = (String) requestMap.get("mode");
+            if (mode == null) {
+                return ApiResponse.error("模式不能为空");
+            }
+            
+            Member updatedMember = memberService.switchMode(mid, mode);
+            return ApiResponse.ok(updatedMember);
+        } catch (IllegalArgumentException e) {
+            logger.error("切换成员模式参数错误", e);
+            return ApiResponse.error("参数错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("切换成员模式失败", e);
+            return ApiResponse.error("切换成员模式失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 更新成员关联的赛季ID
+     * @param mid 成员ID
+     * @param requestMap 请求参数，包括seasonId
+     * @return API响应
+     */
+    @PostMapping("/{mid}/updateSeasonId")
+    public ApiResponse updateSeasonId(
+            @PathVariable Integer mid,
+            @RequestBody Map<String, Object> requestMap) {
+        try {
+            if (requestMap.get("seasonId") == null) {
+                return ApiResponse.error("赛季ID不能为空");
+            }
+            Long seasonId = Long.valueOf(requestMap.get("seasonId").toString());
+            
+            Member updatedMember = memberService.updateCurrentSeasonId(mid, seasonId);
+            return ApiResponse.ok(updatedMember);
+        } catch (IllegalArgumentException e) {
+            logger.error("更新赛季ID参数错误", e);
+            return ApiResponse.error("参数错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("更新赛季ID失败", e);
+            return ApiResponse.error("更新赛季ID失败: " + e.getMessage());
         }
     }
 }

@@ -14,6 +14,7 @@ public interface StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含月份统计数据的Map，适用于Echarts柱状图展示
      *         数据结构：{
      *           "months": ["2023-01", "2023-02", ...], // 月份列表，按从小到大排序
@@ -21,7 +22,7 @@ public interface StatisticsService {
      *           "decrease": [50, 80, ...]              // 对应月份的积分减少量
      *         }
      */
-    Map<String, Object> getPointsStatisticsByMonth(Integer mid, String startDate, String endDate);
+    Map<String, Object> getPointsStatisticsByMonth(Integer mid, String startDate, String endDate, Long seasonId);
     
     /**
      * 获取综合统计数据
@@ -30,6 +31,7 @@ public interface StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含各类统计数据的Map
      *         数据结构：{
      *           "pointsStats": {                        // 积分统计
@@ -56,7 +58,7 @@ public interface StatisticsService {
      *           }
      *         }
      */
-    Map<String, Object> getComprehensiveStatistics(Integer mid, String startDate, String endDate);
+    Map<String, Object> getComprehensiveStatistics(Integer mid, String startDate, String endDate, Long seasonId);
     
     /**
      * 获取打卡类型积分占比统计
@@ -65,6 +67,7 @@ public interface StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含打卡类型积分占比的Map，适用于Echarts饼图展示
      *         数据结构：{
      *           "total": 1000,                          // 总积分
@@ -75,5 +78,5 @@ public interface StatisticsService {
      *           ]
      *         }
      */
-    Map<String, Object> getCheckInTypePointsRatio(Integer mid, String startDate, String endDate);
+    Map<String, Object> getCheckInTypePointsRatio(Integer mid, String startDate, String endDate, Long seasonId);
 } 

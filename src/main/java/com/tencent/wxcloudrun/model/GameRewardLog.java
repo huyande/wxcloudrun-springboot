@@ -17,6 +17,7 @@ public class GameRewardLog implements Serializable {
     private String rewardType;    // 奖励类型
     private String icon;          // 图标
     private Integer status; //状态 0 未兑现 1 已兑现
+    private Long seasonId;        // 赛季ID，为null表示常规数据
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

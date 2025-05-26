@@ -6,20 +6,21 @@ import java.util.List;
 
 public interface WishService {
     // 创建愿望
-    Wish createWish(WishRequest request);
+    <T> T createWish(WishRequest request, Long seasonId, Class<T> expectedType);
     
     // 更新愿望
-    Wish updateWish(WishRequest request);
+    <T> T updateWish(WishRequest request, Long seasonId, Class<T> expectedType);
     
     // 删除愿望
-    void deleteWish(Integer id);
+    void deleteWish(Integer id, Long seasonId);
     
     // 获取单个愿望
-    Wish getWishById(Integer id);
+    <T> T getWishById(Integer id, Long seasonId, Class<T> expectedType);
     
     // 获取所有愿望
-    List<Wish> getAllWishes();
+    <T> List<T> getAllWishes(Long seasonId, Class<T> expectedType);
     
     // 获取指定成员的愿望
-    List<Wish> getWishesByMid(String mid);
+    <T> List<T> getWishesByMid(String mid, Long seasonId, Class<T> expectedType);
+
 }

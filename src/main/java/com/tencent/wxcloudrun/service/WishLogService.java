@@ -1,48 +1,33 @@
 package com.tencent.wxcloudrun.service;
 
+import com.tencent.wxcloudrun.dto.WishLogRequest;
 import com.tencent.wxcloudrun.model.WishLog;
 import java.util.List;
 import java.util.Map;
 
 public interface WishLogService {
     
-    // 根据ID查询
-    WishLog getById(Integer id);
+    <T> T getById(Integer id, Long seasonId, Class<T> expectedType);
     
-    // 根据用户ID查询列表
-    List<WishLog> getByUid(String uid);
+    <T> List<T> getByUid(String uid, Long seasonId, Class<T> expectedType);
     
-    // 根据愿望ID查询列表
-    List<WishLog> getByWid(Integer wid);
+    <T> List<T> getByWid(Integer wid, Long seasonId, Class<T> expectedType);
     
-    // 新增
-    WishLog create(WishLog wishLog);
+    <T> T createWishLog(WishLogRequest request, Long seasonId, Class<T> expectedType);
     
-    // 更新
-    void update(WishLog wishLog);
+    <T> T updateWishLog(Integer id, WishLogRequest request, Long seasonId, Class<T> expectedType);
 
-    /**
-     * 查询所有分钟类型的未完成任务
-     * @return 任务列表
-     */
-    List<WishLog> queryTimeTask();
+    void legacyUpdate(WishLog wishLog, Long seasonId);
+
+    <T> List<T> queryTimeTask(Long seasonId, Class<T> expectedType);
     
-    // 删除
-    void deleteById(Integer id);
+    void deleteById(Integer id, Long seasonId);
 
-    Integer getSumNumByMid(Integer mid);
+    Integer getSumNumByMid(Integer mid, Long seasonId);
 
-    List<Map<String, Object>> getByMid(Integer mid);
+    List<Map<String, Object>> getByMid(Integer mid, Long seasonId);
 
-    List<WishLog> getAllLogByStatus(Integer mid, Integer status);
+    <T> List<T> getAllLogByStatus(Integer mid, Integer status, Long seasonId, Class<T> expectedType);
     
-    /**
-     * 根据会员ID分页查询愿望日志列表
-     * @param mid 会员ID
-     * @param page 页码
-     * @param pageSize 每页数量
-     * @param status 状态过滤，可为null
-     * @return 包含分页信息的结果集
-     */
-    Map<String, Object> getByMidWithPage(Integer mid, Integer page, Integer pageSize, Integer status);
+    Map<String, Object> getByMidWithPage(Integer mid, Integer page, Integer pageSize, Integer status, Long seasonId);
 }

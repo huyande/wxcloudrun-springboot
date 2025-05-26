@@ -20,45 +20,54 @@ public class GameConfigController {
     }
 
     @PostMapping
-    public ApiResponse createGameConfig(@RequestBody GameConfig gameConfig) {
-        gameConfigService.createGameConfig(gameConfig);
+    public ApiResponse createGameConfig(@RequestBody GameConfig gameConfig,
+                                       @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        gameConfigService.createGameConfig(gameConfig, seasonId);
         return ApiResponse.ok();
     }
 
     @GetMapping("/{id}")
-    public ApiResponse getGameConfigById(@PathVariable Integer id) {
-        GameConfig gameConfig = gameConfigService.getGameConfigById(id);
+    public ApiResponse getGameConfigById(@PathVariable Integer id,
+                                        @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        GameConfig gameConfig = gameConfigService.getGameConfigById(id, seasonId);
         return ApiResponse.ok(gameConfig);
     }
 
     @GetMapping("/user")
-    public ApiResponse getGameConfigByUidAndType(@RequestParam Integer uid, @RequestParam String type) {
-        GameConfig gameConfig = gameConfigService.getGameConfigByUidAndType(uid, type);
+    public ApiResponse getGameConfigByUidAndType(@RequestParam Integer uid, 
+                                                @RequestParam String type,
+                                                @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        GameConfig gameConfig = gameConfigService.getGameConfigByUidAndType(uid, type, seasonId);
         return ApiResponse.ok(gameConfig);
     }
 
     @GetMapping("/user/{uid}")
-    public ApiResponse getGameConfigsByUid(@PathVariable Integer uid) {
-        List<GameConfig> configs = gameConfigService.getGameConfigsByUid(uid);
+    public ApiResponse getGameConfigsByUid(@PathVariable Integer uid,
+                                          @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        List<GameConfig> configs = gameConfigService.getGameConfigsByUid(uid, seasonId);
         return ApiResponse.ok(configs);
     }
 
     @PutMapping("/{id}")
-    public ApiResponse updateGameConfig(@PathVariable Integer id, @RequestBody GameConfig gameConfig) {
+    public ApiResponse updateGameConfig(@PathVariable Integer id, 
+                                       @RequestBody GameConfig gameConfig,
+                                       @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         gameConfig.setId(id);
-        gameConfigService.updateGameConfig(gameConfig);
+        gameConfigService.updateGameConfig(gameConfig, seasonId);
         return ApiResponse.ok();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse deleteGameConfig(@PathVariable Integer id) {
-        gameConfigService.deleteGameConfig(id);
+    public ApiResponse deleteGameConfig(@PathVariable Integer id,
+                                       @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        gameConfigService.deleteGameConfig(id, seasonId);
         return ApiResponse.ok();
     }
 
     @PostMapping("/with-rewards")
-    public ApiResponse saveGameConfigWithRewards(@RequestBody GameConfigWithRewardsRequest request) {
-        gameConfigService.saveGameConfigWithRewards(request);
+    public ApiResponse saveGameConfigWithRewards(@RequestBody GameConfigWithRewardsRequest request,
+                                                 @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        gameConfigService.saveGameConfigWithRewards(request, seasonId);
         return ApiResponse.ok();
     }
 } 

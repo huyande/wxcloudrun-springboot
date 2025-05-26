@@ -31,16 +31,18 @@ public class StatisticsController {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 季节ID
      * @return API响应，包含适用于Echarts柱状图的数据结构
      */
     @GetMapping("/points/monthly/{mid}")
     public ApiResponse getPointsStatisticsByMonth(
             @PathVariable Integer mid,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             // 调用服务层方法获取按月份统计的积分数据
-            Map<String, Object> result = statisticsService.getPointsStatisticsByMonth(mid, startDate, endDate);
+            Map<String, Object> result = statisticsService.getPointsStatisticsByMonth(mid, startDate, endDate, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             // 记录错误日志
@@ -56,16 +58,18 @@ public class StatisticsController {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 季节ID
      * @return API响应，包含各类统计数据
      */
     @GetMapping("/comprehensive/{mid}")
     public ApiResponse getComprehensiveStatistics(
             @PathVariable Integer mid,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             // 调用服务层方法获取综合统计数据
-            Map<String, Object> result = statisticsService.getComprehensiveStatistics(mid, startDate, endDate);
+            Map<String, Object> result = statisticsService.getComprehensiveStatistics(mid, startDate, endDate, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             // 记录错误日志
@@ -81,16 +85,18 @@ public class StatisticsController {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 季节ID
      * @return API响应，包含适用于Echarts饼图的数据结构
      */
     @GetMapping("/checkin/type-ratio/{mid}")
     public ApiResponse getCheckInTypePointsRatio(
             @PathVariable Integer mid,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
             // 调用服务层方法获取打卡类型积分占比数据
-            Map<String, Object> result = statisticsService.getCheckInTypePointsRatio(mid, startDate, endDate);
+            Map<String, Object> result = statisticsService.getCheckInTypePointsRatio(mid, startDate, endDate, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {
             // 记录错误日志

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonConfigMapper">
+    <resultMap id="seasonConfigResultMap" type="com.tencent.wxcloudrun.model.SeasonConfig">
+        <id column="id" property="id"/>
+        <result column="mId" property="mId"/>
+        <result column="name" property="name"/>
+        <result column="startTime" property="startTime"/>
+        <result column="endTime" property="endTime"/>
+        <result column="tokenName" property="tokenName"/>
+        <result column="tokenIcon" property="tokenIcon"/>
+        <result column="conversionRate" property="conversionRate"/>
+        <result column="initialPoints" property="initialPoints"/>
+        <result column="status" property="status"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, mId, name, startTime, endTime, tokenName, tokenIcon, conversionRate, initialPoints, status, createTime, updateTime
+    </sql>
+
+    <select id="getById" resultMap="seasonConfigResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_config
+        WHERE id = #{id}
+    </select>
+
+    <select id="getByMid" resultMap="seasonConfigResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_config
+        WHERE mId = #{mId}
+        ORDER BY createTime DESC
+    </select>
+
+    <select id="getAll" resultMap="seasonConfigResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_config
+        ORDER BY createTime DESC
+    </select>
+
+    <select id="getActiveByMid" resultMap="seasonConfigResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_config
+        WHERE mId = #{mId} AND status = 1
+        ORDER BY createTime DESC
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_config (
+            mId, name, startTime, endTime, tokenName, tokenIcon, 
+            conversionRate, initialPoints, status, createTime, updateTime
+        ) 
+        VALUES (
+            #{mId}, #{name}, #{startTime}, #{endTime}, #{tokenName}, #{tokenIcon}, 
+            #{conversionRate}, #{initialPoints}, #{status}, now(), now()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.SeasonConfig">
+        UPDATE season_config
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="startTime != null">startTime = #{startTime},</if>
+            <if test="endTime != null">endTime = #{endTime},</if>
+            <if test="tokenName != null">tokenName = #{tokenName},</if>
+            <if test="tokenIcon != null">tokenIcon = #{tokenIcon},</if>
+            <if test="conversionRate != null">conversionRate = #{conversionRate},</if>
+            <if test="initialPoints != null">initialPoints = #{initialPoints},</if>
+            <if test="status != null">status = #{status},</if>
+            updateTime = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE season_config
+        SET status = #{status}, updateTime = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM season_config
+        WHERE id = #{id}
+    </delete>
+</mapper> 

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonRuleMapper">
+    <resultMap id="seasonRuleResultMap" type="com.tencent.wxcloudrun.model.SeasonRule">
+        <id column="id" property="id"/>
+        <result column="seasonId" property="seasonId"/>
+        <result column="mId" property="mId"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="typeSort" property="typeSort"/>
+        <result column="icon" property="icon"/>
+        <result column="iconType" property="iconType"/>
+        <result column="weeks" property="weeks"/>
+        <result column="content" property="content"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="quickScore" property="quickScore"/>
+        <result column="enablePomodoro" property="enablePomodoro"/>
+        <result column="pomodoroTime" property="pomodoroTime"/>
+        <result column="isAchievement" property="isAchievement"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, seasonId, mId, name, type, typeSort, icon, iconType, weeks, content, sort, status, 
+        quickScore, enablePomodoro, pomodoroTime,isAchievement, createTime, updateTime
+    </sql>
+
+    <select id="getById" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE id = #{id}
+    </select>
+
+    <select id="getBySeasonId" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE seasonId = #{seasonId}
+        ORDER BY typeSort, sort
+    </select>
+
+    <select id="getBySeasonIdAndMid" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE seasonId = #{seasonId} AND mId = #{mId}
+        ORDER BY typeSort, sort
+    </select>
+
+    <select id="getRulesBySeasonIdAndMidAndDay" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE seasonId = #{seasonId} AND mId = #{mId}
+        <if test="day != null">
+            <!-- 这里可以添加基于 day 参数的筛选条件，如果需要的话 -->
+        </if>
+        ORDER BY typeSort, sort
+    </select>
+
+    <select id="getActiveRulesBySeasonIdAndMid" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE seasonId = #{seasonId} AND mId = #{mId} AND status = 1
+        ORDER BY typeSort, sort
+    </select>
+
+    <select id="getRuleByNameAndMid" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE name = #{name} AND mId = #{mId} AND seasonId = #{seasonId}
+        LIMIT 1
+    </select>
+
+    <select id="getLastSortByTypeAndMid" resultMap="seasonRuleResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rules
+        WHERE mId = #{mId} AND seasonId = #{seasonId} AND type = #{type}
+        ORDER BY sort DESC
+        LIMIT 1
+    </select>
+
+    <select id="getRuleTypes" resultType="java.util.Map">
+        SELECT type,typeSort
+        FROM season_rules
+        WHERE mid = #{mId} AND seasonId = #{seasonId} AND status = 1
+        GROUP BY type,typeSort
+        ORDER BY typeSort ASC
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_rules (
+            seasonId, mId, name, type, typeSort, icon, iconType, weeks, content, sort, status, 
+            quickScore, enablePomodoro, pomodoroTime, createTime, updateTime
+        )   
+        VALUES (
+            #{seasonId}, #{mId}, #{name}, #{type}, #{typeSort}, #{icon}, #{iconType}, #{weeks}, #{content}, 
+            #{sort}, #{status}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, now(), now()
+        )
+    </insert>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO season_rules (
+            seasonId, mId, name, type, typeSort, icon, iconType, weeks, content, sort, status, 
+            quickScore, enablePomodoro, pomodoroTime, createTime, updateTime
+        ) 
+        VALUES 
+        <foreach collection="list" item="rule" separator=",">
+            (
+                #{rule.seasonId}, #{rule.mId}, #{rule.name}, #{rule.type}, #{rule.typeSort}, #{rule.icon}, 
+                #{rule.iconType}, #{rule.weeks}, #{rule.content}, #{rule.sort}, #{rule.status}, 
+                #{rule.quickScore}, #{rule.enablePomodoro}, #{rule.pomodoroTime}, now(), now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.SeasonRule">
+        UPDATE season_rules
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="typeSort != null">typeSort = #{typeSort},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="iconType != null">iconType = #{iconType},</if>
+            <if test="weeks != null">weeks = #{weeks},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="quickScore != null">quickScore = #{quickScore},</if>
+            <if test="enablePomodoro != null">enablePomodoro = #{enablePomodoro},</if>
+            <if test="pomodoroTime != null">pomodoroTime = #{pomodoroTime},</if> 
+            <if test="isAchievement != null">isAchievement = #{isAchievement},</if>
+            updateTime = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSort">
+        UPDATE season_rules
+        SET sort = #{sort}, updateTime = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateRuleType">
+        UPDATE season_rules
+        SET type = #{newType}, updateTime = now()
+        WHERE mId = #{mId} AND seasonId = #{seasonId} AND type = #{oldType}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM season_rules
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 根据赛季ID删除所有规则 -->
+    <delete id="deleteBySeasonId">
+        DELETE FROM season_rules
+        WHERE seasonId = #{seasonId}
+    </delete>
+
+    <select id="countActiveRulesBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM season_rules
+        WHERE mid = #{mId} AND seasonId = #{seasonId} and status = 1
+    </select>
+
+</mapper>

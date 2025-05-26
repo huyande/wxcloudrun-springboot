@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonWishMapper">
+    <resultMap id="seasonWishResultMap" type="com.tencent.wxcloudrun.model.SeasonWish">
+        <id column="id" property="id"/>
+        <result column="seasonId" property="seasonId"/>
+        <result column="mid" property="mid"/>
+        <result column="img" property="img"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="needPoint" property="needPoint"/>
+        <result column="unit" property="unit"/>
+        <result column="unitType" property="unitType"/>
+        <result column="type" property="type"/>
+        <result column="status" property="status"/>
+        <result column="createdAt" property="createdAt"/>
+        <result column="updatedAt" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, createdAt, updatedAt
+    </sql>
+
+    <select id="getById" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE id = #{id}
+    </select>
+
+    <select id="getBySeasonIdAndMid" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getPendingBySeasonIdAndMid" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND status = 0
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getFulfilledBySeasonIdAndMid" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND status = 1
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getBySeasonIdAndMidAndType" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND type = #{type}
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getWishCountBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <select id="getFulfilledWishCountBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_wishes
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND status = 1
+    </select>
+
+    <select id="findAllBySeasonId" resultMap="seasonWishResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_wishes
+        WHERE seasonId = #{seasonId}
+        ORDER BY createdAt DESC
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonWish" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_wishes (
+            seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, createdAt, updatedAt
+        ) 
+        VALUES (
+            #{seasonId}, #{mid}, #{img}, #{title}, #{content}, #{needPoint}, #{unit}, #{unitType}, #{type}, #{status}, now(), now()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.SeasonWish">
+        UPDATE season_wishes
+        <set>
+            <if test="img != null">img = #{img},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="needPoint != null">needPoint = #{needPoint},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="unitType != null">unitType = #{unitType},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="status != null">status = #{status},</if>
+            updatedAt = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE season_wishes
+        SET status = #{status}, updatedAt = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM season_wishes
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 根据赛季ID删除所有愿望 -->
+    <delete id="deleteBySeasonId">
+        DELETE FROM season_wishes
+        WHERE seasonId = #{seasonId}
+    </delete>
+</mapper> 

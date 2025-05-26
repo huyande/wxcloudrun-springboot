@@ -20,48 +20,55 @@ public class GameRewardLogController {
     }
 
     @PostMapping
-    public ApiResponse createGameRewardLog(@RequestBody GameRewardLog gameRewardLog) {
-        gameRewardLogService.createGameRewardLog(gameRewardLog);
+    public ApiResponse createGameRewardLog(@RequestBody GameRewardLog gameRewardLog,
+                                          @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        gameRewardLogService.createGameRewardLog(gameRewardLog, seasonId);
         return ApiResponse.ok();
     }
 
     @PutMapping("updateStatus/{id}")
-    public ApiResponse updateStatus(@PathVariable Integer id){
-        gameRewardLogService.updateStatus(id);
+    public ApiResponse updateStatus(@PathVariable Integer id,
+                                   @RequestHeader(value = "X-Season-Id", required = false) Long seasonId){
+        gameRewardLogService.updateStatus(id, seasonId);
         return ApiResponse.ok();
     }
 
     @GetMapping("/{id}")
-    public ApiResponse getGameRewardLogById(@PathVariable Integer id) {
-        GameRewardLog log = gameRewardLogService.getGameRewardLogById(id);
+    public ApiResponse getGameRewardLogById(@PathVariable Integer id,
+                                           @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        GameRewardLog log = gameRewardLogService.getGameRewardLogById(id, seasonId);
         return ApiResponse.ok(log);
     }
 
     @GetMapping("/member/{mid}")
-    public ApiResponse getGameRewardLogsByMid(@PathVariable Integer mid) {
-        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMid(mid);
+    public ApiResponse getGameRewardLogsByMid(@PathVariable Integer mid,
+                                             @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMid(mid, seasonId);
         return ApiResponse.ok(logs);
     }
 
     @GetMapping("/group/{gameGroup}")
-    public ApiResponse getGameRewardLogsByGameGroup(@PathVariable Integer gameGroup) {
-        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByGameGroup(gameGroup);
+    public ApiResponse getGameRewardLogsByGameGroup(@PathVariable Integer gameGroup,
+                                                   @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByGameGroup(gameGroup, seasonId);
         return ApiResponse.ok(logs);
     }
 
     @GetMapping("/member/{mid}/group/{gameGroup}")
     public ApiResponse getGameRewardLogsByMidAndGameGroup(
             @PathVariable Integer mid,
-            @PathVariable Integer gameGroup) {
-        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMidAndGameGroup(mid, gameGroup);
+            @PathVariable Integer gameGroup,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMidAndGameGroup(mid, gameGroup, seasonId);
         return ApiResponse.ok(logs);
     }
 
     @GetMapping("/member/{mid}/type/{rewardType}")
     public ApiResponse getGameRewardLogsByMidAndRewardType(
             @PathVariable Integer mid,
-            @PathVariable String rewardType) {
-        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMidAndRewardType(mid, rewardType);
+            @PathVariable String rewardType,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        List<GameRewardLog> logs = gameRewardLogService.getGameRewardLogsByMidAndRewardType(mid, rewardType, seasonId);
         return ApiResponse.ok(logs);
     }
 
@@ -70,9 +77,10 @@ public class GameRewardLogController {
             @PathVariable Integer mid,
             @PathVariable Integer gameGroup,
             @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         Map<String, Object> result = gameRewardLogService.getGameRewardLogsByMidAndGameGroupWithPage(
-                mid, gameGroup, pageNum, pageSize);
+                mid, gameGroup, pageNum, pageSize, seasonId);
         return ApiResponse.ok(result);
     }
 } 

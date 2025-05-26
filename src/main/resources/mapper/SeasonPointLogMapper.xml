@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonPointLogMapper">
+    <resultMap id="seasonPointLogResultMap" type="com.tencent.wxcloudrun.model.SeasonPointLog">
+        <id column="id" property="id"/>
+        <result column="seasonId" property="seasonId"/>
+        <result column="day" property="day"/>
+        <result column="mid" property="mid"/>
+        <result column="uid" property="uid"/>
+        <result column="ruleId" property="ruleId"/>
+        <result column="num" property="num"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="pomodoroTime" property="pomodoroTime"/>
+        <result column="createdAt" property="createdAt"/>
+        <result column="updatedAt" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime, createdAt, updatedAt
+    </sql>
+
+    <select id="getById" resultMap="seasonPointLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE id = #{id}
+    </select>
+
+    <select id="getBySeasonIdAndMid" resultMap="seasonPointLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getLogsBySeasonIdMidAndDateRange" resultMap="seasonPointLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        AND day BETWEEN #{startDateTime} AND #{endDateTime}
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getWeeklyPointLogs" resultType="java.util.Map">
+        SELECT 
+            ruleId, 
+            DATE_FORMAT(day, '%w') as weekday,
+            SUM(num) as totalNum
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} and type=0
+        AND day BETWEEN #{weekStart} AND #{weekEnd}
+        GROUP BY ruleId, DATE_FORMAT(day, '%w')
+    </select>
+
+    <select id="getCurrentDayPointSumBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT SUM(num)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        AND DATE(day) = #{day}
+    </select>
+
+    <select id="getPointSumBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT SUM(num)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <select id="getPointDaysBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(day))
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        AND type = 0 AND num > 0
+    </select>
+
+    <select id="getPointInfoBySeasonIdAndMid" resultType="java.util.Map">
+        SELECT 
+            SUM(num) as total_points,
+            COUNT(DISTINCT DATE(day)) as days
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <select id="getStreakInfo" resultType="java.util.Map">
+        <!-- 计算连续打卡的复杂逻辑，根据实际业务需求定制 -->
+        SELECT 
+            COUNT(*) as streak_count,
+            MAX(day) as last_day
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+        AND num > 0
+    </select>
+    
+    <select id="getLogsBySeasonIdMidRuleIdAndDateRange" resultMap="seasonPointLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+        AND day BETWEEN #{startDateTime} AND #{endDateTime}
+        ORDER BY createdAt DESC
+    </select>
+    
+    <select id="getLogsByPage" resultMap="seasonPointLogResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="getCountBySeasonIdAndMid" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <select id="getTotalLogDays" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(day))
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid}
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonPointLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_point_logs (
+            seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime, createdAt, updatedAt
+        ) 
+        VALUES (
+            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime}, now(), now()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.SeasonPointLog">
+        UPDATE season_point_logs
+        <set>
+            <if test="num != null">num = #{num},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="pomodoroTime != null">pomodoroTime = #{pomodoroTime},</if>
+            updatedAt = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM season_point_logs
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 根据赛季ID删除所有积分日志 -->
+    <delete id="deleteBySeasonId">
+        DELETE FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+    </delete>
+
+    <!-- 获取某赛季下某成员某规则的打卡日志，按日期倒序排列 -->
+    <select id="getCheckInLogsBySeasonIdAndMidAndRuleId" resultType="java.util.Map">
+        SELECT 
+            day, num, type, ruleId, createdAt
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+        ORDER BY day DESC
+    </select>
+    
+    <!-- 获取某赛季下某成员某规则的积分日志数量 -->
+    <select id="getPointLogsCountBySeasonIdMidAndRuleId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+    </select>
+    
+    <!-- 获取某赛季下某成员某规则的积分总和 -->
+    <select id="getPointSumBySeasonIdMidAndRuleId" resultType="java.util.Map">
+        SELECT 
+            SUM(num) as pointSum,
+            COUNT(*) as logCount
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+    </select>
+
+    <!-- 获取某赛季下某成员某规则的积分总和 (直接返回值) -->
+    <select id="getSumNumByMidAndRuleIdAndSeasonId" resultType="java.lang.Integer">
+        SELECT SUM(num)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+    </select>
+
+    <!-- 获取某赛季某成员某规则在日期范围内的打卡天数（每日仅计一次） -->
+    <select id="getCheckInCountByMidAndRuleIdAndSeasonIdAndDateRange" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(day))
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} 
+          AND mid = #{mid} 
+          AND ruleId = #{ruleId}
+          AND day BETWEEN #{startDate} AND #{endDate} 
+          AND type = 0 AND num > 0 <!-- Assuming type=0 means check-in and num > 0 means valid check-in -->
+    </select>
+
+    <!-- 从MemberPointLogsMapper.xml迁移的赛季相关方法，以MemberPointLogsMapper.xml中的实现为准 -->
+    <!-- 赛季统计：按月份统计积分增减情况 -->
+    <select id="getPointsStatisticsByMonth" resultType="java.util.Map">
+        SELECT 
+            DATE_FORMAT(day, '%Y-%m') as month,
+            SUM(CASE WHEN num <![CDATA[ > ]]> 0 THEN num ELSE 0 END) as increase,
+            SUM(CASE WHEN num <![CDATA[ < ]]> 0 THEN ABS(num) ELSE 0 END) as decrease
+        FROM 
+            season_point_logs
+        WHERE 
+            seasonId = #{seasonId}
+            AND mid = #{mid}
+            AND day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            DATE_FORMAT(day, '%Y-%m')
+        ORDER BY 
+            month ASC
+    </select>
+
+    <!-- 赛季统计：获取日期范围内的总积分 -->
+    <select id="getTotalPointsByDateRange" resultType="java.lang.Integer">
+        SELECT SUM(num) as total
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+            AND mid = #{mid}
+            AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 赛季统计：获取日期范围内的打卡天数 -->
+    <select id="getCheckInCountByDateRange" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE_FORMAT(day, '%Y-%m-%d'))
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+            AND mid = #{mid}
+            AND type = 0
+            AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 赛季统计：获取日期范围内的打卡次数 -->
+    <select id="getCheckInTimesByDateRange" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+          AND mid = #{mid}
+          AND type = 0
+          AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 赛季统计：获取日期范围内完成次数最多的任务 -->
+    <select id="getTopTasksByDateRange" resultType="java.util.Map">
+        SELECT 
+            sr.name as name,
+            COUNT(*) as count
+        FROM 
+            season_point_logs l
+        JOIN 
+            season_rules sr ON l.ruleId = sr.id
+        WHERE 
+            l.seasonId = #{seasonId}
+            AND l.mid = #{mid}
+            AND l.type = 0
+            AND l.day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            l.ruleId, sr.name
+        ORDER BY 
+            count DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 赛季统计：获取日期范围内的抽奖积分 -->
+    <select id="getLotteryPointsByDateRange" resultType="java.lang.Integer">
+        SELECT SUM(num) as total
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+            AND mid = #{mid}
+            AND type = 1
+            AND day BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <!-- 赛季统计：获取日期范围内各类型任务的积分占比 -->
+    <select id="getCheckInTypePointsRatio" resultType="java.util.Map">
+        SELECT 
+            CASE 
+                WHEN sr.type IS NULL OR sr.type = '' THEN sr.name
+                ELSE sr.type
+            END as name,
+            SUM(l.num) as value
+        FROM 
+            season_point_logs l
+        JOIN 
+            season_rules sr ON l.ruleId = sr.id
+        WHERE 
+            l.seasonId = #{seasonId}
+            AND l.mid = #{mid}
+            AND l.type = 0
+            AND l.day BETWEEN #{startDate} AND #{endDate}
+        GROUP BY 
+            CASE 
+                WHEN sr.type IS NULL OR sr.type = '' THEN sr.name
+                ELSE sr.type
+            END
+        ORDER BY 
+            value DESC
+    </select>
+
+    <select id="getLogsBySeasonIdMidAndDayAndRuleId" resultMap="seasonPointLogResultMap" parameterType="java.util.Map">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_point_logs
+        WHERE mid = #{mid} AND day = #{day} AND ruleId = #{ruleId} and type=0 and seasonId = #{seasonId}
+    </select>
+
+    <select id="getPointlogCurrentDayDetail" resultType="java.util.Map">
+        SELECT 
+            r.name as name,
+            SUM(l.num) as value
+        FROM season_point_logs l
+        JOIN season_rules r ON l.ruleId = r.id
+        WHERE l.mid = #{mid} 
+        AND l.type = 0 and l.seasonId = #{seasonId}
+        AND DATE(l.day) = DATE(#{day})
+        GROUP BY l.ruleId, r.name
+        ORDER BY value DESC
+    </select>
+
+    <select id="getLotteryCountByDateRange"  resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*)
+        FROM game_reward_log
+        WHERE mid = #{mid} and seasonId = #{seasonId}
+        AND createdAt BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+</mapper> 

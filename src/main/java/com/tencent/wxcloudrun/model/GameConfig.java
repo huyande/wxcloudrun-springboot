@@ -12,6 +12,7 @@ public class GameConfig implements Serializable {
     private Integer point;  // 积分
     private Integer number; // 次数限制
     private String type;    // 类型
+    private Long seasonId;  // 赛季ID，为null表示常规数据
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

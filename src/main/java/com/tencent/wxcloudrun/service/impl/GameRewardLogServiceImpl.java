@@ -20,38 +20,78 @@ public class GameRewardLogServiceImpl implements GameRewardLogService {
     }
 
     @Override
-    public void createGameRewardLog(GameRewardLog gameRewardLog) {
+    public void createGameRewardLog(GameRewardLog gameRewardLog, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameRewardLog.setSeasonId(seasonId);
+        }
         gameRewardLogMapper.insertOne(gameRewardLog);
     }
 
     @Override
-    public GameRewardLog getGameRewardLogById(Integer id) {
-        return gameRewardLogMapper.getById(id);
+    public GameRewardLog getGameRewardLogById(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardLogMapper.getByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardLogMapper.getById(id);
+        }
     }
 
     @Override
-    public List<GameRewardLog> getGameRewardLogsByMid(Integer mid) {
-        return gameRewardLogMapper.getByMid(mid);
+    public List<GameRewardLog> getGameRewardLogsByMid(Integer mid, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardLogMapper.getByMidAndSeasonId(mid, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardLogMapper.getByMid(mid);
+        }
     }
 
     @Override
-    public List<GameRewardLog> getGameRewardLogsByGameGroup(Integer gameGroup) {
-        return gameRewardLogMapper.getByGameGroup(gameGroup);
+    public List<GameRewardLog> getGameRewardLogsByGameGroup(Integer gameGroup, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardLogMapper.getByGameGroupAndSeasonId(gameGroup, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardLogMapper.getByGameGroup(gameGroup);
+        }
     }
 
     @Override
-    public List<GameRewardLog> getGameRewardLogsByMidAndGameGroup(Integer mid, Integer gameGroup) {
-        return gameRewardLogMapper.getByMidAndGameGroup(mid, gameGroup);
+    public List<GameRewardLog> getGameRewardLogsByMidAndGameGroup(Integer mid, Integer gameGroup, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardLogMapper.getByMidAndGameGroupAndSeasonId(mid, gameGroup, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardLogMapper.getByMidAndGameGroup(mid, gameGroup);
+        }
     }
 
     @Override
-    public List<GameRewardLog> getGameRewardLogsByMidAndRewardType(Integer mid, String rewardType) {
-        return gameRewardLogMapper.getByMidAndRewardType(mid, rewardType);
+    public List<GameRewardLog> getGameRewardLogsByMidAndRewardType(Integer mid, String rewardType, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardLogMapper.getByMidAndRewardTypeAndSeasonId(mid, rewardType, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardLogMapper.getByMidAndRewardType(mid, rewardType);
+        }
     }
 
     @Override
-    public void updateStatus(Integer id) {
-        gameRewardLogMapper.updateStatus(id);
+    public void updateStatus(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameRewardLogMapper.updateStatusByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            gameRewardLogMapper.updateStatus(id);
+        }
     }
 
     @Override
@@ -59,10 +99,18 @@ public class GameRewardLogServiceImpl implements GameRewardLogService {
             Integer mid, 
             Integer gameGroup, 
             Integer pageNum, 
-            Integer pageSize) {
+            Integer pageSize,
+            Long seasonId) {
         
         // 获取总记录数
-        int total = gameRewardLogMapper.getByMidAndGameGroupCount(mid, gameGroup);
+        int total;
+        if (seasonId != null) {
+            // 赛季模式
+            total = gameRewardLogMapper.getByMidAndGameGroupAndSeasonIdCount(mid, gameGroup, seasonId);
+        } else {
+            // 常规模式
+            total = gameRewardLogMapper.getByMidAndGameGroupCount(mid, gameGroup);
+        }
         
         // 计算总页数
         int pages = (total + pageSize - 1) / pageSize;
@@ -80,8 +128,16 @@ public class GameRewardLogServiceImpl implements GameRewardLogService {
         params.put("gameGroup", gameGroup);
         params.put("offset", offset);
         params.put("pageSize", pageSize);
+        params.put("seasonId", seasonId);
         
-        List<GameRewardLog> list = gameRewardLogMapper.getByMidAndGameGroupWithPage(params);
+        List<GameRewardLog> list;
+        if (seasonId != null) {
+            // 赛季模式
+            list = gameRewardLogMapper.getByMidAndGameGroupAndSeasonIdWithPage(params);
+        } else {
+            // 常规模式
+            list = gameRewardLogMapper.getByMidAndGameGroupWithPage(params);
+        }
         
         // 组装返回结果
         Map<String, Object> result = new HashMap<>();

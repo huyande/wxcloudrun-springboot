@@ -18,52 +18,111 @@ public class GameRewardServiceImpl implements GameRewardService {
     }
 
     @Override
-    public void createGameReward(GameReward gameReward) {
+    public void createGameReward(GameReward gameReward, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameReward.setSeasonId(seasonId);
+        }
         gameRewardMapper.insertOne(gameReward);
     }
 
     @Override
-    public GameReward getGameRewardById(Integer id) {
-        return gameRewardMapper.getById(id);
+    public GameReward getGameRewardById(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getById(id);
+        }
     }
 
     @Override
-    public List<GameReward> getGameRewardsByGid(Integer gid) {
-        return gameRewardMapper.getByGid(gid);
+    public List<GameReward> getGameRewardsByGid(Integer gid, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByGidAndSeasonId(gid, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getByGid(gid);
+        }
     }
 
     @Override
-    public List<GameReward> getGameRewardsByUid(Integer uid) {
-        return gameRewardMapper.getByUid(uid);
+    public List<GameReward> getGameRewardsByUid(Integer uid, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByUidAndSeasonId(uid, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getByUid(uid);
+        }
     }
 
     @Override
-    public List<GameReward> getGameRewardsByType(String type) {
-        return gameRewardMapper.getByType(type);
+    public List<GameReward> getGameRewardsByType(String type, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByTypeAndSeasonId(type, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getByType(type);
+        }
     }
 
     @Override
-    public List<GameReward> getGameRewardsByGidAndType(Integer gid, String type) {
-        return gameRewardMapper.getByGidAndType(gid, type);
+    public List<GameReward> getGameRewardsByGidAndType(Integer gid, String type, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByGidAndTypeAndSeasonId(gid, type, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getByGidAndType(gid, type);
+        }
     }
 
     @Override
-    public List<GameReward> getGameRewardsByUidAndType(Integer uid, String type) {
-        return gameRewardMapper.getByUidAndType(uid, type);
+    public List<GameReward> getGameRewardsByUidAndType(Integer uid, String type, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            return gameRewardMapper.getByUidAndTypeAndSeasonId(uid, type, seasonId);
+        } else {
+            // 常规模式
+            return gameRewardMapper.getByUidAndType(uid, type);
+        }
     }
 
     @Override
-    public void updateGameReward(GameReward gameReward) {
-        gameRewardMapper.updateById(gameReward);
+    public void updateGameReward(GameReward gameReward, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameReward.setSeasonId(seasonId);
+            gameRewardMapper.updateByIdAndSeasonId(gameReward);
+        } else {
+            // 常规模式
+            gameRewardMapper.updateById(gameReward);
+        }
     }
 
     @Override
-    public void deleteGameReward(Integer id) {
-        gameRewardMapper.deleteById(id);
+    public void deleteGameReward(Integer id, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameRewardMapper.deleteByIdAndSeasonId(id, seasonId);
+        } else {
+            // 常规模式
+            gameRewardMapper.deleteById(id);
+        }
     }
 
     @Override
-    public void deleteGameRewardsByGid(Integer gid) {
-        gameRewardMapper.deleteByGid(gid);
+    public void deleteGameRewardsByGid(Integer gid, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式
+            gameRewardMapper.deleteByGidAndSeasonId(gid, seasonId);
+        } else {
+            // 常规模式
+            gameRewardMapper.deleteByGid(gid);
+        }
     }
 } 

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.SeasonRuleAchievementMapper">
+    <resultMap id="seasonRuleAchievementResultMap" type="com.tencent.wxcloudrun.model.SeasonRuleAchievement">
+        <id column="id" property="id"/>
+        <result column="seasonId" property="seasonId"/>
+        <result column="ruleId" property="ruleId"/>
+        <result column="title" property="title"/>
+        <result column="img" property="img"/>
+        <result column="conditionType" property="conditionType"/>
+        <result column="conditionValue" property="conditionValue"/>
+        <result column="rewardType" property="rewardType"/>
+        <result column="rewardValue" property="rewardValue"/>
+        <result column="status" property="status"/>
+        <result column="createdAt" property="createdAt"/>
+        <result column="updatedAt" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status, createdAt, updatedAt
+    </sql>
+
+    <!-- 根据ID和SeasonID获取赛季成就 -->
+    <select id="getByIdAndSeasonId" resultMap="seasonRuleAchievementResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievements
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </select>
+
+    <!-- 获取某赛季下的所有成就 -->
+    <select id="getBySeasonId" resultMap="seasonRuleAchievementResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievements
+        WHERE seasonId = #{seasonId}
+        ORDER BY ruleId, conditionValue
+    </select>
+
+    <!-- 获取某赛季下某规则的所有成就 -->
+    <select id="getBySeasonIdAndRuleId" resultMap="seasonRuleAchievementResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievements
+        WHERE seasonId = #{seasonId} AND ruleId = #{ruleId}
+        ORDER BY conditionValue
+    </select>
+
+    <!-- 获取某赛季下某规则的所有有效成就 -->
+    <select id="listActiveBySeasonIdAndRuleId" resultMap="seasonRuleAchievementResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievements
+        WHERE seasonId = #{seasonId} AND ruleId = #{ruleId} AND status = 0
+        ORDER BY conditionValue
+    </select>
+
+    <!-- 获取所有赛季成就 -->
+    <select id="listAll" resultMap="seasonRuleAchievementResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM season_rule_achievements
+        ORDER BY seasonId, ruleId, conditionValue
+    </select>
+
+    <!-- 插入赛季成就 -->
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRuleAchievement" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO season_rule_achievements (
+            seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status
+        ) 
+        VALUES (
+            #{seasonId}, #{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, #{status}
+        )
+    </insert>
+
+    <!-- 更新赛季成就 -->
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.SeasonRuleAchievement">
+        UPDATE season_rule_achievements
+        <set>
+            <if test="ruleId != null">ruleId = #{ruleId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="img != null">img = #{img},</if>
+            <if test="conditionType != null">conditionType = #{conditionType},</if>
+            <if test="conditionValue != null">conditionValue = #{conditionValue},</if>
+            <if test="rewardType != null">rewardType = #{rewardType},</if>
+            <if test="rewardValue != null">rewardValue = #{rewardValue},</if>
+            <if test="status != null">status = #{status},</if>
+            updatedAt = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </update>
+
+    <!-- 删除赛季成就（逻辑删除，修改status为1） -->
+    <update id="deleteByIdAndSeasonId">
+        UPDATE season_rule_achievements
+        SET status = 1,
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE id = #{id} AND seasonId = #{seasonId}
+    </update>
+
+    <!-- 根据赛季ID删除所有成就（逻辑删除，修改status为1） -->
+    <update id="deleteBySeasonId">
+        UPDATE season_rule_achievements
+        SET status = 1,
+            updatedAt = CURRENT_TIMESTAMP
+        WHERE seasonId = #{seasonId}
+    </update>
+</mapper> 

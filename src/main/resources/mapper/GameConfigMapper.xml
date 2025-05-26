@@ -8,31 +8,50 @@
         <result property="point" column="point"/>
         <result property="number" column="number"/>
         <result property="type" column="type"/>
+        <result property="seasonId" column="seasonId"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"/>
     </resultMap>
 
     <select id="getById" resultMap="gameConfigMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_config
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </select>
+
+    <select id="getByIdAndSeasonId" resultMap="gameConfigMapper">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByUidAndType" resultMap="gameConfigMapper" parameterType="java.util.Map">
-        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_config
-        WHERE uid = #{uid} AND type = #{type}
+        WHERE uid = #{uid} AND type = #{type} AND seasonId IS NULL
+    </select>
+
+    <select id="getByUidAndTypeAndSeasonId" resultMap="gameConfigMapper">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE uid = #{uid} AND type = #{type} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByUid" resultMap="gameConfigMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `uid`, `point`, `number`, `type`, `createdAt`, `updatedAt`
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_config
-        WHERE uid = #{uid}
+        WHERE uid = #{uid} AND seasonId IS NULL
+    </select>
+
+    <select id="getByUidAndSeasonId" resultMap="gameConfigMapper">
+        SELECT `id`, `uid`, `point`, `number`, `type`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_config
+        WHERE uid = #{uid} AND seasonId = #{seasonId}
     </select>
 
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.GameConfig">
-        INSERT INTO `game_config`(`uid`, `point`, `number`, `type`)
-        VALUES(#{uid}, #{point}, #{number}, #{type})
+        INSERT INTO `game_config`(`uid`, `point`, `number`, `type`, `seasonId`)
+        VALUES(#{uid}, #{point}, #{number}, #{type}, #{seasonId})
     </insert>
 
     <update id="updateById" parameterType="com.tencent.wxcloudrun.model.GameConfig">
@@ -40,12 +59,25 @@
         SET point = #{point},
             number = #{number},
             type = #{type}
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </update>
+
+    <update id="updateByIdAndSeasonId" parameterType="com.tencent.wxcloudrun.model.GameConfig">
+        UPDATE game_config
+        SET point = #{point},
+            number = #{number},
+            type = #{type}
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
         DELETE FROM game_config
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </delete>
+
+    <delete id="deleteByIdAndSeasonId">
+        DELETE FROM game_config
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </delete>
 
 </mapper> 

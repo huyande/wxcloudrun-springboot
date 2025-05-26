@@ -10,63 +10,116 @@
         <result property="rewardType" column="reward_type"/>
         <result property="icon" column="icon"/>
         <result property="status" column="status"/>
+        <result property="seasonId" column="seasonId"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"/>
     </resultMap>
 
     <select id="getById" resultMap="gameRewardLogMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE id = #{id}
+        WHERE id = #{id} AND seasonId IS NULL
+    </select>
+
+    <select id="getByIdAndSeasonId" resultMap="gameRewardLogMapper">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE id = #{id} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByMid" resultMap="gameRewardLogMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE mid = #{mid}
+        WHERE mid = #{mid} AND seasonId IS NULL
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getByMidAndSeasonId" resultMap="gameRewardLogMapper">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE mid = #{mid} AND seasonId = #{seasonId}
         ORDER BY createdAt DESC
     </select>
 
     <select id="getByGameGroup" resultMap="gameRewardLogMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE game_group = #{gameGroup}
+        WHERE game_group = #{gameGroup} AND seasonId IS NULL
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getByGameGroupAndSeasonId" resultMap="gameRewardLogMapper">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE game_group = #{gameGroup} AND seasonId = #{seasonId}
         ORDER BY createdAt DESC
     </select>
 
     <select id="getByMidAndGameGroup" resultMap="gameRewardLogMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE mid = #{mid} AND game_group = #{gameGroup}
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId IS NULL
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getByMidAndGameGroupAndSeasonId" resultMap="gameRewardLogMapper">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId = #{seasonId}
         ORDER BY createdAt DESC
     </select>
 
     <select id="getByMidAndRewardType" resultMap="gameRewardLogMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE mid = #{mid} AND reward_type = #{rewardType}
+        WHERE mid = #{mid} AND reward_type = #{rewardType} AND seasonId IS NULL
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="getByMidAndRewardTypeAndSeasonId" resultMap="gameRewardLogMapper">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE mid = #{mid} AND reward_type = #{rewardType} AND seasonId = #{seasonId}
         ORDER BY createdAt DESC
     </select>
 
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.GameRewardLog">
-        INSERT INTO `game_reward_log`(`mid`, `game_group`, `reward_name`, `reward_type`, `icon`,`status`)
-        VALUES(#{mid}, #{gameGroup}, #{rewardName}, #{rewardType}, #{icon},#{status})
+        INSERT INTO `game_reward_log`(`mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`)
+        VALUES(#{mid}, #{gameGroup}, #{rewardName}, #{rewardType}, #{icon}, #{status}, #{seasonId})
     </insert>
 
     <update id="updateStatus" parameterType="java.lang.Integer">
-        UPDATE `game_reward_log` SET `status` = 1 WHERE `id` = #{id}
+        UPDATE `game_reward_log` SET `status` = 1 WHERE `id` = #{id} AND seasonId IS NULL
+    </update>
+
+    <update id="updateStatusByIdAndSeasonId">
+        UPDATE `game_reward_log` SET `status` = 1 WHERE `id` = #{id} AND seasonId = #{seasonId}
     </update>
 
     <select id="getByMidAndGameGroupCount" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT COUNT(*)
         FROM game_reward_log
-        WHERE mid = #{mid} AND game_group = #{gameGroup}
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId IS NULL
+    </select>
+
+    <select id="getByMidAndGameGroupAndSeasonIdCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM game_reward_log
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId = #{seasonId}
     </select>
 
     <select id="getByMidAndGameGroupWithPage" resultMap="gameRewardLogMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`,`createdAt`, `updatedAt`
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
         FROM game_reward_log
-        WHERE mid = #{mid} AND game_group = #{gameGroup}
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId IS NULL
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getByMidAndGameGroupAndSeasonIdWithPage" resultMap="gameRewardLogMapper" parameterType="java.util.Map">
+        SELECT `id`, `mid`, `game_group`, `reward_name`, `reward_type`, `icon`, `status`, `seasonId`, `createdAt`, `updatedAt`
+        FROM game_reward_log
+        WHERE mid = #{mid} AND game_group = #{gameGroup} AND seasonId = #{seasonId}
         ORDER BY createdAt DESC
         LIMIT #{offset}, #{pageSize}
     </select>
@@ -76,6 +129,7 @@
         FROM game_reward_log
         WHERE mid = #{mid}
         AND createdAt BETWEEN #{startDate} AND #{endDate}
+        AND seasonId IS NULL
     </select>
 
 </mapper> 

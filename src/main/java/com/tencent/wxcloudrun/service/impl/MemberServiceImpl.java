@@ -168,4 +168,52 @@ public class MemberServiceImpl implements MemberService {
         memberMapper.deleteById(mid);
     }
 
+    @Override
+    @Transactional
+    public Member switchMode(Integer mid, String mode) {
+        // 验证成员是否存在
+        Member member = memberMapper.getMemberById(mid);
+        if (member == null) {
+            throw new RuntimeException("成员不存在");
+        }
+        
+        // 验证模式参数
+        if (!"defaultMode".equals(mode) && !"seasonMode".equals(mode)) {
+            throw new IllegalArgumentException("无效的模式类型，必须是 'defaultMode' 或 'seasonMode'");
+        }
+        
+        // 如果切换到常规模式，清除关联的赛季ID
+//        if ("NORMAL".equals(mode)) {
+//            member.setCurrentSeasonId(null);
+//        }
+        
+        // 设置模式
+        member.setMode(mode);
+        
+        // 更新成员信息
+        memberMapper.updateById(member);
+        
+        // 返回更新后的成员信息
+        return memberMapper.getMemberById(mid);
+    }
+    
+    @Override
+    @Transactional
+    public Member updateCurrentSeasonId(Integer mid, Long seasonId) {
+        // 验证成员是否存在
+        Member member = memberMapper.getMemberById(mid);
+        if (member == null) {
+            throw new RuntimeException("成员不存在");
+        }
+        
+        // 设置赛季ID
+        member.setCurrentSeasonId(seasonId);
+        
+        // 更新成员信息
+        memberMapper.updateById(member);
+        
+        // 返回更新后的成员信息
+        return memberMapper.getMemberById(mid);
+    }
+
 }

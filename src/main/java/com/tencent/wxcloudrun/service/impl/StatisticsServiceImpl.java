@@ -3,6 +3,11 @@ package com.tencent.wxcloudrun.service.impl;
 import com.tencent.wxcloudrun.dao.GameRewardLogMapper;
 import com.tencent.wxcloudrun.dao.MemberPointLogsMapper;
 import com.tencent.wxcloudrun.dao.WishLogMapper;
+import com.tencent.wxcloudrun.dao.SeasonPointLogMapper;
+import com.tencent.wxcloudrun.dao.SeasonWishLogMapper;
+import com.tencent.wxcloudrun.dao.SeasonWishMapper;
+import com.tencent.wxcloudrun.dao.SeasonRuleAchievementLogMapper;
+import com.tencent.wxcloudrun.dao.SeasonRuleMapper;
 import com.tencent.wxcloudrun.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,14 +26,29 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final MemberPointLogsMapper memberPointLogsMapper;
     private final WishLogMapper wishLogMapper;
     private final GameRewardLogMapper gameRewardLogMapper;
+    private final SeasonPointLogMapper seasonPointLogMapper;
+    private final SeasonWishLogMapper seasonWishLogMapper;
+    private final SeasonWishMapper seasonWishMapper;
+    private final SeasonRuleAchievementLogMapper seasonRuleAchievementLogMapper;
+    private final SeasonRuleMapper seasonRuleMapper;
 
     @Autowired
     public StatisticsServiceImpl(MemberPointLogsMapper memberPointLogsMapper,
                                 WishLogMapper wishLogMapper,
-                                GameRewardLogMapper gameRewardLogMapper) {
+                                GameRewardLogMapper gameRewardLogMapper,
+                                SeasonPointLogMapper seasonPointLogMapper,
+                                SeasonWishLogMapper seasonWishLogMapper,
+                                SeasonWishMapper seasonWishMapper,
+                                SeasonRuleAchievementLogMapper seasonRuleAchievementLogMapper,
+                                SeasonRuleMapper seasonRuleMapper) {
         this.memberPointLogsMapper = memberPointLogsMapper;
         this.wishLogMapper = wishLogMapper;
         this.gameRewardLogMapper = gameRewardLogMapper;
+        this.seasonPointLogMapper = seasonPointLogMapper;
+        this.seasonWishLogMapper = seasonWishLogMapper;
+        this.seasonWishMapper = seasonWishMapper;
+        this.seasonRuleAchievementLogMapper = seasonRuleAchievementLogMapper;
+        this.seasonRuleMapper = seasonRuleMapper;
     }
 
     /**
@@ -37,68 +57,110 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含月份统计数据的Map，适用于Echarts柱状图展示
      */
     @Override
-    public Map<String, Object> getPointsStatisticsByMonth(Integer mid, String startDate, String endDate) {
-        // 直接通过mapper查询按月份统计的积分数据
-        List<Map<String, Object>> monthlyStats = memberPointLogsMapper.getPointsStatisticsByMonth(mid, startDate, endDate);
-        
-        // 生成从开始月份到结束月份的完整月份列表
-        List<String> allMonths = generateCompleteMonthsList(startDate, endDate);
-        
-        // 初始化结果数据结构
-        List<Integer> increaseData = new ArrayList<>();
-        List<Integer> decreaseData = new ArrayList<>();
-        List<Integer> netGrowthData = new ArrayList<>();
-        
-        // 用于快速查找月份对应的统计数据
-        Map<String, Map<String, Object>> monthStatsMap = new HashMap<>();
-        if (monthlyStats != null) {
-            for (Map<String, Object> stat : monthlyStats) {
-                String month = (String) stat.get("month");
-                monthStatsMap.put(month, stat);
-            }
-        }
-        
-        // 填充每个月份的数据，确保没有数据的月份也有默认值0
-        for (String month : allMonths) {
-            Map<String, Object> stat = monthStatsMap.get(month);
-            int increaseValue = 0;
-            int decreaseValue = 0;
-            
-            if (stat != null) {
-                // 该月有数据
-                Object increaseObj = stat.get("increase");
-                Object decreaseObj = stat.get("decrease");
-                
-                // 处理不同类型的返回值（可能是Long或Integer）
-                if (increaseObj instanceof Number) {
-                    increaseValue = ((Number) increaseObj).intValue();
-                }
-                
-                if (decreaseObj instanceof Number) {
-                    decreaseValue = ((Number) decreaseObj).intValue();
+    public Map<String, Object> getPointsStatisticsByMonth(Integer mid, String startDate, String endDate, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式下，调用seasonPointLogMapper的等价方法（如无需补充实现）
+            List<Map<String, Object>> monthlyStats = seasonPointLogMapper.getPointsStatisticsByMonth(seasonId, mid, startDate, endDate);
+            List<String> allMonths = generateCompleteMonthsList(startDate, endDate);
+            List<Integer> increaseData = new ArrayList<>();
+            List<Integer> decreaseData = new ArrayList<>();
+            List<Integer> netGrowthData = new ArrayList<>();
+            Map<String, Map<String, Object>> monthStatsMap = new HashMap<>();
+            if (monthlyStats != null) {
+                for (Map<String, Object> stat : monthlyStats) {
+                    String month = (String) stat.get("month");
+                    monthStatsMap.put(month, stat);
                 }
             }
+            for (String month : allMonths) {
+                Map<String, Object> stat = monthStatsMap.get(month);
+                int increaseValue = 0;
+                int decreaseValue = 0;
+                if (stat != null) {
+                    Object increaseObj = stat.get("increase");
+                    Object decreaseObj = stat.get("decrease");
+                    if (increaseObj instanceof Number) {
+                        increaseValue = ((Number) increaseObj).intValue();
+                    }
+                    if (decreaseObj instanceof Number) {
+                        decreaseValue = ((Number) decreaseObj).intValue();
+                    }
+                }
+                increaseData.add(increaseValue);
+                decreaseData.add(decreaseValue);
+                int netGrowth = increaseValue - decreaseValue;
+                netGrowthData.add(netGrowth);
+            }
+            Map<String, Object> result = new HashMap<>();
+            result.put("months", allMonths);
+            result.put("increase", increaseData);
+            result.put("decrease", decreaseData);
+            result.put("netGrowth", netGrowthData);
+            return result;
+        } else {
+            // 直接通过mapper查询按月份统计的积分数据
+            List<Map<String, Object>> monthlyStats = memberPointLogsMapper.getPointsStatisticsByMonth(mid, startDate, endDate);
             
-            // 添加到对应数组
-            increaseData.add(increaseValue);
-            decreaseData.add(decreaseValue);
+            // 生成从开始月份到结束月份的完整月份列表
+            List<String> allMonths = generateCompleteMonthsList(startDate, endDate);
             
-            // 计算并添加净增长值（增加量减去减少量）
-            int netGrowth = increaseValue - decreaseValue;
-            netGrowthData.add(netGrowth);
+            // 初始化结果数据结构
+            List<Integer> increaseData = new ArrayList<>();
+            List<Integer> decreaseData = new ArrayList<>();
+            List<Integer> netGrowthData = new ArrayList<>();
+            
+            // 用于快速查找月份对应的统计数据
+            Map<String, Map<String, Object>> monthStatsMap = new HashMap<>();
+            if (monthlyStats != null) {
+                for (Map<String, Object> stat : monthlyStats) {
+                    String month = (String) stat.get("month");
+                    monthStatsMap.put(month, stat);
+                }
+            }
+            
+            // 填充每个月份的数据，确保没有数据的月份也有默认值0
+            for (String month : allMonths) {
+                Map<String, Object> stat = monthStatsMap.get(month);
+                int increaseValue = 0;
+                int decreaseValue = 0;
+                
+                if (stat != null) {
+                    // 该月有数据
+                    Object increaseObj = stat.get("increase");
+                    Object decreaseObj = stat.get("decrease");
+                    
+                    // 处理不同类型的返回值（可能是Long或Integer）
+                    if (increaseObj instanceof Number) {
+                        increaseValue = ((Number) increaseObj).intValue();
+                    }
+                    
+                    if (decreaseObj instanceof Number) {
+                        decreaseValue = ((Number) decreaseObj).intValue();
+                    }
+                }
+                
+                // 添加到对应数组
+                increaseData.add(increaseValue);
+                decreaseData.add(decreaseValue);
+                
+                // 计算并添加净增长值（增加量减去减少量）
+                int netGrowth = increaseValue - decreaseValue;
+                netGrowthData.add(netGrowth);
+            }
+            
+            // 构建最终结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("months", allMonths);
+            result.put("increase", increaseData);
+            result.put("decrease", decreaseData);
+            result.put("netGrowth", netGrowthData);
+            
+            return result;
         }
-        
-        // 构建最终结果
-        Map<String, Object> result = new HashMap<>();
-        result.put("months", allMonths);
-        result.put("increase", increaseData);
-        result.put("decrease", decreaseData);
-        result.put("netGrowth", netGrowthData);
-        
-        return result;
     }
     
     /**
@@ -140,29 +202,44 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含各类统计数据的Map
      */
     @Override
-    public Map<String, Object> getComprehensiveStatistics(Integer mid, String startDate, String endDate) {
-        Map<String, Object> result = new HashMap<>();
-        
-        // 1. 积分统计
-        Map<String, Object> pointsStats = getPointsStatistics(mid, startDate, endDate);
-        result.put("pointsStats", pointsStats);
-        
-        // 2. 打卡次数前5的任务
-        List<Map<String, Object>> topTasks = getTopTasks(mid, startDate, endDate);
-        result.put("topTasks", topTasks);
-        
-        // 3. 积分抽奖统计
-        Map<String, Object> lotteryStats = getLotteryStatistics(mid, startDate, endDate);
-        result.put("lotteryStats", lotteryStats);
-        
-        // 4. 心愿兑换统计
-        Map<String, Object> wishStats = getWishStatistics(mid, startDate, endDate);
-        result.put("wishStats", wishStats);
-        
-        return result;
+    public Map<String, Object> getComprehensiveStatistics(Integer mid, String startDate, String endDate, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式下，所有统计均调用season相关Mapper，逻辑与原始一致
+            Map<String, Object> result = new HashMap<>();
+            Map<String, Object> pointsStats = getPointsStatisticsSeason(seasonId, mid, startDate, endDate);
+            result.put("pointsStats", pointsStats);
+            List<Map<String, Object>> topTasks = getTopTasksSeason(seasonId, mid, startDate, endDate);
+            result.put("topTasks", topTasks);
+            Map<String, Object> lotteryStats = getLotteryStatisticsSeason(seasonId, mid, startDate, endDate);
+            result.put("lotteryStats", lotteryStats);
+            Map<String, Object> wishStats = getWishStatisticsSeason(seasonId, mid, startDate, endDate);
+            result.put("wishStats", wishStats);
+            return result;
+        } else {
+            Map<String, Object> result = new HashMap<>();
+            
+            // 1. 积分统计
+            Map<String, Object> pointsStats = getPointsStatistics(mid, startDate, endDate);
+            result.put("pointsStats", pointsStats);
+            
+            // 2. 打卡次数前5的任务
+            List<Map<String, Object>> topTasks = getTopTasks(mid, startDate, endDate);
+            result.put("topTasks", topTasks);
+            
+            // 3. 积分抽奖统计
+            Map<String, Object> lotteryStats = getLotteryStatistics(mid, startDate, endDate);
+            result.put("lotteryStats", lotteryStats);
+            
+            // 4. 心愿兑换统计
+            Map<String, Object> wishStats = getWishStatistics(mid, startDate, endDate);
+            result.put("wishStats", wishStats);
+            
+            return result;
+        }
     }
     
     /**
@@ -259,30 +336,83 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param mid 会员ID
      * @param startDate 开始日期（格式：yyyy-MM-dd）
      * @param endDate 结束日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID
      * @return 包含打卡类型积分占比的Map，适用于Echarts饼图展示
      */
     @Override
-    public Map<String, Object> getCheckInTypePointsRatio(Integer mid, String startDate, String endDate) {
-        Map<String, Object> result = new HashMap<>();
-        
-        // 获取按任务类型分组的积分数据
-        List<Map<String, Object>> typePointsData = memberPointLogsMapper.getCheckInTypePointsRatio(mid, startDate, endDate);
-        
-        // 计算总积分
-        int totalPoints = 0;
-        if (typePointsData != null && !typePointsData.isEmpty()) {
-            for (Map<String, Object> data : typePointsData) {
-                Object valueObj = data.get("value");
-                if (valueObj instanceof Number) {
-                    totalPoints += ((Number) valueObj).intValue();
+    public Map<String, Object> getCheckInTypePointsRatio(Integer mid, String startDate, String endDate, Long seasonId) {
+        if (seasonId != null) {
+            // 赛季模式下，调用seasonPointLogMapper的等价方法
+            Map<String, Object> result = new HashMap<>();
+            List<Map<String, Object>> typePointsData = seasonPointLogMapper.getCheckInTypePointsRatio(seasonId, mid, startDate, endDate);
+            int totalPoints = 0;
+            if (typePointsData != null && !typePointsData.isEmpty()) {
+                for (Map<String, Object> data : typePointsData) {
+                    Object valueObj = data.get("value");
+                    if (valueObj instanceof Number) {
+                        totalPoints += ((Number) valueObj).intValue();
+                    }
                 }
             }
+            result.put("total", totalPoints);
+            result.put("data", typePointsData != null ? typePointsData : new ArrayList<>());
+            return result;
+        } else {
+            Map<String, Object> result = new HashMap<>();
+            List<Map<String, Object>> typePointsData = memberPointLogsMapper.getCheckInTypePointsRatio(mid, startDate, endDate);
+            int totalPoints = 0;
+            if (typePointsData != null && !typePointsData.isEmpty()) {
+                for (Map<String, Object> data : typePointsData) {
+                    Object valueObj = data.get("value");
+                    if (valueObj instanceof Number) {
+                        totalPoints += ((Number) valueObj).intValue();
+                    }
+                }
+            }
+            result.put("total", totalPoints);
+            result.put("data", typePointsData != null ? typePointsData : new ArrayList<>());
+            return result;
         }
-        
-        // 构建结果
-        result.put("total", totalPoints);
-        result.put("data", typePointsData != null ? typePointsData : new ArrayList<>());
-        
-        return result;
+    }
+
+    // 赛季模式下：积分统计
+    private Map<String, Object> getPointsStatisticsSeason(Long seasonId, Integer mid, String startDate, String endDate) {
+        Map<String, Object> pointsStats = new HashMap<>();
+        // 获取积分总数
+        Integer totalPoints = seasonPointLogMapper.getTotalPointsByDateRange(seasonId, mid, startDate, endDate);
+        pointsStats.put("totalPoints", totalPoints != null ? totalPoints : 0);
+        // 获取积分消耗总数
+        Integer consumedPoints = seasonWishLogMapper.getTotalPointsBySeasonIdAndMid(seasonId, mid);
+        pointsStats.put("consumedPoints", consumedPoints != null ? consumedPoints : 0);
+        // 获取打卡天总数
+        Integer checkInCount = seasonPointLogMapper.getPointDaysBySeasonIdAndMid(seasonId, mid);
+        pointsStats.put("checkInCount", checkInCount != null ? checkInCount : 0);
+        // 获取打卡次数总数
+        Integer checkInTimes = seasonPointLogMapper.getCheckInTimesByDateRange(seasonId, mid, startDate, endDate);
+        pointsStats.put("checkInTimes", checkInTimes != null ? checkInTimes : 0);
+        return pointsStats;
+    }
+    // 赛季模式下：打卡次数前5的任务
+    private List<Map<String, Object>> getTopTasksSeason(Long seasonId, Integer mid, String startDate, String endDate) {
+        List<Map<String, Object>> topTasks = seasonPointLogMapper.getTopTasksByDateRange(seasonId, mid, startDate, endDate, 5);
+        return topTasks != null ? topTasks : new ArrayList<>();
+    }
+    // 赛季模式下：积分抽奖统计
+    private Map<String, Object> getLotteryStatisticsSeason(Long seasonId, Integer mid, String startDate, String endDate) {
+        Map<String, Object> lotteryStats = new HashMap<>();
+        Integer lotteryCount = seasonPointLogMapper.getLotteryCountByDateRange(seasonId, mid, startDate, endDate);
+        lotteryStats.put("lotteryCount", lotteryCount != null ? lotteryCount : 0);
+        Integer lotteryPoints = seasonPointLogMapper.getLotteryPointsByDateRange(seasonId, mid, startDate, endDate);
+        lotteryStats.put("lotteryPoints", lotteryPoints != null ? lotteryPoints : 0);
+        return lotteryStats;
+    }
+    // 赛季模式下：心愿兑换统计
+    private Map<String, Object> getWishStatisticsSeason(Long seasonId, Integer mid, String startDate, String endDate) {
+        Map<String, Object> wishStats = new HashMap<>();
+        Integer exchangeCount = seasonWishLogMapper.getCountBySeasonIdAndMidAndStatus(seasonId, mid, 1); // 1为已兑换
+        wishStats.put("exchangeCount", exchangeCount != null ? exchangeCount : 0);
+        List<Map<String, Object>> topWishes = seasonWishLogMapper.getTopWishesByDateRange(seasonId, mid, startDate, endDate, 5);
+        wishStats.put("topWishes", topWishes != null ? topWishes : new ArrayList<>());
+        return wishStats;
     }
 } 
