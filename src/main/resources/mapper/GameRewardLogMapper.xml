@@ -132,4 +132,8 @@
         AND seasonId IS NULL
     </select>
 
+    <delete id="deleteByMid" parameterType="java.lang.Integer">
+        delete from game_reward_log WHERE mid = #{mid}
+    </delete>
+
 </mapper> 

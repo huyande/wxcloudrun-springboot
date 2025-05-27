@@ -61,4 +61,16 @@
         WHERE id = #{id}
     </update>
 
+    <delete id="deleteAllSeasion" parameterType="java.lang.Integer">
+        DELETE FROM season_config WHERE mId = #{mId};
+        DELETE FROM season_point_logs WHERE mId = #{mId};
+        DELETE FROM season_rules WHERE mId = #{mId};
+        DELETE FROM game_config WHERE seasonId  is not null;
+        DELETE FROM game_reward_log WHERE mId = #{mId};
+        delete from season_rule_achievement_logs WHERE mid = #{mId};
+        DELETE FROM season_wishes where mId = #{mId};
+        DELETE FROM season_wish_logs WHERE mId = #{mId};
+        DELETE FROM season_rule_achievements WHERE mId = #{mId};
+    </delete>
+
 </mapper>

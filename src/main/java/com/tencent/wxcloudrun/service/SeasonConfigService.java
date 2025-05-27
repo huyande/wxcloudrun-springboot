@@ -107,4 +107,6 @@ public interface SeasonConfigService {
      * @return 是否成功
      */
     boolean clearSeason(Long id);
+
+    void clearMemberSeason(Integer id);
 } 

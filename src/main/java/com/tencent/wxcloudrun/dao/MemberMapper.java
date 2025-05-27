@@ -18,4 +18,6 @@ public interface MemberMapper {
     void updateById(Member member);
 
     void deleteById(@Param("id") Integer id);
+
+    void deleteAllSeasion(Integer mid);
 }

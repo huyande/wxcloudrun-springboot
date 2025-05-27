@@ -3,6 +3,7 @@
 <mapper namespace="com.tencent.wxcloudrun.dao.RuleAchievementMapper">
     <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.RuleAchievement">
         <id column="id" property="id"/>
+        <result column="mId" property="mId"/>
         <result column="ruleId" property="ruleId"/>
         <result column="title" property="title"/>
         <result column="img" property="img"/>
@@ -28,8 +29,8 @@
     </select>
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.RuleAchievement" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rule_achievements(ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status)
-        VALUES(#{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, 0)
+        INSERT INTO rule_achievements(mId,ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status)
+        VALUES(#{mId},#{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, 0)
     </insert>
 
     <update id="update" parameterType="com.tencent.wxcloudrun.model.RuleAchievement">
@@ -44,4 +45,9 @@
     <update id="deleteById">
         UPDATE rule_achievements SET status = 1, updatedAt = CURRENT_TIMESTAMP WHERE id = #{id}
     </update>
-</mapper> 
+
+    <delete id="deleteByRuleId" parameterType="java.lang.Integer">
+        delete from rule_achievements WHERE ruleId = #{ruleId}
+    </delete>
+
+</mapper>

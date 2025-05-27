@@ -2,6 +2,7 @@ package com.tencent.wxcloudrun.dao;
 
 import com.tencent.wxcloudrun.model.SeasonConfig;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ public interface SeasonConfigMapper {
      * @param status 状态
      * @return 影响的行数
      */
-    int updateStatus(Long id, Integer status);
+    int updateStatus(@Param("id") Long id, @Param("startTime") String startTime, @Param("status") Integer status);
     
     /**
      * 删除赛季

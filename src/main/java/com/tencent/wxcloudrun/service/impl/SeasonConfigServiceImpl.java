@@ -1,5 +1,7 @@
 package com.tencent.wxcloudrun.service.impl;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.tencent.wxcloudrun.dao.SeasonConfigMapper;
 import com.tencent.wxcloudrun.dao.SeasonRuleAchievementMapper;
 import com.tencent.wxcloudrun.dao.SeasonRuleMapper;
@@ -128,7 +130,7 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
     @Transactional
     public SeasonConfig updateStatus(Long id, Integer status) {
         // 更新状态
-        seasonConfigMapper.updateStatus(id, status);
+        seasonConfigMapper.updateStatus(id, null,status);
         
         // 返回更新后的配置
         return seasonConfigMapper.getById(id);
@@ -221,8 +223,14 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
 
         // 4. 获取当前活跃的赛季
 //        List<SeasonConfig> activeSeasons = seasonConfigMapper.getActiveByMid(mId);
+        SeasonConfig activeSeason =null;
+        if(member.getCurrentSeasonId()!=null){
+            activeSeason = seasonConfigMapper.getById(member.getCurrentSeasonId());
+            if(activeSeason!=null){
+                seasonConfigMapper.updateStatus(activeSeason.getId(), null,2);
+            }
+        }
 
-        SeasonConfig activeSeason = seasonConfigMapper.getById(member.getCurrentSeasonId());
 
 
         // 5. 如果存在活跃赛季，将其状态改为已结束(2)
@@ -231,16 +239,19 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
 //                seasonConfigMapper.updateStatus(activeSeason.getId(), 2);
 //            }
 //        }
-        seasonConfigMapper.updateStatus(activeSeason.getId(), 2);
+
+        DateTime now = DateUtil.date();
+        String startDate = DateUtil.format(now, "yyyy-MM-dd 00:00:00");
+
         
         // 6. 将新赛季设置为活跃状态(1)
-        seasonConfigMapper.updateStatus(newSeasonId, 1);
+        seasonConfigMapper.updateStatus(newSeasonId, startDate,1);
         
         // 7. 更新成员的currentSeasonId
         memberService.updateCurrentSeasonId(mId, newSeasonId);
 
         //计算上赛季结算到当前赛季的积分
-        if(activeSeason.getConversionRate()>0){
+        if(activeSeason!=null && activeSeason.getConversionRate()>0){
             LocalDateTime dateTime = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
             //获取上赛季剩余的积分
             HashMap<String, Integer> pointMap = memberPointLogsService.getPointInfoByMid(mId, activeSeason.getId());
@@ -283,5 +294,10 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
         seasonWishLogMapper.deleteBySeasonId(id);
 
         return true;
+    }
+
+    @Override
+    public void clearMemberSeason(Integer mid) {
+
     }
 } 

@@ -3,6 +3,7 @@
 <mapper namespace="com.tencent.wxcloudrun.dao.SeasonRuleAchievementMapper">
     <resultMap id="seasonRuleAchievementResultMap" type="com.tencent.wxcloudrun.model.SeasonRuleAchievement">
         <id column="id" property="id"/>
+        <result column="mId" property="mId"/>
         <result column="seasonId" property="seasonId"/>
         <result column="ruleId" property="ruleId"/>
         <result column="title" property="title"/>
@@ -17,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status, createdAt, updatedAt
+        id, mId,seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status, createdAt, updatedAt
     </sql>
 
     <!-- 根据ID和SeasonID获取赛季成就 -->
@@ -61,10 +62,10 @@
     <!-- 插入赛季成就 -->
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRuleAchievement" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_rule_achievements (
-            seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status
+            mId,seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status
         ) 
         VALUES (
-            #{seasonId}, #{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, #{status}
+            #{mId},#{seasonId}, #{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, #{status}
         )
     </insert>
 

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class SeasonRuleAchievement implements Serializable {
     private Long id;
+    private Integer mId;
     private Long seasonId; // 赛季ID
     private Integer ruleId; // 规则ID
     private String title; // 成就标题

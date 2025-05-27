@@ -12,4 +12,6 @@ public interface RuleAchievementMapper {
     int insert(RuleAchievement ruleAchievement);
     int update(RuleAchievement ruleAchievement);
     void deleteById(Integer id);
+
+    void deleteByRuleId(Integer ruleId);
 } 

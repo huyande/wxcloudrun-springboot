@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class RuleAchievement {
     private Integer id;
+    private Integer mId;
     private Integer ruleId;
     private String title;
     private String img;

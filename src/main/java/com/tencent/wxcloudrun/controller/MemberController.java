@@ -692,6 +692,7 @@ return ApiResponse.ok(logs);
     public ApiResponse clearMemberData(@PathVariable Integer id) {
         try {
             memberService.clearMemberData(id);
+            seasonConfigService.clearMemberSeason(id);
             return ApiResponse.ok("数据清除成功");
         } catch (Exception e) {
             logger.error("清除成员数据失败", e);

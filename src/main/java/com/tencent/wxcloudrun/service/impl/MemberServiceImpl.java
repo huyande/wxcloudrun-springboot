@@ -24,6 +24,10 @@ public class MemberServiceImpl implements MemberService {
     final MemberRulesMapper memberRulesMapper;
     final MemberPointLogsMapper memberPointLogsMapper;
     final WishLogMapper wishLogMapper;
+    final GameRewardLogMapper gameRewardLogMapper;
+    final RuleAchievementMapper ruleAchievementMapper;
+    final RuleAchievementLogMapper ruleAchievementLogMapper;
+
     //构造函数注入
     public MemberServiceImpl(@Autowired MemberMapper memberMapper,
                              @Autowired MemberRelasMapper memberRelasMapper,
@@ -32,7 +36,10 @@ public class MemberServiceImpl implements MemberService {
                              @Autowired WishMapper wishMapper,
                              @Autowired MemberRulesMapper memberRulesMapper,
                              @Autowired MemberPointLogsMapper memberPointLogsMapper,
-                             @Autowired WishLogMapper wishLogMapper) {
+                             @Autowired WishLogMapper wishLogMapper,
+                             @Autowired GameRewardLogMapper gameRewardLogMapper,
+                             @Autowired RuleAchievementMapper ruleAchievementMapper,
+                             @Autowired RuleAchievementLogMapper ruleAchievementLogMapper) {
 
         this.familyMapper = familyMapper;
         this.memberMapper = memberMapper;
@@ -42,6 +49,9 @@ public class MemberServiceImpl implements MemberService {
         this.memberRulesMapper = memberRulesMapper;
         this.memberPointLogsMapper = memberPointLogsMapper;
         this.wishLogMapper = wishLogMapper;
+        this.gameRewardLogMapper = gameRewardLogMapper;
+        this.ruleAchievementMapper = ruleAchievementMapper;
+        this.ruleAchievementLogMapper = ruleAchievementLogMapper;
     }
 
     private static final List<Wish> DEFAULT_WISHES = Collections.unmodifiableList(Arrays.asList(
@@ -134,6 +144,12 @@ public class MemberServiceImpl implements MemberService {
         if (member == null) {
             throw new RuntimeException("成员不存在");
         }
+
+        List<MemberRules> rules = memberRulesMapper.getRulesByMid(mid);
+        for(MemberRules rule : rules){
+            //删除成就配置
+            ruleAchievementMapper.deleteByRuleId(rule.getId());
+        }
         
         // 删除规则数据
         memberRulesMapper.deleteByMid(mid);
@@ -146,6 +162,15 @@ public class MemberServiceImpl implements MemberService {
         
         // 删除愿望
         wishMapper.deleteByMid(mid,1);
+
+        //删除游戏日志
+        gameRewardLogMapper.deleteByMid(mid);
+        //删除成就记录
+        ruleAchievementLogMapper.deleteByMId(mid);
+
+        //删除赛季相关的数据
+        memberMapper.deleteAllSeasion(mid);
+
     }
 
     @Override
@@ -153,6 +178,11 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberMapper.getMemberById(mid);
         if (member == null) {
             throw new RuntimeException("成员不存在");
+        }
+        List<MemberRules> rules = memberRulesMapper.getRulesByMid(mid);
+        for(MemberRules rule : rules){
+            //删除成就配置
+            ruleAchievementMapper.deleteByRuleId(rule.getId());
         }
         // 删除规则数据
         memberRulesMapper.deleteByMid(mid);
@@ -165,6 +195,11 @@ public class MemberServiceImpl implements MemberService {
 
         // 删除愿望
         wishMapper.deleteByMid(mid,null);
+
+        //删除游戏日志
+        gameRewardLogMapper.deleteByMid(mid);
+        //删除成就记录
+        ruleAchievementLogMapper.deleteByMId(mid);
         memberMapper.deleteById(mid);
     }
 

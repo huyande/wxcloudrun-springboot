@@ -67,4 +67,6 @@ public interface GameRewardLogMapper {
     Integer getLotteryCountByDateRange(@Param("mid") Integer mid, 
                                       @Param("startDate") String startDate, 
                                       @Param("endDate") String endDate);
+
+    void deleteByMid(@Param("mid") Integer mid);
 }

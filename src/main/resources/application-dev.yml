@@ -3,7 +3,7 @@
 
 spring:
   datasource:
-      url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+      url: jdbc:mysql://sh-cynosdbmysql-grp-poh8xzcs.sql.tencentcdb.com:28728/springboot_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true
       username: root
       password: Q8ymN2X4
       driver-class-name: com.mysql.cj.jdbc.Driver

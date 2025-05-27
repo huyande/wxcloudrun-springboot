@@ -73,9 +73,10 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateStatus">
+    <update id="updateStatus" parameterType="java.util.Map">
         UPDATE season_config
         SET status = #{status}, updateTime = now()
+        <if test="startTime != null">,startTime = #{startTime}</if>
         WHERE id = #{id}
     </update>
 

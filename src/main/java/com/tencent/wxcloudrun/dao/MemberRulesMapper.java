@@ -44,4 +44,5 @@ public interface MemberRulesMapper {
     int updateRuleTypeByMid(@Param("mid") Integer mid, @Param("oldType") String oldType, @Param("newType") String newType);
 
     List<Map<String, Integer>> getRuleTypesByMid(@Param("mid") Integer mid);
+
 }

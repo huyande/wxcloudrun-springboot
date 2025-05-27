@@ -56,4 +56,7 @@
     <delete id="deleteByAchievementAndMember">
         DELETE FROM rule_achievement_logs WHERE raId = #{raId} AND mid = #{mid}
     </delete>
+    <delete id="deleteByMId">
+        delete from rule_achievement_logs WHERE mid = #{mid};
+    </delete>
 </mapper> 
