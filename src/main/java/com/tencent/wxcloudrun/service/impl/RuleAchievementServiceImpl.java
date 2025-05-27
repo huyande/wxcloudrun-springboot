@@ -180,7 +180,7 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
     }
     
     @Override
-    public <T> List<T> checkAchievementRules(Integer ruleId, Integer mid, Long seasonId, Class<T> expectedType) {
+    public <T> List<T> checkAchievementRules(Integer ruleId, Integer mid,String remark, Long seasonId, Class<T> expectedType) {
         if (seasonId != null) {
             SeasonRule seasonRule = seasonRuleMapper.getById(ruleId.longValue());
             if (seasonRule == null || seasonRule.getIsAchievement() == null || seasonRule.getIsAchievement() == 0) {
@@ -221,6 +221,11 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
                             if (pointsSum >= achievement.getConditionValue()) {
                                 isAchieved = true;
                             }
+                        }
+                        break;
+                    case "备注":
+                        if(achievement.getConditionDesc()!=null && achievement.getConditionDesc().equals(remark)){
+                            isAchieved = true;
                         }
                         break;
                 }
@@ -268,6 +273,11 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
                     case "积分":
                         Integer pointsSum = memberPointLogsMapper.getPointSumByMidAndRuleId(mid, ruleId);
                         if (pointsSum != null && pointsSum >= achievement.getConditionValue()) {
+                            isAchieved = true;
+                        }
+                        break;
+                    case "备注":
+                        if(achievement.getConditionDesc()!=null && achievement.getConditionDesc().equals(remark)){
                             isAchieved = true;
                         }
                         break;

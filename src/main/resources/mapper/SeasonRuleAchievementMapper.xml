@@ -10,6 +10,7 @@
         <result column="img" property="img"/>
         <result column="conditionType" property="conditionType"/>
         <result column="conditionValue" property="conditionValue"/>
+        <result column="conditionDesc" property="conditionDesc"/>
         <result column="rewardType" property="rewardType"/>
         <result column="rewardValue" property="rewardValue"/>
         <result column="status" property="status"/>
@@ -18,7 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, mId,seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status, createdAt, updatedAt
+        id, mId,seasonId, ruleId, title, img, conditionType, conditionValue, conditionDesc, rewardType, rewardValue, status, createdAt, updatedAt
     </sql>
 
     <!-- 根据ID和SeasonID获取赛季成就 -->
@@ -62,10 +63,10 @@
     <!-- 插入赛季成就 -->
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRuleAchievement" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_rule_achievements (
-            mId,seasonId, ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status
+            mId,seasonId, ruleId, title, img, conditionType, conditionValue, conditionDesc, rewardType, rewardValue, status
         ) 
         VALUES (
-            #{mId},#{seasonId}, #{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, #{status}
+            #{mId},#{seasonId}, #{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{conditionDesc}, #{rewardType}, #{rewardValue}, #{status}
         )
     </insert>
 
@@ -78,6 +79,7 @@
             <if test="img != null">img = #{img},</if>
             <if test="conditionType != null">conditionType = #{conditionType},</if>
             <if test="conditionValue != null">conditionValue = #{conditionValue},</if>
+            <if test="conditionDesc != null">conditionDesc = #{conditionDesc},</if>
             <if test="rewardType != null">rewardType = #{rewardType},</if>
             <if test="rewardValue != null">rewardValue = #{rewardValue},</if>
             <if test="status != null">status = #{status},</if>

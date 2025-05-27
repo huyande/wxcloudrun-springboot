@@ -9,6 +9,7 @@
         <result column="img" property="img"/>
         <result column="conditionType" property="conditionType"/>
         <result column="conditionValue" property="conditionValue"/>
+        <result column="conditionDesc" property="conditionDesc"/>
         <result column="rewardType" property="rewardType"/>
         <result column="rewardValue" property="rewardValue"/>
         <result column="status" property="status"/>
@@ -29,14 +30,15 @@
     </select>
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.RuleAchievement" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rule_achievements(mId,ruleId, title, img, conditionType, conditionValue, rewardType, rewardValue, status)
-        VALUES(#{mId},#{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{rewardType}, #{rewardValue}, 0)
+        INSERT INTO rule_achievements(mId,ruleId, title, img, conditionType, conditionValue, conditionDesc, rewardType, rewardValue, status)
+        VALUES(#{mId},#{ruleId}, #{title}, #{img}, #{conditionType}, #{conditionValue}, #{conditionDesc}, #{rewardType}, #{rewardValue}, 0)
     </insert>
 
     <update id="update" parameterType="com.tencent.wxcloudrun.model.RuleAchievement">
         UPDATE rule_achievements
         SET ruleId=#{ruleId}, title=#{title}, img=#{img},
             conditionType=#{conditionType}, conditionValue=#{conditionValue},
+            conditionDesc=#{conditionDesc},
             rewardType=#{rewardType}, rewardValue=#{rewardValue},
             updatedAt=CURRENT_TIMESTAMP
         WHERE id=#{id} AND status = 0

@@ -264,6 +264,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     List<SeasonRuleAchievement> rules = ruleAchievementService.checkAchievementRules(
                         memberPointLogsRequest.getRuleId(),
                         memberPointLogsRequest.getMid(),
+                        memberPointLogsRequest.getRemark(),
                         seasonId,
                         SeasonRuleAchievement.class
                     );
@@ -308,7 +309,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 memberPointLogsMapper.insertOne(memberPointLogs);
                 res.put("log",memberPointLogs);
                 if(memberPointLogsRequest.getRuleId()!=null && memberPointLogsRequest.getNum()>0){
-                    List<RuleAchievement> rules = ruleAchievementService.checkAchievementRules(memberPointLogsRequest.getRuleId(), memberPointLogsRequest.getMid(), seasonId, RuleAchievement.class);
+                    List<RuleAchievement> rules = ruleAchievementService.checkAchievementRules(memberPointLogsRequest.getRuleId(), memberPointLogsRequest.getMid(),memberPointLogsRequest.getRemark(), seasonId, RuleAchievement.class);
                     if(rules!=null && rules.size()!=0){
                         res.put("achievements",rules);
                     }

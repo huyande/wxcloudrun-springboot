@@ -12,6 +12,7 @@ public class RuleAchievement {
     private String img;
     private String conditionType;
     private Integer conditionValue;
+    private String conditionDesc;
     private String rewardType;
     private Integer rewardValue;
     private Integer status; // 状态 0开启 1删除

@@ -22,5 +22,5 @@ public interface RuleAchievementService {
      * @param expectedType 期望返回的成就类型 (RuleAchievement.class or SeasonRuleAchievement.class)
      * @return 满足的成就列表,包含成就信息和奖励信息
      */
-    <T> List<T> checkAchievementRules(Integer ruleId, Integer mid, Long seasonId, Class<T> expectedType);
+    <T> List<T> checkAchievementRules(Integer ruleId, Integer mid,String remark, Long seasonId, Class<T> expectedType);
 } 
