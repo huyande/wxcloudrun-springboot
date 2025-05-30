@@ -27,6 +27,9 @@ public class AccountServiceImpl implements AccountService {
     final AccountLogMapper accountLogMapper;
     final InterestRateMapper interestRateMapper;
     final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    
+    // 添加日志
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountServiceImpl.class);
 
     public AccountServiceImpl(@Autowired AccountMapper accountMapper,
                             @Autowired AccountLogMapper accountLogMapper,
@@ -47,35 +50,83 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDTO getOrCreateAccount(Integer uid, Integer mid) {
+        logger.debug("开始获取或创建账户，uid: {}, mid: {}", uid, mid);
+        
         // 先查询是否已存在账户
         Account account = accountMapper.getAccountByMid(mid);
         InterestRate currentRate;
         
         // 如果账户不存在，创建新账户和默认利率
         if (account == null) {
+            logger.info("账户不存在，开始创建新账户，uid: {}, mid: {}", uid, mid);
+            
             account = new Account();
             account.setUid(uid);
             account.setMid(mid);
             account.setBalance(BigDecimal.ZERO);
             account.setTotalEarnings(BigDecimal.ZERO);
             account.setLastInterestTime(LocalDateTime.now());
-            accountMapper.insertOne(account);
+            
+            try {
+                accountMapper.insertOne(account);
+                logger.debug("账户插入成功，account.id: {}", account.getId());
+            } catch (Exception e) {
+                logger.error("插入账户失败，uid: {}, mid: {}", uid, mid, e);
+                throw e;
+            }
 
             // 创建默认利率记录（0%）
             InterestRate interestRate = new InterestRate();
             interestRate.setMid(mid);
             interestRate.setAnnualRate(BigDecimal.ZERO);
-            interestRateMapper.insertOne(interestRate);
+            
+            try {
+                interestRateMapper.insertOne(interestRate);
+                logger.debug("利率记录插入成功");
+            } catch (Exception e) {
+                logger.error("插入利率记录失败，mid: {}", mid, e);
+                throw e;
+            }
+            
             currentRate = interestRate;
+            
+            // 确保新创建的账户有正确的id，如果插入后id为null，重新查询
+            if (account.getId() == null) {
+                logger.warn("账户插入后id为null，重新查询账户，mid: {}", mid);
+                account = accountMapper.getAccountByMid(mid);
+                if (account == null) {
+                    logger.error("重新查询账户失败，mid: {}", mid);
+                    throw new RuntimeException("创建账户后无法查询到账户信息");
+                }
+            }
+            
+            logger.info("新账户创建成功，account.id: {}, mid: {}", account.getId(), mid);
+            // 新创建的账户不需要计算利息，直接返回
+            return new AccountDTO(account, currentRate);
         } else {
+            logger.debug("账户已存在，account.id: {}, mid: {}", account.getId(), mid);
+            
             currentRate = interestRateMapper.getCurrentInterestRateByMid(mid);
-            //判断account的lastInterestTime是否小于当前时间，如果小于当前时间，则计算利息
-            if (account.getLastInterestTime().isBefore(LocalDateTime.now())) {
-                calculateDailyInterest(mid);
+            // 判断account的lastInterestTime是否需要计算利息
+            // 添加空值检查，并使用固定的当前时间进行比较
+            LocalDateTime currentTime = LocalDateTime.now();
+            if (account.getLastInterestTime() != null && 
+                account.getLastInterestTime().isBefore(currentTime)) {
+                
+                logger.debug("需要计算利息，mid: {}, lastInterestTime: {}", mid, account.getLastInterestTime());
+                try {
+                    calculateDailyInterest(mid);
+                    // 重新获取更新后的账户数据
+                    account = accountMapper.getAccountByMid(mid);
+                    logger.debug("利息计算完成，重新获取账户信息");
+                } catch (Exception e) {
+                    logger.error("计算利息失败，mid: {}", mid, e);
+                    throw e;
+                }
             }   
+            
+            return new AccountDTO(account, currentRate);
         }
-        
-        return new AccountDTO(account, currentRate);
     }
 
     @Override
