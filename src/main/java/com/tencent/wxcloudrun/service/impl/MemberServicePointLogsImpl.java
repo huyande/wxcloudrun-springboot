@@ -1009,12 +1009,15 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             
             // 查询打卡天数
             Integer days = seasonPointLogMapper.getPointDaysBySeasonIdAndMid(seasonId, mid);
+
+            // 查询当前日期的积分
+            Integer currentDayPoint = seasonPointLogMapper.getCurrentDayPointSumBySeasonIdAndMid(seasonId, mid, LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             
             HashMap<String, Integer> result = new HashMap<>();
             result.put("pointSum", total);
             result.put("days", days != null ? days : 0);
             result.put("originalPointSum", total); // 赛季模式下没有会员初始积分，因此originalPointSum和pointSum相同
-            
+            result.put("currentDayPoint", currentDayPoint);
             return result;
         } else {
             // 常规模式
@@ -1026,10 +1029,14 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             int  total = (pointSum == null ? 0 : pointSum) - (wishPointSum==null ? 0 :wishPointSum) + (rewardValueSum==null?0:rewardValueSum) + memberInitPoint;
             Integer days = memberPointLogsMapper.getPointDaysByMid(mid);
 
+            // 查询当前日期的积分
+            Integer currentDayPoint = memberPointLogsMapper.getCurrentDayPointSumByMid(mid, LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
             HashMap<String, Integer> result = new HashMap<>();
             result.put("pointSum",total);
             result.put("days", days);
             result.put("originalPointSum", total+member.getPointTotal());//累计的积分，不减去wishSum的积分
+            result.put("currentDayPoint", currentDayPoint);
             return result;
         }
     }

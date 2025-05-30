@@ -257,10 +257,12 @@
         ORDER BY day ASC
     </select>
 
+
+<!--    and type=0-->
     <select id="getCurrentDayPointSumByMid" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT sum(num)
         FROM member_point_logs
-        WHERE mid = #{mid} and type=0 and day = #{day}
+        WHERE mid = #{mid}  and day = #{day}
     </select>
 
     <select id="getPointlogCurrentDayDetail" resultType="java.util.Map" parameterType="java.util.Map">
