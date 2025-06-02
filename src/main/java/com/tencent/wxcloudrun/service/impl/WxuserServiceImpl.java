@@ -194,4 +194,10 @@ public class WxuserServiceImpl implements WxuserService {
     public Integer getShareVipCount(String openid) {
         return wxuserMapper.getShareVipCount(openid);
     }
+
+    @Override
+    public void updateVipExpired(Integer id, LocalDateTime newExpiredAt) {
+        wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
+    }
+
 }
