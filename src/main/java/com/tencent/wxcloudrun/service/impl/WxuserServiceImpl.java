@@ -5,6 +5,7 @@ import com.tencent.wxcloudrun.dao.MemberMapper;
 import com.tencent.wxcloudrun.dao.MemberRelasMapper;
 import com.tencent.wxcloudrun.dao.WxuserMapper;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
+import com.tencent.wxcloudrun.dto.VipDto;
 import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.MemberService;
 import com.tencent.wxcloudrun.service.WxuserService;
@@ -198,6 +199,27 @@ public class WxuserServiceImpl implements WxuserService {
     @Override
     public void updateVipExpired(Integer id, LocalDateTime newExpiredAt) {
         wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
+    }
+
+    @Override
+    public WxUser updateVipDay(VipDto vipDto) {
+        WxUser user = wxuserMapper.getUserByFamilyCode(vipDto.getCode());
+        if(user==null){
+            return null;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiredAt = user.getVipExpiredAt();
+
+        // 计算新的过期时间
+        LocalDateTime newExpiredAt;
+        if (expiredAt == null || expiredAt.isBefore(now)) {
+            newExpiredAt = now.plusSeconds((long)(vipDto.getDays() * 24 * 60 * 60));
+        } else {
+            newExpiredAt = expiredAt.plusSeconds((long)(vipDto.getDays() * 24 * 60 * 60));
+        }
+
+        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt);
+        return wxuserMapper.getUser(user.getOpenid());
     }
 
 }

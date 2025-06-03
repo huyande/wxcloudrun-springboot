@@ -1,6 +1,7 @@
 package com.tencent.wxcloudrun.service;
 
 import com.tencent.wxcloudrun.dto.FamilyRequest;
+import com.tencent.wxcloudrun.dto.VipDto;
 import com.tencent.wxcloudrun.model.Family;
 import com.tencent.wxcloudrun.model.Member;
 import com.tencent.wxcloudrun.model.WxCheckConfig;
@@ -52,4 +53,6 @@ public interface WxuserService {
   Integer getShareVipCount(String openid);
 
   void updateVipExpired(Integer id, LocalDateTime newExpiredAt);
+
+  WxUser updateVipDay(VipDto vipDto);
 }

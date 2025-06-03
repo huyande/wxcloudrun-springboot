@@ -5,6 +5,7 @@ import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.FamilyRequest;
 import com.tencent.wxcloudrun.dto.MemberDto;
 import com.tencent.wxcloudrun.dto.SettingRequest;
+import com.tencent.wxcloudrun.dto.VipDto;
 import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.MemberService;
 import com.tencent.wxcloudrun.service.SeasonConfigService;
@@ -279,5 +280,11 @@ public class WxuserController {
     //获取分享获取到的vip人的数量
     Integer num = wxuserService.getShareVipCount(openid);
     return ApiResponse.ok(num);
+  }
+
+  @PutMapping("/updateVipDay")
+  public ApiResponse updateVipDay(@RequestBody VipDto vipDto){
+    WxUser wxuser = wxuserService.updateVipDay(vipDto);
+    return ApiResponse.ok(wxuser);
   }
 }
