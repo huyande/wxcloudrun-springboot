@@ -14,7 +14,7 @@
 
     <!-- 查询成员当前生效的利率 -->
     <select id="getCurrentInterestRateByMid" resultType="com.tencent.wxcloudrun.model.InterestRate">
-        SELECT * FROM interest_rate 
+        SELECT id,mid,annual_rate as annualRate FROM interest_rate
         WHERE mid = #{mid} 
         ORDER BY id DESC 
         LIMIT 1
@@ -22,7 +22,7 @@
 
     <!-- 查询成员的利率历史记录 -->
     <select id="getInterestRateHistoryByMid" resultType="com.tencent.wxcloudrun.model.InterestRate">
-        SELECT * FROM interest_rate 
+        SELECT id,mid,annual_rate as annualRate FROM interest_rate
         WHERE mid = #{mid} 
         ORDER BY id DESC
     </select>
