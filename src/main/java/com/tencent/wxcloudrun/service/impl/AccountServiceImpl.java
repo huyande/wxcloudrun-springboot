@@ -242,7 +242,9 @@ public class AccountServiceImpl implements AccountService {
         
         if (account != null && rate != null) {
             LocalDateTime now = LocalDateTime.now();
-            long daysBetween = ChronoUnit.DAYS.between(account.getLastInterestTime(), now);
+            LocalDateTime nowFor = now.withHour(0).withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime lastInt = account.getLastInterestTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+            long daysBetween = ChronoUnit.DAYS.between(lastInt, nowFor);
             
             if (daysBetween > 0) {
                 // 先计算日利率 = 年化利率/36500，保留8位小数

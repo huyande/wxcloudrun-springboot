@@ -118,6 +118,28 @@ public class WxuserController {
       }else{
         user.get().setIsVip(false);
       }
+      boolean isVip = false;
+      //如果用户不是会员 则判断成员的code是否user的familycode一致，如果不一致则去查询对应的user是否时会员
+      if(!user.get().getIsVip()) {
+        for (Member member : filteredMembers) {
+          if (member.getFamilyCode() != null && !member.getFamilyCode().equals(user.get().getFamilyCode())) {
+            Optional<WxUser> wxUser = wxuserService.getUserByFamilyCode(member.getFamilyCode());
+            if (wxUser.get().getVipExpiredAt() != null) {
+              //判断是否过期
+              if (wxUser.get().getVipExpiredAt().isBefore(LocalDateTime.now())) {
+                isVip = false;
+              } else {
+                isVip = true;
+                break;
+              }
+            }
+          }
+        }
+        if(isVip){
+         user.get().setIsVip(isVip);
+        }
+      }
+
       resMap.put("user",user);
       resMap.put("members",filteredMembers);
       return ApiResponse.ok(resMap);
