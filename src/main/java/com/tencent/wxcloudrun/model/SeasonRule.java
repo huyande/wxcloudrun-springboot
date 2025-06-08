@@ -90,6 +90,8 @@ public class SeasonRule implements Serializable {
      * 是否是成就：0-否，1-是
      */
     private Integer isAchievement;
+
+    private String completionConditions;
     
     /**
      * 创建时间

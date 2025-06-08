@@ -12,7 +12,7 @@ import java.util.Map;
 @Mapper
 public interface MemberPointLogsMapper {
     void insertOne(MemberPointLogs memberPointLogs);
-    void updateById(@Param("id") Long id, @Param("num") Integer num, @Param("uid") Integer uid,@Param("remark") String remark);
+    void updateById(@Param("id") Long id, @Param("num") Integer num, @Param("uid") Integer uid,@Param("remark") String remark,@Param("conditionId") Integer conditionId);
     void delete(@Param("id") Long id);
     List<MemberPointLogs> getLogsByMidAndDate(@Param("mid") Integer mid, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 

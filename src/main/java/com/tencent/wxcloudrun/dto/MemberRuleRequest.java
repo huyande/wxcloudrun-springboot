@@ -17,4 +17,5 @@ public class MemberRuleRequest {
     private Integer enablePomodoro;//是否开启番茄闹钟
     private Integer pomodoroTime;//番茄时常
     private Integer isAchievement;//是否开启成就奖励
+    private String completionConditions; //完成条件配置
 }

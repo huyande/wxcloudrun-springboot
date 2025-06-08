@@ -12,12 +12,13 @@
         <result column="type" property="type"/>
         <result column="remark" property="remark"/>
         <result column="pomodoroTime" property="pomodoroTime"/>
+        <result column="conditionId" property="conditionId"/>
         <result column="createdAt" property="createdAt"/>
         <result column="updatedAt" property="updatedAt"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime, createdAt, updatedAt
+        id, seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, createdAt, updatedAt
     </sql>
 
     <select id="getById" resultMap="seasonPointLogResultMap">
@@ -120,10 +121,10 @@
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonPointLog" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_point_logs (
-            seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime, createdAt, updatedAt
+            seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, createdAt, updatedAt
         ) 
         VALUES (
-            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime}, now(), now()
+            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime},#{conditionId}, now(), now()
         )
     </insert>
 
@@ -134,6 +135,7 @@
             <if test="type != null">type = #{type},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="pomodoroTime != null">pomodoroTime = #{pomodoroTime},</if>
+            <if test="conditionId != null">conditionId = #{conditionId},</if>
             updatedAt = now()
         </set>
         WHERE id = #{id}

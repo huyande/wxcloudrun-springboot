@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.MemberDto;
 import com.tencent.wxcloudrun.dto.MemberPointLogsRequest;
@@ -253,6 +254,11 @@ public class MemberController {
                             ruleMap.put("content", rule.getContent());
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            if(rule.getCompletionConditions()!=null){
+                                ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
+                            }else{
+                                ruleMap.put("completionConditions", null);
+                            }
                             // 添加周打卡状态和积分
                             int[] weekScores = ruleWeekScores.getOrDefault(rule.getId().intValue(), new int[7]);
                             Map<String, Integer> weekStatusMap = new LinkedHashMap<>();
@@ -295,6 +301,11 @@ public class MemberController {
                             ruleMap.put("content", rule.getContent());
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            if(rule.getCompletionConditions()!=null){
+                                ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
+                            }else{
+                                ruleMap.put("completionConditions", null);
+                            }
                             // 添加周打卡状态和积分
                             int[] weekScores = ruleWeekScores.getOrDefault(rule.getId(), new int[7]);
                             Map<String, Integer> weekStatusMap = new LinkedHashMap<>();

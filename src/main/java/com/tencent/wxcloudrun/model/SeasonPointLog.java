@@ -17,6 +17,7 @@ public class SeasonPointLog implements Serializable {
     private Integer type; // 积分类型 0:规则积分 1:调整/补偿 2:赛季转换 3:愿望消耗
     private String remark; // 备注
     private Integer pomodoroTime; // 番茄时长
+    private Integer conditionId; //配置完成条件积分的id
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 
