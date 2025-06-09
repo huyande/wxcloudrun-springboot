@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.service;
 
+import com.tencent.wxcloudrun.dto.CanWishExchangeDto;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
 import com.tencent.wxcloudrun.model.WishLog;
 import java.util.List;
@@ -30,4 +31,8 @@ public interface WishLogService {
     <T> List<T> getAllLogByStatus(Integer mid, Integer status, Long seasonId, Class<T> expectedType);
     
     Map<String, Object> getByMidWithPage(Integer mid, Integer page, Integer pageSize, Integer status, Long seasonId);
+
+    CanWishExchangeDto canWishExchange(WishLogRequest request);
+
+    CanWishExchangeDto canSeasonWishExchange(WishLogRequest request,Long seasonId);
 }

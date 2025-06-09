@@ -13,12 +13,13 @@
         <result column="unitType" property="unitType"/>
         <result column="type" property="type"/>
         <result column="status" property="status"/>
+        <result column="exchangeLimit" property="exchangeLimit"/>
         <result column="createdAt" property="createdAt"/>
         <result column="updatedAt" property="updatedAt"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, createdAt, updatedAt
+        id, seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, exchangeLimit, createdAt, updatedAt
     </sql>
 
     <select id="getById" resultMap="seasonWishResultMap">
@@ -76,10 +77,10 @@
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonWish" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_wishes (
-            seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, createdAt, updatedAt
+            seasonId, mid, img, title, content, needPoint, unit, unitType, type, status, exchangeLimit, createdAt, updatedAt
         ) 
         VALUES (
-            #{seasonId}, #{mid}, #{img}, #{title}, #{content}, #{needPoint}, #{unit}, #{unitType}, #{type}, #{status}, now(), now()
+            #{seasonId}, #{mid}, #{img}, #{title}, #{content}, #{needPoint}, #{unit}, #{unitType}, #{type}, #{status}, #{exchangeLimit}, now(), now()
         )
     </insert>
 
@@ -94,6 +95,7 @@
             <if test="unitType != null">unitType = #{unitType},</if>
             <if test="type != null">type = #{type},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="exchangeLimit != null">exchangeLimit = #{exchangeLimit},</if>
             updatedAt = now()
         </set>
         WHERE id = #{id}

@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.model.SeasonWishLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -149,4 +150,6 @@ public interface SeasonWishLogMapper {
     int deleteBySeasonId(Long seasonId);
 
     Integer getSumNumBySeasonIdAndMid(@Param("seasonId") Long seasonId, @Param("mid") Integer mid);
-} 
+
+    int countUserExchanges(@Param("id")Long id, @Param("startTime")LocalDateTime startTime, @Param("seasonId")Long seasonId);
+}

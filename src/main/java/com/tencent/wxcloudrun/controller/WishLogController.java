@@ -1,6 +1,7 @@
 package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
+import com.tencent.wxcloudrun.dto.CanWishExchangeDto;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
 import com.tencent.wxcloudrun.model.SeasonConfig;
 import com.tencent.wxcloudrun.model.SeasonWishLog;
@@ -199,15 +200,26 @@ public class WishLogController {
                 if(seasonConfig.getStartTime()!=null && seasonConfig.getStartTime().isAfter(LocalDateTime.now())){
                     return ApiResponse.error("赛季未开始,不能兑换");
                 }
-                SeasonWishLog log = wishLogService.createWishLog(wishLogRequest, seasonId, SeasonWishLog.class);
-                return ApiResponse.ok(log);
+                CanWishExchangeDto canWishExchangeDto = wishLogService.canSeasonWishExchange(wishLogRequest, seasonId);
+                if(canWishExchangeDto.isIs()){
+                    SeasonWishLog log = wishLogService.createWishLog(wishLogRequest, seasonId, SeasonWishLog.class);
+                    return ApiResponse.ok(log);
+                }else{
+                    return ApiResponse.error(canWishExchangeDto.getMsg());
+                }
             } else {
-                WishLog log = wishLogService.createWishLog(wishLogRequest, null, WishLog.class);
-                return ApiResponse.ok(log);
+                CanWishExchangeDto canWishExchangeDto = wishLogService.canWishExchange(wishLogRequest);
+                if(canWishExchangeDto.isIs()){
+                    WishLog log = wishLogService.createWishLog(wishLogRequest, null, WishLog.class);
+                    return ApiResponse.ok(log);
+                }else{
+                    return ApiResponse.error(canWishExchangeDto.getMsg());
+                }
+
             }
         } catch (Exception e) {
             logger.error("创建愿望日志失败", e);
-            return ApiResponse.error("创建失败: " + e.getMessage()); 
+            return ApiResponse.error(e.getMessage());
         }
     }
 

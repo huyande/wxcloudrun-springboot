@@ -1,9 +1,17 @@
 package com.tencent.wxcloudrun.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.tencent.wxcloudrun.dao.SeasonWishLogMapper;
+import com.tencent.wxcloudrun.dao.SeasonWishMapper;
 import com.tencent.wxcloudrun.dao.WishLogMapper;
+import com.tencent.wxcloudrun.dao.WishMapper;
+import com.tencent.wxcloudrun.dto.CanWishExchangeDto;
 import com.tencent.wxcloudrun.dto.WishLogRequest;
+import com.tencent.wxcloudrun.model.SeasonWish;
 import com.tencent.wxcloudrun.model.SeasonWishLog;
+import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.model.WishLog;
 import com.tencent.wxcloudrun.service.WishLogService;
 import org.springframework.beans.BeanUtils;
@@ -11,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -24,14 +33,18 @@ public class WishLogServiceImpl implements WishLogService {
 
     private final WishLogMapper wishLogMapper;
     private final SeasonWishLogMapper seasonWishLogMapper;
+    private final WishMapper wishMapper;
+    private final SeasonWishMapper seasonWishMapper;
     // Assuming MemberPointLogsService is also needed for point checks, and it's already in controller
     // If MemberPointLogsService also becomes season-aware, it needs to be handled.
     // For now, assuming its getPointSum method will be adapted or called with seasonId.
 
     @Autowired
-    public WishLogServiceImpl(WishLogMapper wishLogMapper, SeasonWishLogMapper seasonWishLogMapper) {
+    public WishLogServiceImpl(WishLogMapper wishLogMapper, SeasonWishLogMapper seasonWishLogMapper,WishMapper wishMapper,SeasonWishMapper seasonWishMapper) {
         this.wishLogMapper = wishLogMapper;
         this.seasonWishLogMapper = seasonWishLogMapper;
+        this.seasonWishMapper = seasonWishMapper;
+        this.wishMapper = wishMapper;
     }
 
     @Override
@@ -125,6 +138,7 @@ public class WishLogServiceImpl implements WishLogService {
             }
             throw new IllegalArgumentException("Invalid expected type for season wish log creation: " + expectedType.getName());
         } else {
+
             WishLog wishLog = new WishLog();
             BeanUtils.copyProperties(request, wishLog);
             // WishLog.wid is Integer, WishLogRequest.wid is Integer - OK
@@ -139,6 +153,134 @@ public class WishLogServiceImpl implements WishLogService {
             }
             throw new IllegalArgumentException("Invalid expected type for regular wish log creation: " + expectedType.getName());
         }
+    }
+
+
+
+    /**
+     * 检查用户是否可以兑换指定的愿望
+     */
+    @Override
+    public CanWishExchangeDto canWishExchange(WishLogRequest request) {
+        Wish wish = wishMapper.getById(request.getWid());
+        String limitJson = wish.getExchangeLimit();
+        // 1. 使用 Hutool 的 StrUtil.isBlank 判断，如果没配置或为空，则不限制
+        if (StrUtil.isBlank(limitJson)) {
+            return new CanWishExchangeDto(true,"");
+        }
+
+        try {
+            // 2. 使用 Hutool 的 JSONUtil 将 JSON 字符串解析为 JSONObject
+            JSONObject config = JSONUtil.parseObj(limitJson);
+
+            // 3. 检查限制是否启用。getBool 方法提供默认值，避免空指针，非常安全
+            boolean enabled = config.getBool("enabled", false);
+            if (!enabled) {
+                return new CanWishExchangeDto(true,"");
+            }
+
+            // 4. 获取限制次数和单位。Hutool 的 getInt/getStr 在键不存在时返回 null
+            Integer limit = config.getInt("limit");
+            String unit = config.getStr("unit");
+
+            // 5. 必须同时存在 limit 和 unit 才进行下一步判断
+            if (limit == null || StrUtil.isBlank(unit)) {
+                return new CanWishExchangeDto(false,"限制配置有问题，请检查"); // 配置不完整，安全起见，禁止兑换
+            }
+
+            // 6. 计算时间窗口的起始时间
+            LocalDateTime startTime = calculateStartTime(unit);
+
+            // 7. 查询用户在此时间窗口内的兑换次数 (你需要根据自己的数据访问层实现这部分)
+            // int exchangeCount = wishExchangeRecordRepository.countUserExchanges(mid, wish.getId(), startTime);
+
+            int exchangeCount = wishLogMapper.countUserExchanges(request.getWid(), startTime);
+            boolean canExchange = exchangeCount < limit;
+            String msg = "";
+            if(!canExchange){
+                msg = String.format("%s内最多可兑换%d次", unit.equals("DAILY") ? "每天" : 
+                                                    unit.equals("WEEKLY") ? "每周" :
+                                                    unit.equals("MONTHLY") ? "每月" :
+                                                    unit.equals("YEARLY") ? "每年" : unit, limit);
+            }
+            return new CanWishExchangeDto(canExchange,msg);
+
+        } catch (Exception e) {
+            // 如果JSON格式严重错误或类型转换失败，Hutool 会抛出相应异常
+            return new CanWishExchangeDto(false,"限制配置有问题，请检查");
+        }
+    }
+
+    @Override
+    public CanWishExchangeDto canSeasonWishExchange(WishLogRequest request,Long seasonId) {
+        SeasonWish seasonWish = seasonWishMapper.getById(request.getWid().longValue());
+        String limitJson = seasonWish.getExchangeLimit();
+        // 1. 使用 Hutool 的 StrUtil.isBlank 判断，如果没配置或为空，则不限制
+        if (StrUtil.isBlank(limitJson)) {
+            return new CanWishExchangeDto(true,"");
+        }
+
+        try {
+            // 2. 使用 Hutool 的 JSONUtil 将 JSON 字符串解析为 JSONObject
+            JSONObject config = JSONUtil.parseObj(limitJson);
+
+            // 3. 检查限制是否启用。getBool 方法提供默认值，避免空指针，非常安全
+            boolean enabled = config.getBool("enabled", false);
+            if (!enabled) {
+                return new CanWishExchangeDto(true,"");
+            }
+
+            // 4. 获取限制次数和单位。Hutool 的 getInt/getStr 在键不存在时返回 null
+            Integer limit = config.getInt("limit");
+            String unit = config.getStr("unit");
+
+            // 5. 必须同时存在 limit 和 unit 才进行下一步判断
+            if (limit == null || StrUtil.isBlank(unit)) {
+                return new CanWishExchangeDto(false,"限制配置有问题，请检查");
+            }
+
+            // 6. 计算时间窗口的起始时间
+            LocalDateTime startTime = calculateStartTime(unit);
+
+            // 7. 查询用户在此时间窗口内的兑换次数 (你需要根据自己的数据访问层实现这部分)
+            // int exchangeCount = wishExchangeRecordRepository.countUserExchanges(mid, wish.getId(), startTime);
+
+            int exchangeCount = seasonWishLogMapper.countUserExchanges(request.getWid().longValue(), startTime,seasonId);
+            boolean canExchange = exchangeCount < limit;
+            String msg = "";
+            if(!canExchange){
+                msg = String.format("%s内最多可兑换%d次", unit.equals("DAILY") ? "每天" : 
+                                                    unit.equals("WEEKLY") ? "每周" :
+                                                    unit.equals("MONTHLY") ? "每月" :
+                                                    unit.equals("YEARLY") ? "每年" : unit, limit);
+            }
+            return new CanWishExchangeDto(canExchange,msg);
+
+        } catch (Exception e) {
+            // 如果JSON格式严重错误或类型转换失败，Hutool 会抛出相应异常
+            return new CanWishExchangeDto(false,"限制配置有问题，请检查");
+        }
+    }
+
+    private LocalDateTime calculateStartTime(String unit) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (StrUtil.equalsIgnoreCase("DAILY", unit)) {
+            return now.toLocalDate().atStartOfDay();
+        }
+        if (StrUtil.equalsIgnoreCase("WEEKLY", unit)) {
+            // 使用 java.time.DayOfWeek.MONDAY 定义周一为一周的开始，更清晰
+            return now.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+        }
+        if (StrUtil.equalsIgnoreCase("MONTHLY", unit)) {
+            return now.withDayOfMonth(1).toLocalDate().atStartOfDay();
+        }
+        if (StrUtil.equalsIgnoreCase("YEARLY", unit)) {
+            return now.withDayOfYear(1).toLocalDate().atStartOfDay();
+        }
+
+        // 如果单位未知，抛出异常
+        throw new IllegalArgumentException("不支持的时间单位: " + unit);
     }
 
     @Override

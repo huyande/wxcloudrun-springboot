@@ -102,6 +102,7 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
         
         // 插入数据库
         seasonConfigMapper.insert(seasonConfig);
+        this.startSeason(seasonConfig.getMId(),seasonConfig.getId());
         
 //        // 设置初始的心愿
 //        for(SeasonWish wish:DEFAULT_WISHES){
@@ -191,7 +192,12 @@ public class SeasonConfigServiceImpl implements SeasonConfigService {
         if (seasonConfig.getStatus() ==1) {
             throw new RuntimeException("赛季正在进行中，无法删除");
         }
-        
+
+        Member member = memberService.getMemberById(seasonConfig.getMId());
+        if(member.getCurrentSeasonId() == id){
+            throw new RuntimeException("请先切换到其他赛季，在删除此赛季");
+        }
+
         // 删除赛季
         int result = seasonConfigMapper.delete(id);
 

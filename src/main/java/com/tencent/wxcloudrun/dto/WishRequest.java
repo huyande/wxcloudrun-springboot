@@ -24,4 +24,6 @@ public class WishRequest {
     private Integer type;
     // 愿望状态
     private Integer status; //0 正常 1 删除 或禁止
+    // 兑换限制
+    private String exchangeLimit;
 }

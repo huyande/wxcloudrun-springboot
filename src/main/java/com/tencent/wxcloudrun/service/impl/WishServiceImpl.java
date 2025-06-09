@@ -43,7 +43,9 @@ public class WishServiceImpl implements WishService {
                     throw new IllegalArgumentException("Invalid mid format for season wish: " + request.getMid());
                 }
             }
-            
+            if(request.getExchangeLimit()!=null){
+                seasonWish.setExchangeLimit(request.getExchangeLimit());
+            }
             seasonWishMapper.insert(seasonWish);
             if (expectedType.isAssignableFrom(SeasonWish.class)) {
                 return expectedType.cast(seasonWish);
@@ -52,6 +54,9 @@ public class WishServiceImpl implements WishService {
         } else {
             Wish wish = new Wish();
             BeanUtils.copyProperties(request, wish);
+            if(request.getExchangeLimit()!=null){
+                wish.setExchangeLimit(request.getExchangeLimit());
+            }
             // wish.setMid(request.getMid()); // Assuming Wish.mid is String and matches WishRequest.mid
             // wish.setCreatedAt(LocalDateTime.now());
             // wish.setUpdatedAt(LocalDateTime.now());

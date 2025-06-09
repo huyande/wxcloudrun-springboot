@@ -376,33 +376,34 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
         if (seasonId != null) {
             // 赛季模式
             // 构造日期范围
-            String startDate = yearMonth + "-01";
-            // 计算月末日期
-            int year = Integer.parseInt(yearMonth.substring(0, 4));
-            int month = Integer.parseInt(yearMonth.substring(5));
-            int lastDay;
-            switch (month) {
-                case 2:
-                    lastDay = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) ? 29 : 28;
-                    break;
-                case 4:
-                case 6:
-                case 9:
-                case 11:
-                    lastDay = 30;
-                    break;
-                default:
-                    lastDay = 31;
-            }
-            String endDate = yearMonth + "-" + lastDay;
-            
-            // 调用SeasonPointLogMapper的方法
-            List<Map<String, Object>> result = seasonPointLogMapper.getPointsStatisticsByMonth(
-                seasonId, 
-                mid, 
-                startDate, 
-                endDate
-            );
+//            String startDate = yearMonth + "-01";
+//            // 计算月末日期
+//            int year = Integer.parseInt(yearMonth.substring(0, 4));
+//            int month = Integer.parseInt(yearMonth.substring(5));
+//            int lastDay;
+//            switch (month) {
+//                case 2:
+//                    lastDay = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) ? 29 : 28;
+//                    break;
+//                case 4:
+//                case 6:
+//                case 9:
+//                case 11:
+//                    lastDay = 30;
+//                    break;
+//                default:
+//                    lastDay = 31;
+//            }
+//            String endDate = yearMonth + "-" + lastDay;
+//
+//            // 调用SeasonPointLogMapper的方法
+//            List<Map<String, Object>> result = seasonPointLogMapper.getPointsStatisticsByMonth(
+//                seasonId,
+//                mid,
+//                startDate,
+//                endDate
+//            );
+            List<Map<String, Object>> result = seasonPointLogMapper.getPointLogsByMidAndSpecificMonth(mid, yearMonth,seasonId);
             return result;
         } else {
             // 常规模式

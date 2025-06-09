@@ -41,7 +41,7 @@ public interface SeasonConfigMapper {
      * @param seasonConfig 赛季配置
      * @return 影响的行数
      */
-    int insert(SeasonConfig seasonConfig);
+    Long insert(SeasonConfig seasonConfig);
     
     /**
      * 更新赛季

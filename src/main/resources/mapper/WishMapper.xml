@@ -13,6 +13,7 @@
         <result property="unitType" column="unitType"/>
         <result property="type" column="type"/>
         <result property="status" column="status"/>
+        <result property="exchangeLimit" column="exchangeLimit"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
@@ -36,10 +37,10 @@
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.Wish" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO wish (
             mid, img, title, content, needPoint, 
-            unit, unitType, type
+            unit, unitType, type, exchangeLimit
         ) VALUES (
             #{mid}, #{img}, #{title}, #{content}, #{needPoint},
-            #{unit}, #{unitType}, #{type}
+            #{unit}, #{unitType}, #{type}, #{exchangeLimit}
         )
     </insert>
 
@@ -56,6 +57,7 @@
             unitType = #{unitType},
             type = #{type},
             status = #{status},
+            exchangeLimit = #{exchangeLimit},
             updatedAt = #{updatedAt}
         WHERE id = #{id}
     </update>

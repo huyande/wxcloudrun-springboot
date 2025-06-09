@@ -287,4 +287,6 @@ public interface SeasonPointLogMapper {
      * @return 日志列表
      */
     List<Map<String, Object>> getPointlogCurrentDayDetail(@Param("seasonId")Long seasonId, @Param("mid")Integer mid, @Param("day")String day);
-} 
+
+    List<Map<String, Object>> getPointLogsByMidAndSpecificMonth(@Param("mid")Integer mid, @Param("yearMonth")String yearMonth, @Param("seasonId")Long seasonId);
+}

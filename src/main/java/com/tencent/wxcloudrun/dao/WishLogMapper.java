@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.model.WishLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -96,4 +97,6 @@ public interface WishLogMapper {
                                                     @Param("startDate") String startDate, 
                                                     @Param("endDate") String endDate,
                                                     @Param("limit") Integer limit);
+
+    int countUserExchanges(@Param("id") Integer id, @Param("startTime") LocalDateTime startTime);
 }

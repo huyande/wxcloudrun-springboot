@@ -137,4 +137,11 @@
         LIMIT #{limit}
     </select>
 
+    <select id="countUserExchanges" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM wish_log
+        WHERE wid = #{id}
+        AND createdAt  <![CDATA[ >= ]]> #{startTime}
+    </select>
+
 </mapper>

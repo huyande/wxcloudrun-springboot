@@ -157,4 +157,11 @@
         FROM season_wish_logs
         WHERE seasonId = #{seasonId} AND mid = #{mid}
     </select>
+    
+    <select id="countUserExchanges" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM season_wish_logs
+        WHERE wid = #{id} and seasonId = #{seasonId}
+        AND createdAt  <![CDATA[ >= ]]> #{startTime}
+    </select>
 </mapper> 

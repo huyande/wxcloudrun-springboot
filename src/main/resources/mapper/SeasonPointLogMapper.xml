@@ -326,4 +326,13 @@
         AND createdAt BETWEEN #{startDate} AND #{endDate}
     </select>
 
+
+    <select id="getPointLogsByMidAndSpecificMonth" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT DATE_FORMAT(day,'%Y-%m-%d') as day
+        FROM season_point_logs
+        WHERE mid = #{mid} and type=0 and seasonId = #{seasonId}
+          AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        GROUP BY day
+    </select>
+
 </mapper> 
