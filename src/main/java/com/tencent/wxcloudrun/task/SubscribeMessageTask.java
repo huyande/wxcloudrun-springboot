@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.task;
 import com.tencent.wxcloudrun.dao.SubscribeLogMapper;
 import com.tencent.wxcloudrun.model.SubscribeLog;
 import com.tencent.wxcloudrun.service.SubscribeMessageService;
+import com.tencent.wxcloudrun.service.UserDailyTaskLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,18 @@ import java.util.List;
 public class SubscribeMessageTask {
     private final SubscribeLogMapper subscribeLogMapper;
     private final SubscribeMessageService subscribeMessageService;
+    private final UserDailyTaskLogService userDailyTaskLogService;
     private final Logger logger;
     
     private static final LocalTime START_TIME = LocalTime.of(7, 0);
     private static final LocalTime END_TIME = LocalTime.of(22, 0);
 
     public SubscribeMessageTask(@Autowired SubscribeLogMapper subscribeLogMapper,
-                              @Autowired SubscribeMessageService subscribeMessageService) {
+                              @Autowired SubscribeMessageService subscribeMessageService,
+                                @Autowired UserDailyTaskLogService userDailyTaskLogService) {
         this.subscribeLogMapper = subscribeLogMapper;
         this.subscribeMessageService = subscribeMessageService;
+        this.userDailyTaskLogService = userDailyTaskLogService;
         this.logger = LoggerFactory.getLogger(SubscribeMessageTask.class);
     }
 
@@ -69,5 +73,11 @@ public class SubscribeMessageTask {
     public void checkTimeTask() {
         logger.info("开始检查时间任务");
         subscribeMessageService.processTimeTask();
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void clearUsertaskLog() {
+        logger.info("开始检查时间任务");
+        userDailyTaskLogService.clearTaskLogs();
     }
 }

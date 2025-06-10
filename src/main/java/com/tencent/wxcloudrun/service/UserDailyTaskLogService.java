@@ -1,7 +1,8 @@
- package com.tencent.wxcloudrun.service;
+package com.tencent.wxcloudrun.service;
 
 import com.tencent.wxcloudrun.dto.TaskCountDto;
 import com.tencent.wxcloudrun.dto.UserDailyTaskLogDto;
+import com.tencent.wxcloudrun.model.UserDailyTaskLog;
 
 import java.util.List;
 
@@ -27,4 +28,15 @@ public interface UserDailyTaskLogService {
      * @return 返回用户的积分
      */
     Integer getPoints(String openid);
+
+    /**
+     * 获取用户当天的任务日志
+     * @param openid 用户的OpenID，从请求头获取
+     * @return 返回用户当天的任务日志列表
+     */
+    List<UserDailyTaskLog> getTodayTaskLogs(String openid);
+
+    List<UserDailyTaskLog> getLimitedLogs(String openid);
+
+    void clearTaskLogs();
 }

@@ -1,8 +1,9 @@
- package com.tencent.wxcloudrun.controller;
+package com.tencent.wxcloudrun.controller;
 
 import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.dto.TaskCountDto;
 import com.tencent.wxcloudrun.dto.UserDailyTaskLogDto;
+import com.tencent.wxcloudrun.model.UserDailyTaskLog;
 import com.tencent.wxcloudrun.model.WxUser;
 import com.tencent.wxcloudrun.service.UserDailyTaskLogService;
 import com.tencent.wxcloudrun.service.WxuserService;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
- @RestController
+@RestController
 @RequestMapping("/api/user-daily-tasks")
 public class UserDailyTaskLogController {
 
@@ -109,5 +110,28 @@ public class UserDailyTaskLogController {
         return ApiResponse.ok(userDailyTaskLogService.getPoints(openid));
     }
 
+    /**
+     * 获取用户当天的任务日志
+     * @param openid 用户的OpenID
+     * @return 用户当天的任务日志列表
+     */
+    @GetMapping("/logs")
+    public ApiResponse getTodayTaskLogs(
+            @RequestHeader(value = "X-WX-OPENID", required = true) String openid) {
+        
+        if (!StringUtils.hasText(openid)) {
+            logger.warn("X-WX-OPENID header is missing or empty for getTodayTaskLogs.");
+            return ApiResponse.error("40001");
+        }
 
+        try {
+            List<UserDailyTaskLog> logs = userDailyTaskLogService.getTodayTaskLogs(openid);
+            List<UserDailyTaskLog> logsLimits =userDailyTaskLogService.getLimitedLogs(openid);
+            logs.addAll(logsLimits);
+            return ApiResponse.ok(logs);
+        } catch (Exception e) {
+            logger.error("Error retrieving today task logs for openid: " + openid, e);
+            return ApiResponse.error("50003");
+        }
+    }
 }

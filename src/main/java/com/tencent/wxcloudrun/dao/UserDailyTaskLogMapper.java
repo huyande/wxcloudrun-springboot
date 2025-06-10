@@ -1,4 +1,4 @@
- package com.tencent.wxcloudrun.dao;
+package com.tencent.wxcloudrun.dao;
 
 import com.tencent.wxcloudrun.model.UserDailyTaskLog;
 import org.apache.ibatis.annotations.Mapper;
@@ -33,4 +33,19 @@ public interface UserDailyTaskLogMapper {
      * @return 返回用户的积分
      */
     Integer getPoints(@Param("openid") String openid);
+
+    /**
+     * 获取用户当天的任务日志
+     * @param openid 用户的OpenID
+     * @return 用户当天的任务日志列表
+     */
+    List<UserDailyTaskLog> findTodayLogsByOpenid(@Param("openid") String openid);
+
+    List<UserDailyTaskLog> findLimitedLogsByOpenid(String openid);
+
+    List<UserDailyTaskLog> findClearLog();
+
+    Integer getClearLogSum(String openid);
+
+    void delClearLogs(String openid);
 }

@@ -2,10 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tencent.wxcloudrun.dao.UserDailyTaskLogMapper">
 
+    <resultMap id="userDailyTaskLogResultMap" type="com.tencent.wxcloudrun.model.UserDailyTaskLog">
+        <id property="id" column="id"/>
+        <result property="openid" column="openid"/>
+        <result property="type" column="type"/>
+        <result property="points" column="points"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="status" column="status"/>
+        <result property="reviewContent" column="review_content"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.UserDailyTaskLog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user_daily_task_log (openid, type,points)
-        VALUES (#{openid}, #{type},#{points})
+        INSERT INTO user_daily_task_log (openid, type, points, status, review_content)
+        VALUES (#{openid}, #{type}, #{points}, #{status}, #{reviewContent})
     </insert>
+    <delete id="delClearLogs">
+        delete from user_daily_task_log where  created_at <![CDATA[<=]]> DATE_SUB(NOW(), INTERVAL 90 DAY)
+    </delete>
 
     <select id="countTasksByType" resultType="java.util.Map">
         SELECT
@@ -23,12 +37,37 @@
 
     <select id="getPoints" resultType="java.lang.Integer">
         SELECT
-            SUM(points)
+            COALESCE(SUM(points), 0)
         FROM
             user_daily_task_log
         WHERE
             openid = #{openid}
+            AND (status = 'completed' OR status = 'approved')
     </select>
 
+    <!-- 新增：获取用户当天的任务日志 -->
+    <select id="findTodayLogsByOpenid" resultMap="userDailyTaskLogResultMap">
+        SELECT id, openid, type, points, created_at, status, review_content, remark
+        FROM user_daily_task_log
+        WHERE openid = #{openid}
+            AND DATE_FORMAT(created_at, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findLimitedLogsByOpenid" resultMap="userDailyTaskLogResultMap">
+        SELECT t1.id, openid, t1.type, t1.points, t1.created_at, t1.status, t1.review_content, t1.remark
+        FROM user_daily_task_log as t1,task_config as t2
+        WHERE openid = #{openid}
+          AND (t2.type = 'limited_time' AND t2.start_time <![CDATA[ <= ]]> NOW() AND t2.end_time >= NOW())
+          AND t1.type = t2.task_key
+        ORDER BY created_at DESC
+    </select>
+    <select id="findClearLog" resultType="com.tencent.wxcloudrun.model.UserDailyTaskLog">
+        select distinct openid from user_daily_task_log where created_at <![CDATA[<=]]> DATE_SUB(NOW(), INTERVAL 90 DAY)
+select distinct openid from user_daily_task_log where openid='oBjXq0LC0fNVc74SoTZTYj7OSMKc'
+    </select>
+    <select id="getClearLogSum" resultType="java.lang.Integer">
+        select sum(points) from user_daily_task_log where created_at <![CDATA[<=]]> DATE_SUB(NOW(), INTERVAL 90 DAY)
+    </select>
 
 </mapper>

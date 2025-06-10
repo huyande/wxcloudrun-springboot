@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.TaskConfigMapper">
+
+    <resultMap id="taskConfigResultMap" type="com.tencent.wxcloudrun.model.TaskConfig">
+        <id property="id" column="id"/>
+        <result property="taskKey" column="task_key"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="type" column="type"/>
+        <result property="icon" column="icon"/>
+        <result property="points" column="points"/>
+        <result property="maxDaily" column="max_daily"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="needReview" column="need_review"/>
+        <result property="webviewUrl" column="webview_url"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findAllActiveTasks" resultMap="taskConfigResultMap">
+        SELECT id, task_key, title, description, type, icon, points, max_daily,
+               start_time, end_time, need_review, webview_url, created_at, updated_at
+        FROM task_config
+        WHERE (type = 'daily' OR 
+               (type = 'limited_time' AND start_time <![CDATA[ <= ]]> NOW() AND end_time >= NOW()))
+        ORDER BY type DESC, id ASC
+    </select>
+
+    <select id="findByTaskKey" resultMap="taskConfigResultMap">
+        SELECT id, task_key, title, description, type, icon, points, max_daily,
+               start_time, end_time, need_review, webview_url, created_at, updated_at
+        FROM task_config
+        WHERE task_key = #{taskKey}
+    </select>
+
+    <insert id="insert" parameterType="com.tencent.wxcloudrun.model.TaskConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_config (
+            task_key, title, description, type, icon, points, max_daily,
+            start_time, end_time, need_review, webview_url
+        ) VALUES (
+            #{taskKey}, #{title}, #{description}, #{type}, #{icon}, #{points}, #{maxDaily},
+            #{startTime}, #{endTime}, #{needReview}, #{webviewUrl}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.TaskConfig">
+        UPDATE task_config
+        SET title = #{title},
+            description = #{description},
+            type = #{type},
+            icon = #{icon},
+            points = #{points},
+            max_daily = #{maxDaily},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            need_review = #{needReview},
+            webview_url = #{webviewUrl},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM task_config WHERE id = #{id}
+    </delete>
+
+</mapper> 

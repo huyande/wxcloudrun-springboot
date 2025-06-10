@@ -16,4 +16,9 @@ public class UserDailyTaskLog {
   private Integer points;
 
   private Date createdAt;
+  
+  // 新增字段
+  private String status; // 'completed', 'pending', 'approved', 'rejected'
+  private String reviewContent; // 用户提交的审核内容
+  private String remark; // 管理员审核备注
 }

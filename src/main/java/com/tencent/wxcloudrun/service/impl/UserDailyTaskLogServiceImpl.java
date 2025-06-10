@@ -1,4 +1,4 @@
- package com.tencent.wxcloudrun.service.impl;
+package com.tencent.wxcloudrun.service.impl;
 
 import com.tencent.wxcloudrun.dao.UserDailyTaskLogMapper;
 import com.tencent.wxcloudrun.dto.TaskCountDto;
@@ -34,14 +34,11 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
     public void addTaskLog(String openid, UserDailyTaskLogDto taskLogDto) {
         if (!StringUtils.hasText(openid)) {
             logger.warn("OpenID is missing, cannot add task log.");
-            // 根据业务需求，这里可以抛出异常，例如 IllegalArgumentException
-            // throw new IllegalArgumentException("OpenID cannot be empty.");
-            return; // 或者直接返回，不记录日志
+            throw new IllegalArgumentException("OpenID cannot be empty.");
         }
         if (taskLogDto == null || !StringUtils.hasText(taskLogDto.getType())) {
             logger.warn("Task log DTO is null or type is missing for openid: {}", openid);
-            // throw new IllegalArgumentException("Task type cannot be empty.");
-            return;
+            throw new IllegalArgumentException("Task type cannot be empty.");
         }
 
         UserDailyTaskLog log = new UserDailyTaskLog();
@@ -49,13 +46,22 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
         log.setType(taskLogDto.getType());
         log.setPoints(taskLogDto.getPoints());
         
+        // 设置状态，如果未指定则默认为completed
+        String status = StringUtils.hasText(taskLogDto.getStatus()) ? taskLogDto.getStatus() : "completed";
+        log.setStatus(status);
+        
+        // 设置审核内容
+        if (StringUtils.hasText(taskLogDto.getReviewContent())) {
+            log.setReviewContent(taskLogDto.getReviewContent());
+        }
+        
         try {
             userDailyTaskLogMapper.insert(log);
-            logger.info("Successfully added task log for openid: {}, type: {}", openid, taskLogDto.getType());
+            logger.info("Successfully added task log for openid: {}, type: {}, status: {}", 
+                       openid, taskLogDto.getType(), status);
         } catch (Exception e) {
             logger.error("Error adding task log for openid: " + openid + ", type: " + taskLogDto.getType(), e);
-            // 根据需要，可以向上层抛出自定义异常
-            // throw new RuntimeException("Failed to add task log.", e);
+            throw new RuntimeException("Failed to add task log.", e);
         }
     }
 
@@ -63,9 +69,7 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
     public List<TaskCountDto> getDailyTaskCounts(String openid) {
         if (!StringUtils.hasText(openid)) {
             logger.warn("OpenID is missing, cannot get daily task counts.");
-            // 根据业务需求，这里可以抛出异常或返回空列表
-            // throw new IllegalArgumentException("OpenID cannot be empty.");
-            return Collections.emptyList();
+            throw new IllegalArgumentException("OpenID cannot be empty.");
         }
 
         LocalDate today = LocalDate.now(); // 获取当前日期
@@ -94,14 +98,75 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("Error getting daily task counts for openid: " + openid, e);
-            // 根据需要，可以向上层抛出自定义异常
-            // throw new RuntimeException("Failed to get daily task counts.", e);
-            return Collections.emptyList(); // 发生异常时返回空列表，或根据策略处理
+            throw new RuntimeException("Failed to get daily task counts.", e);
         }
     }
 
     @Override
     public Integer getPoints(String openid) {
-        return userDailyTaskLogMapper.getPoints(openid);
+        if (!StringUtils.hasText(openid)) {
+            logger.warn("OpenID is missing, cannot get points.");
+            return 0;
+        }
+        
+        try {
+            Integer points = userDailyTaskLogMapper.getPoints(openid);
+            return points != null ? points : 0;
+        } catch (Exception e) {
+            logger.error("Error getting points for openid: " + openid, e);
+            return 0;
+        }
+    }
+
+    @Override
+    public List<UserDailyTaskLog> getTodayTaskLogs(String openid) {
+        if (!StringUtils.hasText(openid)) {
+            logger.warn("OpenID is missing, cannot get today task logs.");
+            return Collections.emptyList();
+        }
+        
+        try {
+            return userDailyTaskLogMapper.findTodayLogsByOpenid(openid);
+        } catch (Exception e) {
+            logger.error("Error getting today task logs for openid: " + openid, e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<UserDailyTaskLog> getLimitedLogs(String openid) {
+        if (!StringUtils.hasText(openid)) {
+            logger.warn("OpenID is missing, cannot get today task logs.");
+            return Collections.emptyList();
+        }
+
+        try {
+            return userDailyTaskLogMapper.findLimitedLogsByOpenid(openid);
+        } catch (Exception e) {
+            logger.error("Error getting today task logs for openid: " + openid, e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void clearTaskLogs() {
+        //分组查询满足要清楚数据的openid
+        List<UserDailyTaskLog> list = userDailyTaskLogMapper.findClearLog();
+        for(UserDailyTaskLog log : list){
+            Integer sum = userDailyTaskLogMapper.getClearLogSum(log.getOpenid());
+            if(sum>=0){
+                userDailyTaskLogMapper.delClearLogs(log.getOpenid());
+            }else if(sum<0){
+                userDailyTaskLogMapper.delClearLogs(log.getOpenid());
+                UserDailyTaskLog log_ = new UserDailyTaskLog();
+                log_.setOpenid(log.getOpenid());
+                log_.setStatus("completed");
+                log_.setType("ad");
+                log_.setRemark("数据清除接转");
+                log_.setPoints(Math.abs(sum));
+                userDailyTaskLogMapper.insert(log);
+            }
+        }
+
     }
 }

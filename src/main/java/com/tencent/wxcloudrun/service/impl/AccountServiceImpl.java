@@ -110,6 +110,11 @@ public class AccountServiceImpl implements AccountService {
             // 判断account的lastInterestTime是否需要计算利息
             // 添加空值检查，并使用固定的当前时间进行比较
             LocalDateTime currentTime = LocalDateTime.now();
+            System.out.println("=====account.getLastInterestTime()======");
+            System.out.println(account.getLastInterestTime());
+            System.out.println(account.getLastInterestTime().isBefore(currentTime));
+            System.out.println(currentTime);
+            System.out.println("=========end===================");
             if (account.getLastInterestTime() != null && 
                 account.getLastInterestTime().isBefore(currentTime)) {
                 
