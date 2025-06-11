@@ -14,5 +14,5 @@ public class MemberPointLogsRequest {
     private Integer type;//类型 0 规则 1 转盘游戏 2 趣味计算 3赛季结算
     private String remark;
     private Integer pomodoroTime;//番茄时常
-    private Integer conditionId; //完成条件的id
+    private String conditionId; //完成条件的id
 }

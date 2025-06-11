@@ -111,6 +111,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 existingLog.setNum(memberPointLogsRequest.getNum());
                 existingLog.setUid(memberPointLogsRequest.getUid());
                 existingLog.setRemark(memberPointLogsRequest.getRemark());
+                existingLog.setConditionId(memberPointLogsRequest.getConditionId());
                 seasonPointLogMapper.update(existingLog);
                 
                 if (expectedType.isAssignableFrom(SeasonPointLog.class)) {
@@ -136,6 +137,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 seasonPointLog.setRemark(memberPointLogsRequest.getRemark());
                 if (memberPointLogsRequest.getPomodoroTime() != null) {
                     seasonPointLog.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
+                }
+                if(memberPointLogsRequest.getConditionId() !=null){
+                    seasonPointLog.setConditionId(memberPointLogsRequest.getConditionId());
                 }
                 
                 seasonPointLogMapper.insert(seasonPointLog);
@@ -180,6 +184,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 if(memberPointLogsRequest.getPomodoroTime()!=null){
                     memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }
+                memberPointLogs.setConditionId(memberPointLogsRequest.getConditionId());
                 memberPointLogsMapper.insertOne(memberPointLogs);
 
                 if (expectedType.isAssignableFrom(MemberPointLogs.class)) {
