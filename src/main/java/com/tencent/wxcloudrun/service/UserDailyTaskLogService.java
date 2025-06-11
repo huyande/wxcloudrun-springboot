@@ -13,7 +13,7 @@ public interface UserDailyTaskLogService {
      * @param openid 用户的OpenID，从请求头获取
      * @param taskLogDto 任务记录数据传输对象
      */
-    void addTaskLog(String openid, UserDailyTaskLogDto taskLogDto);
+    void addTaskLog(String openid, UserDailyTaskLogDto taskLogDto,String famliyCode);
 
     /**
      * 获取用户当日各项任务的完成计数

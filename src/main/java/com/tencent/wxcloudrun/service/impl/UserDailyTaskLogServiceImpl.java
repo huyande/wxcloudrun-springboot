@@ -31,7 +31,7 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
     }
 
     @Override
-    public void addTaskLog(String openid, UserDailyTaskLogDto taskLogDto) {
+    public void addTaskLog(String openid, UserDailyTaskLogDto taskLogDto,String familyCode) {
         if (!StringUtils.hasText(openid)) {
             logger.warn("OpenID is missing, cannot add task log.");
             throw new IllegalArgumentException("OpenID cannot be empty.");
@@ -51,8 +51,11 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
         log.setStatus(status);
         
         // 设置审核内容
-        if (StringUtils.hasText(taskLogDto.getReviewContent())) {
-            log.setReviewContent(taskLogDto.getReviewContent());
+//        if (StringUtils.hasText(taskLogDto.getReviewContent())) {
+//            log.setReviewContent(taskLogDto.getReviewContent());
+//        }
+        if(taskLogDto.getType()!="exchange" || taskLogDto.getType()!="ad" || taskLogDto.getType()!="daily"){
+            log.setReviewContent(familyCode);
         }
         
         try {

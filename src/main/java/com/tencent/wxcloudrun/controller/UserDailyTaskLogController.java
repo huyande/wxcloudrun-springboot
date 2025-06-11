@@ -53,10 +53,10 @@ public class UserDailyTaskLogController {
         }
 
         try {
-            userDailyTaskLogService.addTaskLog(openid, taskLogDto);
+            Optional<WxUser> userOp = wxuserService.getUser(openid);
+            userDailyTaskLogService.addTaskLog(openid, taskLogDto,userOp.get().getFamilyCode());
             //更新会员时间
             if(taskLogDto.getType().equals("exchange")){
-                Optional<WxUser> userOp = wxuserService.getUser(openid);
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime expiredAt = userOp.get().getVipExpiredAt();
 
