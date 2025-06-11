@@ -14,12 +14,12 @@
 
     <!-- 根据成员ID查询账户 -->
     <select id="getAccountByMid" resultType="com.tencent.wxcloudrun.model.Account">
-        SELECT * FROM account WHERE mid = #{mid}
+        SELECT id,uid,mid,balance,total_earnings as totalEarnings, last_interest_time as lastInterestTime, target_amount as targetAmount,yesterday_interest as yesterdayInterest  FROM account WHERE mid = #{mid}
     </select>
 
     <!-- 查询用户的所有账户 -->
     <select id="getAccountsByUid" resultType="com.tencent.wxcloudrun.model.Account">
-        SELECT * FROM account WHERE uid = #{uid}
+        SELECT id,uid,mid,balance,total_earnings as totalEarnings, last_interest_time as lastInterestTime, target_amount as targetAmount,yesterday_interest as yesterdayInterest  FROM account WHERE  uid = #{uid}
     </select>
 
     <!-- 更新账户信息 -->
