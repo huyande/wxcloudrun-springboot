@@ -104,9 +104,10 @@ public class AccountServiceImpl implements AccountService {
             // 新创建的账户不需要计算利息，直接返回
             return new AccountDTO(account, currentRate);
         } else {
-            logger.info("账户已存在，account.id: {}, mid: {}", account.getId(), mid);
+            logger.info("账户已存在，account: {}, mid: {}", account, mid);
             
             currentRate = interestRateMapper.getCurrentInterestRateByMid(mid);
+            logger.info("获取设置的利息信息:{}", currentRate);
             // 判断account的lastInterestTime是否需要计算利息
             // 添加空值检查，并使用固定的当前时间进行比较
             LocalDateTime currentTime = LocalDateTime.now();
@@ -125,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
                     account = accountMapper.getAccountByMid(mid);
                     logger.info("利息计算完成，重新获取账户信息");
                 } catch (Exception e) {
-                    logger.error("计算利息失败，mid: {}", mid, e);
+                    logger.info("计算利息失败，mid: {}", mid, e);
                     throw e;
                 }
             }   
