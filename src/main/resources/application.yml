@@ -8,5 +8,5 @@ spring:
 
 logging:
   level:
-    root: DEBUG
-    com.tencent.wxcloudrun: DEBUG
+    root: INFO
+    com.tencent.wxcloudrun: INFO

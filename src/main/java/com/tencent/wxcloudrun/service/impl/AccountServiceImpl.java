@@ -50,7 +50,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDTO getOrCreateAccount(Integer uid, Integer mid) {
-        logger.debug("开始获取或创建账户，uid: {}, mid: {}", uid, mid);
+        logger.info("开始获取或创建账户，uid: {}, mid: {}", uid, mid);
         
         // 先查询是否已存在账户
         Account account = accountMapper.getAccountByMid(mid);
@@ -69,7 +69,7 @@ public class AccountServiceImpl implements AccountService {
             
             try {
                 accountMapper.insertOne(account);
-                logger.debug("账户插入成功，account.id: {}", account.getId());
+                logger.info("账户插入成功，account.id: {}", account.getId());
             } catch (Exception e) {
                 logger.error("插入账户失败，uid: {}, mid: {}", uid, mid, e);
                 throw e;
@@ -82,7 +82,7 @@ public class AccountServiceImpl implements AccountService {
             
             try {
                 interestRateMapper.insertOne(interestRate);
-                logger.debug("利率记录插入成功");
+                logger.info("利率记录插入成功");
             } catch (Exception e) {
                 logger.error("插入利率记录失败，mid: {}", mid, e);
                 throw e;
@@ -104,7 +104,7 @@ public class AccountServiceImpl implements AccountService {
             // 新创建的账户不需要计算利息，直接返回
             return new AccountDTO(account, currentRate);
         } else {
-            logger.debug("账户已存在，account.id: {}, mid: {}", account.getId(), mid);
+            logger.info("账户已存在，account.id: {}, mid: {}", account.getId(), mid);
             
             currentRate = interestRateMapper.getCurrentInterestRateByMid(mid);
             // 判断account的lastInterestTime是否需要计算利息
@@ -118,12 +118,12 @@ public class AccountServiceImpl implements AccountService {
             if (account.getLastInterestTime() != null && 
                 account.getLastInterestTime().isBefore(currentTime)) {
                 
-                logger.debug("需要计算利息，mid: {}, lastInterestTime: {}", mid, account.getLastInterestTime());
+                logger.info("需要计算利息，mid: {}, lastInterestTime: {}", mid, account.getLastInterestTime());
                 try {
                     calculateDailyInterest(mid);
                     // 重新获取更新后的账户数据
                     account = accountMapper.getAccountByMid(mid);
-                    logger.debug("利息计算完成，重新获取账户信息");
+                    logger.info("利息计算完成，重新获取账户信息");
                 } catch (Exception e) {
                     logger.error("计算利息失败，mid: {}", mid, e);
                     throw e;
