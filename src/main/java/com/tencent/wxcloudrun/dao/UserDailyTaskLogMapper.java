@@ -48,4 +48,19 @@ public interface UserDailyTaskLogMapper {
     Integer getClearLogSum(String openid);
 
     void delClearLogs(String openid);
+
+    /**
+     * 获取待审核的任务日志
+     * @param reviewContent 审核内容
+     * @return 待审核的任务日志列表
+     */
+    List<UserDailyTaskLog> findPendingReviewLogs(@Param("reviewContent") String reviewContent);
+
+    /**
+     * 更新任务日志状态
+     * @param id 日志ID
+     * @param status 新状态
+     * @return 影响的行数
+     */
+    int updateStatus(@Param("id") Long id, @Param("status") String status);
 }

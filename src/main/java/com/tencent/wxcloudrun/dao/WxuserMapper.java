@@ -29,7 +29,7 @@ public interface WxuserMapper {
 
   void updateAtUserById(@Param("id")Integer id);
 
-  void updateVipExpiredAt(@Param("id") Integer id, @Param("vipExpiredAt") LocalDateTime vipExpiredAt);
+  void updateVipExpiredAt(@Param("id") Integer id, @Param("vipExpiredAt") LocalDateTime vipExpiredAt,@Param("isPay") Integer isPay);
 
   void insertVipLog(VipConvertLog vipConvertLog);
   VipConvertLog getVipLog(@Param("sourceOpenid") String sourceOpenid, @Param("channel") String channel, @Param("targetOpenid") String targetOpenid);

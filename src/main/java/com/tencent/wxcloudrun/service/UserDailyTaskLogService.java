@@ -39,4 +39,19 @@ public interface UserDailyTaskLogService {
     List<UserDailyTaskLog> getLimitedLogs(String openid);
 
     void clearTaskLogs();
+
+    /**
+     * 获取待审核的任务日志
+     * @param reviewContent 审核内容
+     * @return 待审核的任务日志列表
+     */
+    List<UserDailyTaskLog> getPendingReviewLogs(String reviewContent);
+
+    /**
+     * 更新任务日志状态
+     * @param id 日志ID
+     * @param status 新状态
+     * @return 是否更新成功
+     */
+    boolean updateLogStatus(Long id, String status);
 }

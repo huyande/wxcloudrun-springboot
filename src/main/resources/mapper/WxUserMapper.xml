@@ -80,7 +80,8 @@
     <update id="updateVipExpiredAt" parameterType="java.util.Map">
         UPDATE wx_users
         SET vipExpiredAt = #{vipExpiredAt},
-            vipSignInAt = now()
+            vipSignInAt = now(),
+            isPay = #{isPay}
         WHERE id = #{id}
     </update>
     <insert id="insertVipLog" parameterType="com.tencent.wxcloudrun.model.VipConvertLog">

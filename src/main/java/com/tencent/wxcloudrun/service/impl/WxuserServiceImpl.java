@@ -137,7 +137,7 @@ public class WxuserServiceImpl implements WxuserService {
             newExpiredAt = expiredAt.plusSeconds((long)(days * 24 * 60 * 60));
         }
 
-        wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
+        wxuserMapper.updateVipExpiredAt(id, newExpiredAt,0);
         return days; // 向上取整返回天数
     }
 
@@ -183,7 +183,7 @@ public class WxuserServiceImpl implements WxuserService {
             newExpiredAt = expiredAt.plusSeconds((long)(day * 24 * 60 * 60));
         }
 
-        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt);
+        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt,0);
         VipConvertLog vipConvertLog_ = new VipConvertLog();
         vipConvertLog_.setSourceOpenid(sourceOpenid);
         vipConvertLog_.setChannel(code);
@@ -198,7 +198,7 @@ public class WxuserServiceImpl implements WxuserService {
 
     @Override
     public void updateVipExpired(Integer id, LocalDateTime newExpiredAt) {
-        wxuserMapper.updateVipExpiredAt(id, newExpiredAt);
+        wxuserMapper.updateVipExpiredAt(id, newExpiredAt,0);
     }
 
     @Override
@@ -217,8 +217,9 @@ public class WxuserServiceImpl implements WxuserService {
         } else {
             newExpiredAt = expiredAt.plusSeconds((long)(vipDto.getDays() * 24 * 60 * 60));
         }
+        Integer isPay = vipDto.getIsPay()!=null?vipDto.getIsPay():0;
 
-        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt);
+        wxuserMapper.updateVipExpiredAt(user.getId(), newExpiredAt,isPay);
         return wxuserMapper.getUser(user.getOpenid());
     }
 

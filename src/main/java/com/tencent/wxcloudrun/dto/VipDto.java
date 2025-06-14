@@ -6,4 +6,5 @@ import lombok.Data;
 public class VipDto {
     private String code;
     private Integer days;
+    private Integer isPay;
 }

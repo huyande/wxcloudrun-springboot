@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -132,6 +134,53 @@ public class UserDailyTaskLogController {
         } catch (Exception e) {
             logger.error("Error retrieving today task logs for openid: " + openid, e);
             return ApiResponse.error("50003");
+        }
+    }
+
+    /**
+     * 获取待审核的任务日志
+     * @param reviewContent 审核内容（可选）
+     * @return 待审核的任务日志列表
+     */
+    @GetMapping("/pending-reviews")
+    public ApiResponse getPendingReviews(
+            @RequestParam(required = false) String reviewContent) {
+        try {
+            List<UserDailyTaskLog> logs = userDailyTaskLogService.getPendingReviewLogs(reviewContent);
+            return ApiResponse.ok(logs);
+        } catch (Exception e) {
+            logger.error("Error retrieving pending review logs", e);
+            return ApiResponse.error("50004");
+        }
+    }
+
+    /**
+     * 更新任务日志状态
+     * @param id 日志ID
+     * @param status 新状态
+     * @return 更新结果
+     */
+    @PostMapping("/{id}/status")
+    public ApiResponse updateLogStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        if (id == null) {
+            return ApiResponse.error("日志ID不能为空");
+        }
+        if (!StringUtils.hasText(status)) {
+            return ApiResponse.error( "状态不能为空");
+        }
+
+        try {
+            boolean success = userDailyTaskLogService.updateLogStatus(id, status);
+            if (success) {
+                return ApiResponse.ok();
+            } else {
+                return ApiResponse.error("更新状态失败");
+            }
+        } catch (Exception e) {
+            logger.error("Error updating log status for id: " + id, e);
+            return ApiResponse.error("50005");
         }
     }
 }

@@ -54,7 +54,7 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
 //        if (StringUtils.hasText(taskLogDto.getReviewContent())) {
 //            log.setReviewContent(taskLogDto.getReviewContent());
 //        }
-        if(status=='pending'){
+        if(status=="pending"){
             log.setReviewContent(familyCode);
         }
         
@@ -170,6 +170,35 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
                 userDailyTaskLogMapper.insert(log);
             }
         }
+    }
 
+    @Override
+    public List<UserDailyTaskLog> getPendingReviewLogs(String reviewContent) {
+        try {
+            return userDailyTaskLogMapper.findPendingReviewLogs(reviewContent);
+        } catch (Exception e) {
+            logger.error("Error getting pending review logs for reviewContent: " + reviewContent, e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean updateLogStatus(Long id, String status) {
+        if (id == null) {
+            logger.warn("Log ID cannot be null for status update.");
+            return false;
+        }
+        if (!StringUtils.hasText(status)) {
+            logger.warn("Status cannot be empty for status update.");
+            return false;
+        }
+
+        try {
+            int result = userDailyTaskLogMapper.updateStatus(id, status);
+            return result > 0;
+        } catch (Exception e) {
+            logger.error("Error updating log status for id: " + id, e);
+            return false;
+        }
     }
 }
