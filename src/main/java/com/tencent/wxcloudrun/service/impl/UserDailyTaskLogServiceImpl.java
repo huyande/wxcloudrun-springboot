@@ -54,7 +54,7 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
 //        if (StringUtils.hasText(taskLogDto.getReviewContent())) {
 //            log.setReviewContent(taskLogDto.getReviewContent());
 //        }
-        if(taskLogDto.getType()!="exchange" || taskLogDto.getType()!="ad" || taskLogDto.getType()!="daily" || taskLogDto.getType()!="completed"){
+        if(status=='pending'){
             log.setReviewContent(familyCode);
         }
         
