@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.model.Member;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberService {
     List<Member> getMembersByFamilyCode(String FamilyCode);
@@ -35,4 +36,20 @@ public interface MemberService {
      * @return 更新后的成员信息
      */
     Member updateCurrentSeasonId(Integer mid, Long seasonId);
+
+    /**
+     * 获取家庭组中其他成员的规则列表
+     * @param mid 当前成员ID
+     * @param familyCode 家庭代码
+     * @return 其他成员及其规则列表
+     */
+    List<Map<String, Object>> getFamilyMembersRules(Integer mid, String familyCode);
+
+    /**
+     * 批量导入规则
+     * @param mid 目标成员ID
+     * @param ruleIds 要导入的规则ID列表
+     * @return 导入结果
+     */
+    Map<String, Object> batchImportRules(Integer mid, List<Integer> ruleIds);
 }

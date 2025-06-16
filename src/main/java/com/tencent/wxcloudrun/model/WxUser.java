@@ -37,4 +37,5 @@ public class WxUser implements Serializable {
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
+  private Integer isPay;
 }

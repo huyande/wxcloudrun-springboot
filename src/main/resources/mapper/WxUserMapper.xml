@@ -10,6 +10,7 @@
         <result property="familyCode" column="familyCode"/>
         <result property="soundEnabled" column="soundEnabled"/>
         <result property="soundEnabled" column="soundEnabled"/>
+        <result property="isPay" column="isPay"/>
         <result property="vipExpiredAt" column="vipExpiredAt" javaType="java.time.LocalDateTime" />
         <result property="vipSignInAt" column="vipSignInAt" javaType="java.time.LocalDateTime" />
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
@@ -17,7 +18,7 @@
     </resultMap>
 
     <select id="getUser" resultMap="wxuserMapper" parameterType="java.lang.String">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`, `soundEnabled`,`animationEnabled`, `vipExpiredAt`, `createdAt`,`updatedAt` ,`vipSignInAt`
+        SELECT `id`, `openid`, `role`, `name`,`familyCode`, `soundEnabled`,`animationEnabled`, `vipExpiredAt`, `createdAt`,`updatedAt` ,`vipSignInAt`,`isPay`
         FROM wx_users
         WHERE openid = #{openid}
     </select>

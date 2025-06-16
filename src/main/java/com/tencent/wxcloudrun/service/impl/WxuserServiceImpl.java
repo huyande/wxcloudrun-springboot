@@ -197,8 +197,8 @@ public class WxuserServiceImpl implements WxuserService {
     }
 
     @Override
-    public void updateVipExpired(Integer id, LocalDateTime newExpiredAt) {
-        wxuserMapper.updateVipExpiredAt(id, newExpiredAt,0);
+    public void updateVipExpired(Integer id, LocalDateTime newExpiredAt,Integer isPay) {
+        wxuserMapper.updateVipExpiredAt(id, newExpiredAt,isPay);
     }
 
     @Override

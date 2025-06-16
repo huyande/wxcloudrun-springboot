@@ -52,7 +52,7 @@ public interface WxuserService {
 
   Integer getShareVipCount(String openid);
 
-  void updateVipExpired(Integer id, LocalDateTime newExpiredAt);
+  void updateVipExpired(Integer id, LocalDateTime newExpiredAt,Integer isPay);
 
   WxUser updateVipDay(VipDto vipDto);
 }

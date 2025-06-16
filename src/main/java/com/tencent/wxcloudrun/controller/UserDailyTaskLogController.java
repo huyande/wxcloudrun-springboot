@@ -69,8 +69,11 @@ public class UserDailyTaskLogController {
                 } else {
                     newExpiredAt = expiredAt.plusSeconds((long)(taskLogDto.getDays() * 24 * 60 * 60));
                 }
-
-                wxuserService.updateVipExpired(userOp.get().getId(), newExpiredAt);
+                Integer isPay = 0;
+                if(userOp.get().getIsPay()!=null && userOp.get().getIsPay()==1){
+                    isPay = 1;
+                }
+                wxuserService.updateVipExpired(userOp.get().getId(), newExpiredAt,isPay);
             }
             // HTTP 201 Created is more appropriate for resource creation.
             // However, to keep it simple with your ApiResponse structure, 200 OK with success is also common.

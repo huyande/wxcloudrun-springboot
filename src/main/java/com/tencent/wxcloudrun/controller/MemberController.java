@@ -1041,12 +1041,6 @@ return ApiResponse.ok(logs);
     /**
      * 切换成员的模式（常规/赛季）
      * @param mid 成员ID
-     * @param requestMap 请求参数，包括mode和seasonId
-     * @return API响应
-     */
-    /**
-     * 切换成员的模式（常规/赛季）
-     * @param mid 成员ID
      * @param requestMap 请求参数，包括mode
      * @return API响应
      */
@@ -1095,6 +1089,56 @@ return ApiResponse.ok(logs);
         } catch (Exception e) {
             logger.error("更新赛季ID失败", e);
             return ApiResponse.error("更新赛季ID失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取家庭组中其他成员的规则列表
+     * @param mid 当前成员ID
+     * @param familyCode 家庭代码
+     * @return 其他成员及其规则列表
+     */
+    @GetMapping("/family/{mid}/rules")
+    public ApiResponse getFamilyMembersRules(
+            @PathVariable Integer mid,
+            @RequestParam String familyCode) {
+        try {
+            List<Map<String, Object>> result = memberService.getFamilyMembersRules(mid, familyCode);
+            return ApiResponse.ok(result);
+        } catch (Exception e) {
+            logger.error("获取家庭成员规则列表失败", e);
+            return ApiResponse.error("获取家庭成员规则列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量导入规则
+     * @param mid 目标成员ID
+     * @param requestMap 请求参数，包含ruleIds数组
+     * @return 导入结果
+     */
+    @PostMapping("/batchImportRules/{mid}")
+    public ApiResponse batchImportRules(
+            @PathVariable Integer mid,
+            @RequestBody Map<String, Object> requestMap) {
+        try {
+            // 获取规则ID数组
+            @SuppressWarnings("unchecked")
+            List<Integer> ruleIds = (List<Integer>) requestMap.get("ruleIds");
+            
+            if (ruleIds == null || ruleIds.isEmpty()) {
+                return ApiResponse.error("规则ID列表不能为空");
+            }
+
+            Map<String, Object> result = memberService.batchImportRules(mid, ruleIds);
+            return ApiResponse.ok(result);
+            
+        } catch (IllegalArgumentException e) {
+            logger.error("批量导入规则参数错误", e);
+            return ApiResponse.error("参数错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("批量导入规则失败", e);
+            return ApiResponse.error("批量导入规则失败: " + e.getMessage());
         }
     }
 }
