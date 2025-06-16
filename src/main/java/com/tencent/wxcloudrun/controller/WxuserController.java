@@ -126,7 +126,7 @@ public class WxuserController {
             Optional<WxUser> wxUser = wxuserService.getUserByFamilyCode(member.getFamilyCode());
             if (wxUser.get().getVipExpiredAt() != null) {
               //判断是否过期
-              if (wxUser.get().getVipExpiredAt().isBefore(LocalDateTime.now())) {
+              if (wxUser.get().getVipExpiredAt().isBefore(LocalDateTime.now()) && wxUser.get().getIsVip().equals(1)) {
                 isVip = false;
               } else {
                 isVip = true;
