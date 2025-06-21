@@ -165,7 +165,7 @@
     <select id="getPointLogsCountBySeasonIdMidAndRuleId" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM season_point_logs
-        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId}
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND ruleId = #{ruleId} and num >0
     </select>
     
     <!-- 获取某赛季下某成员某规则的积分总和 -->

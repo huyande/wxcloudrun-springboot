@@ -378,7 +378,7 @@
         WHERE mid = #{mid} 
         AND ruleId = #{ruleId}
         AND type = 0
-        AND num <![CDATA[ > ]]> 0
+        AND num > 0
         AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
