@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.CourseLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.CourseLog">
+        <id column="id" property="id"/>
+        <result column="course_id" property="courseId"/>
+        <result column="mid" property="mid"/>
+        <result column="lesson_date" property="lessonDate"/>
+        <result column="lesson_notes" property="lessonNotes"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="course_name" property="courseName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, course_id, mid, lesson_date, lesson_notes, created_at
+    </sql>
+
+    <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.CourseLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course_logs (
+            course_id, mid, lesson_date, lesson_notes, created_at
+        ) VALUES (
+            #{courseId}, #{mid}, #{lessonDate}, #{lessonNotes}, NOW()
+        )
+    </insert>
+
+    <select id="getLogsByCourseId" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.course_id = #{courseId}
+        ORDER BY cl.lesson_date DESC, cl.created_at DESC
+    </select>
+
+    <select id="getLogsByMid" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.mid = #{mid}
+        ORDER BY cl.lesson_date DESC, cl.created_at DESC
+    </select>
+
+    <select id="getLogById" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM course_logs WHERE id = #{id}
+    </delete>
+
+    <select id="getLogsByDateRange" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.mid = #{mid}
+        AND cl.lesson_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY cl.lesson_date DESC, cl.created_at DESC
+    </select>
+
+    <select id="getLogCountByCourseId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM course_logs WHERE course_id = #{courseId}
+    </select>
+
+    <select id="getLogCountByMid" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM course_logs WHERE mid = #{mid}
+    </select>
+
+    <select id="getLogByDateAndCourse" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.course_id = #{courseId} 
+        AND cl.lesson_date = #{lessonDate}
+        LIMIT 1
+    </select>
+
+    <select id="getRecentLogsByMid" resultMap="BaseResultMap">
+        SELECT 
+            cl.*,
+            c.name as course_name
+        FROM course_logs cl
+        LEFT JOIN courses c ON cl.course_id = c.id
+        WHERE cl.mid = #{mid}
+        ORDER BY cl.lesson_date DESC, cl.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper> 

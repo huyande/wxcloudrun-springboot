@@ -64,14 +64,14 @@ public class UserDailyTaskLogController {
 
                 // 计算新的过期时间
                 LocalDateTime newExpiredAt;
+                Integer isPay = 0;
                 if (expiredAt == null || expiredAt.isBefore(now)) {
                     newExpiredAt = now.plusSeconds((long)(taskLogDto.getDays() * 24 * 60 * 60));
                 } else {
                     newExpiredAt = expiredAt.plusSeconds((long)(taskLogDto.getDays() * 24 * 60 * 60));
-                }
-                Integer isPay = 0;
-                if(userOp.get().getIsPay()!=null && userOp.get().getIsPay()==1){
-                    isPay = 1;
+                    if(userOp.get().getIsPay()!=null && userOp.get().getIsPay()!=0){
+                        isPay = userOp.get().getIsPay();
+                    }
                 }
                 wxuserService.updateVipExpired(userOp.get().getId(), newExpiredAt,isPay);
             }

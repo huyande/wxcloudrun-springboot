@@ -335,4 +335,9 @@
         GROUP BY day
     </select>
 
+    <delete id="deleteBySeasonIdAndReamrk">
+        DELETE FROM season_point_logs
+        WHERE seasonId = #{seasonId} and mid=#{mid} and type=${type} and remark=#{remark}
+    </delete>
+
 </mapper> 

@@ -289,4 +289,6 @@ public interface SeasonPointLogMapper {
     List<Map<String, Object>> getPointlogCurrentDayDetail(@Param("seasonId")Long seasonId, @Param("mid")Integer mid, @Param("day")String day);
 
     List<Map<String, Object>> getPointLogsByMidAndSpecificMonth(@Param("mid")Integer mid, @Param("yearMonth")String yearMonth, @Param("seasonId")Long seasonId);
+
+    void deleteBySeasonIdAndReamrk(@Param("seasonId")Long seasonId, @Param("remark")String remark,@Param("mid")Integer mid,@Param("type")Integer type);
 }

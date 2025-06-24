@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.CourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.Course">
+        <id column="id" property="id"/>
+        <result column="mid" property="mid"/>
+        <result column="name" property="name"/>
+        <result column="total_lessons" property="totalLessons"/>
+        <result column="start_date" property="startDate"/>
+        <result column="weekdays" property="weekdays"/>
+        <result column="teacher" property="teacher"/>
+        <result column="location" property="location"/>
+        <result column="points_enabled" property="pointsEnabled"/>
+        <result column="points_per_lesson" property="pointsPerLesson"/>
+        <result column="notes" property="notes"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="completed_lessons" property="completedLessons"/>
+        <result column="remaining_lessons" property="remainingLessons"/>
+        <result column="progress" property="progress"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, mid, name, total_lessons, start_date, weekdays, teacher, location, 
+        points_enabled, points_per_lesson, notes, created_at, updated_at
+    </sql>
+
+    <insert id="insertOne" parameterType="com.tencent.wxcloudrun.model.Course" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO courses (
+            mid, name, total_lessons, start_date, weekdays, teacher, location, 
+            points_enabled, points_per_lesson, notes, created_at, updated_at
+        ) VALUES (
+            #{mid}, #{name}, #{totalLessons}, #{startDate}, #{weekdays}, #{teacher}, #{location},
+            #{pointsEnabled}, #{pointsPerLesson}, #{notes}, NOW(), NOW()
+        )
+    </insert>
+
+    <select id="getCoursesByMid" resultMap="BaseResultMap">
+        SELECT 
+            c.*,
+            COALESCE(cl.completed_lessons, 0) as completed_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    GREATEST(0, c.total_lessons - COALESCE(cl.completed_lessons, 0))
+                ELSE 0 
+            END as remaining_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    ROUND((COALESCE(cl.completed_lessons, 0) * 100.0 / c.total_lessons), 2)
+                ELSE 0 
+            END as progress
+        FROM courses c
+        LEFT JOIN (
+            SELECT course_id, COUNT(*) as completed_lessons
+            FROM course_logs
+            GROUP BY course_id
+        ) cl ON c.id = cl.course_id
+        WHERE c.mid = #{mid}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="getCourseById" resultMap="BaseResultMap">
+        SELECT 
+            c.*,
+            COALESCE(cl.completed_lessons, 0) as completed_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    GREATEST(0, c.total_lessons - COALESCE(cl.completed_lessons, 0))
+                ELSE 0 
+            END as remaining_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    ROUND((COALESCE(cl.completed_lessons, 0) * 100.0 / c.total_lessons), 2)
+                ELSE 0 
+            END as progress
+        FROM courses c
+        LEFT JOIN (
+            SELECT course_id, COUNT(*) as completed_lessons
+            FROM course_logs
+            WHERE course_id = #{id}
+            GROUP BY course_id
+        ) cl ON c.id = cl.course_id
+        WHERE c.id = #{id}
+    </select>
+
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.Course">
+        UPDATE courses SET
+            name = #{name},
+            total_lessons = #{totalLessons},
+            start_date = #{startDate},
+            weekdays = #{weekdays},
+            teacher = #{teacher},
+            location = #{location},
+            points_enabled = #{pointsEnabled},
+            points_per_lesson = #{pointsPerLesson},
+            notes = #{notes},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM courses WHERE id = #{id}
+    </delete>
+
+    <select id="getCompletedLessonsByCourseId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM course_logs WHERE course_id = #{courseId}
+    </select>
+
+    <select id="getCoursesWithStatsByMid" resultMap="BaseResultMap">
+        SELECT 
+            c.*,
+            COALESCE(cl.completed_lessons, 0) as completed_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    GREATEST(0, c.total_lessons - COALESCE(cl.completed_lessons, 0))
+                ELSE 0 
+            END as remaining_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    ROUND((COALESCE(cl.completed_lessons, 0) * 100.0 / c.total_lessons), 2)
+                ELSE 0 
+            END as progress
+        FROM courses c
+        LEFT JOIN (
+            SELECT course_id, COUNT(*) as completed_lessons
+            FROM course_logs
+            GROUP BY course_id
+        ) cl ON c.id = cl.course_id
+        WHERE c.mid = #{mid}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="searchCoursesByKeyword" resultMap="BaseResultMap">
+        SELECT 
+            c.*,
+            COALESCE(cl.completed_lessons, 0) as completed_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    GREATEST(0, c.total_lessons - COALESCE(cl.completed_lessons, 0))
+                ELSE 0 
+            END as remaining_lessons,
+            CASE 
+                WHEN c.total_lessons > 0 THEN 
+                    ROUND((COALESCE(cl.completed_lessons, 0) * 100.0 / c.total_lessons), 2)
+                ELSE 0 
+            END as progress
+        FROM courses c
+        LEFT JOIN (
+            SELECT course_id, COUNT(*) as completed_lessons
+            FROM course_logs
+            GROUP BY course_id
+        ) cl ON c.id = cl.course_id
+        WHERE c.mid = #{mid}
+        AND (c.name LIKE CONCAT('%', #{keyword}, '%') 
+             OR c.teacher LIKE CONCAT('%', #{keyword}, '%')
+             OR c.location LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY c.created_at DESC
+    </select>
+
+</mapper> 

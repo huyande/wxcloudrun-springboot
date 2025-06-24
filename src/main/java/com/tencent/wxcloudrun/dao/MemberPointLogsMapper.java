@@ -157,4 +157,5 @@ public interface MemberPointLogsMapper {
      */
     Integer getCheckInCountBetweenDates(Integer mid, Integer ruleId, LocalDateTime startDate, LocalDateTime endDate);
 
+    void deleteByRemark(@Param("remark") String remark,@Param("mid")Integer mid,@Param("type")Integer type);
 }
