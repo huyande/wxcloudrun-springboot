@@ -36,7 +36,7 @@
     </select>
 
     <select id="getUserByFamilyCode"  resultMap="wxuserMapper" parameterType="java.lang.String">
-        SELECT `id`, `openid`, `role`, `name`,`familyCode`,`soundEnabled`,`animationEnabled`,`vipExpiredAt`,`createdAt`,`updatedAt` ,`vipSignInAt`
+        SELECT *
         FROM wx_users
         WHERE familyCode = #{familyCode}
     </select>
