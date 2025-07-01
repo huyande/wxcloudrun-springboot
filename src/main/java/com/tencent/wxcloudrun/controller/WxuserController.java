@@ -286,6 +286,17 @@ public class WxuserController {
     }
   }
 
+  /**
+   * 更新成员儿童模式信息
+   * @param familyRequest
+   * @return
+   */
+  @PutMapping("/set/childMode")
+  public ApiResponse childMode(@RequestBody FamilyRequest familyRequest){
+    Family family = wxuserService.setChildMode(familyRequest);
+    return ApiResponse.ok(family);
+  }
+
   @PutMapping("/family/isRead")
   public ApiResponse updateFamilyIsRead(@RequestBody FamilyRequest familyRequest) {
     try {

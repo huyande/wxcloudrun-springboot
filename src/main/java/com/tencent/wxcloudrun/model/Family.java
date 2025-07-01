@@ -10,4 +10,5 @@ public class Family {
     private String code;
     private Integer isRead;//只读 1 开启
     private Integer bindMid;
+    private String childMode;
 }

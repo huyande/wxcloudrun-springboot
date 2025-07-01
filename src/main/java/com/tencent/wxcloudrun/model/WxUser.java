@@ -24,11 +24,6 @@ public class WxUser implements Serializable {
 
   private LocalDateTime vipExpiredAt;//vip过期时间
 
-  //不映射数据库字段
-  private transient Boolean isVip;
-
-  private transient Integer isRead;
-
   //vip签到时间
   private LocalDateTime vipSignInAt;
 
@@ -38,4 +33,10 @@ public class WxUser implements Serializable {
 
   private LocalDateTime updatedAt;
   private Integer isPay;
+
+  //不映射数据库字段
+  private transient Boolean isVip;
+
+  private transient Integer isRead;
+  private transient String childMode;
 }

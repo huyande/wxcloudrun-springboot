@@ -22,4 +22,6 @@ public interface FamilyMapper {
     void updateIsReadByCodeAndUid(@Param("code") String code, @Param("uid") Integer uid, @Param("isRead") Integer isRead);
 
     Family findByCodeAndBindMid(@Param("code") String code, @Param("bindMid") Integer bindMid);
+
+    void updateChildModeById(@Param("id") Integer id, @Param("childMode") String childMode);
 }

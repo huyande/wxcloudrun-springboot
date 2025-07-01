@@ -25,4 +25,5 @@ public class Member implements Serializable {
     private transient Integer isRead;//是否已读
     private transient Integer bindMid;//绑定成员的id 
     private transient Integer currentUid;//成员自己的uid
+    private transient String childMode;//儿童模式
 }

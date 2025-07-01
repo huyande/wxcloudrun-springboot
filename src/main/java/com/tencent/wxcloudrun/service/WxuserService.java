@@ -55,4 +55,6 @@ public interface WxuserService {
   void updateVipExpired(Integer id, LocalDateTime newExpiredAt,Integer isPay);
 
   WxUser updateVipDay(VipDto vipDto);
+
+  Family setChildMode(FamilyRequest familyRequest);
 }

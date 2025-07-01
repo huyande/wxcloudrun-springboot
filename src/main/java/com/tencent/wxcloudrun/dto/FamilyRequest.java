@@ -10,4 +10,5 @@ public class FamilyRequest {
     private Integer uid;
     private Integer isRead;
     private Integer bindMid;
+    private String childMode;
 }

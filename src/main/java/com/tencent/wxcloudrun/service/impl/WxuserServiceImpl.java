@@ -223,4 +223,12 @@ public class WxuserServiceImpl implements WxuserService {
         return wxuserMapper.getUser(user.getOpenid());
     }
 
+    @Override
+    public Family setChildMode(FamilyRequest familyRequest) {
+        Family family = familyMapper.getOneByCodeAndUid(familyRequest.getCode(), familyRequest.getUid());
+        family.setChildMode(familyRequest.getChildMode());
+        familyMapper.updateChildModeById(family.getId(),familyRequest.getChildMode());
+        return family;
+    }
+
 }
