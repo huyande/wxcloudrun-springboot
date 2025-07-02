@@ -13,12 +13,13 @@
         <result column="remark" property="remark"/>
         <result column="pomodoroTime" property="pomodoroTime"/>
         <result column="conditionId" property="conditionId"/>
+        <result column="status" property="status"/>
         <result column="createdAt" property="createdAt"/>
         <result column="updatedAt" property="updatedAt"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, createdAt, updatedAt
+        id, seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId,status, createdAt, updatedAt
     </sql>
 
     <select id="getById" resultMap="seasonPointLogResultMap">
@@ -63,7 +64,7 @@
     <select id="getPointSumBySeasonIdAndMid" resultType="java.lang.Integer">
         SELECT SUM(num)
         FROM season_point_logs
-        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        WHERE seasonId = #{seasonId} AND mid = #{mid} and status=0
     </select>
 
     <select id="getPointDaysBySeasonIdAndMid" resultType="java.lang.Integer">
@@ -121,10 +122,10 @@
 
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonPointLog" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_point_logs (
-            seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, createdAt, updatedAt
+            seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, status,createdAt, updatedAt
         ) 
         VALUES (
-            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime},#{conditionId}, now(), now()
+            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime},#{conditionId},${status} now(), now()
         )
     </insert>
 

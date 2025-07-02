@@ -15,4 +15,5 @@ public class MemberPointLogsRequest {
     private String remark;
     private Integer pomodoroTime;//番茄时常
     private String conditionId; //完成条件的id
+    private Integer status;//状态 0 默认审核通过 1需要审核
 }

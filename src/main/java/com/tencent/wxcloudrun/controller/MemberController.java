@@ -391,6 +391,9 @@ return ApiResponse.ok(logs);
             if(memberPointLogs.getType() ==null){//设置积分类型是打卡
                 memberPointLogs.setType(0);
             }
+            if(memberPointLogs.getStatus()==null){
+                memberPointLogs.setStatus(0);
+            }
             //如果是赛季模式，则需要判断赛季是否开始和结束
             if(seasonId!=null){
                 SeasonConfig seasonConfig = seasonConfigService.getById(seasonId);

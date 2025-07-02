@@ -112,6 +112,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 existingLog.setUid(memberPointLogsRequest.getUid());
                 existingLog.setRemark(memberPointLogsRequest.getRemark());
                 existingLog.setConditionId(memberPointLogsRequest.getConditionId());
+                existingLog.setStatus(memberPointLogsRequest.getStatus());
                 seasonPointLogMapper.update(existingLog);
                 
                 if (expectedType.isAssignableFrom(SeasonPointLog.class)) {
@@ -129,6 +130,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 seasonPointLog.setDay(dateTime);
                 seasonPointLog.setMid(memberPointLogsRequest.getMid());
                 seasonPointLog.setUid(memberPointLogsRequest.getUid());
+                seasonPointLog.setStatus(memberPointLogsRequest.getStatus());
                 if(memberPointLogsRequest.getRuleId()!=null){
                     seasonPointLog.setRuleId(memberPointLogsRequest.getRuleId().longValue());
                 }
@@ -161,7 +163,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     return null;
                 }
                 //更新
-                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId());
+                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus());
                 if (expectedType.isAssignableFrom(MemberPointLogs.class)) {
                     return (T) log;
                 }
@@ -181,6 +183,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 memberPointLogs.setNum(memberPointLogsRequest.getNum());
                 memberPointLogs.setType(memberPointLogsRequest.getType());
                 memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
+                memberPointLogs.setStatus(memberPointLogsRequest.getStatus());
                 if(memberPointLogsRequest.getPomodoroTime()!=null){
                     memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }
@@ -235,6 +238,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 seasonLog.setNum(memberPointLogsRequest.getNum());
                 seasonLog.setUid(memberPointLogsRequest.getUid());
                 seasonLog.setRemark(memberPointLogsRequest.getRemark());
+                seasonLog.setStatus(memberPointLogsRequest.getStatus());
                 if(memberPointLogsRequest.getConditionId()!=null){
                     seasonLog.setConditionId(memberPointLogsRequest.getConditionId());
                 }
@@ -257,6 +261,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 seasonPointLog.setNum(memberPointLogsRequest.getNum());
                 seasonPointLog.setType(memberPointLogsRequest.getType());
                 seasonPointLog.setRemark(memberPointLogsRequest.getRemark());
+                seasonPointLog.setStatus(memberPointLogsRequest.getStatus());
                 if (memberPointLogsRequest.getPomodoroTime() != null) {
                     seasonPointLog.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }
@@ -298,7 +303,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     return res;
                 }
                 //更新
-                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId());
+                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus());
                 return res;
             }else{
                 if(memberPointLogsRequest.getNum()==0 && memberPointLogsRequest.getType()==0){
@@ -315,6 +320,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 memberPointLogs.setNum(memberPointLogsRequest.getNum());
                 memberPointLogs.setType(memberPointLogsRequest.getType());
                 memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
+                memberPointLogs.setStatus(memberPointLogsRequest.getStatus());
                 if(memberPointLogsRequest.getPomodoroTime()!=null){
                     memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }

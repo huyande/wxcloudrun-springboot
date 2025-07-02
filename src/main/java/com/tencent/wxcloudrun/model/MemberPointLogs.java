@@ -17,6 +17,7 @@ public class MemberPointLogs implements Serializable {
     private String remark; //备注
     private Integer pomodoroTime;//番茄时常
     private String conditionId; //配置完成条件积分的id
+    private Integer status;
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
