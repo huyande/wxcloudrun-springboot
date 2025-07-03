@@ -18,4 +18,5 @@ public class MemberRuleRequest {
     private Integer pomodoroTime;//番茄时常
     private Integer isAchievement;//是否开启成就奖励
     private String completionConditions; //完成条件配置
+    private Integer isTimerRule;
 }

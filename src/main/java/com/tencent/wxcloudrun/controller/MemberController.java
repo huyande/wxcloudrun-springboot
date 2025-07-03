@@ -254,6 +254,7 @@ public class MemberController {
                             ruleMap.put("content", rule.getContent());
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            ruleMap.put("isTimerRule",rule.getIsTimerRule());
                             if(rule.getCompletionConditions()!=null){
                                 ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
                             }else{
@@ -301,6 +302,7 @@ public class MemberController {
                             ruleMap.put("content", rule.getContent());
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
+                            ruleMap.put("isTimerRule",rule.getIsTimerRule());
                             if(rule.getCompletionConditions()!=null){
                                 ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
                             }else{

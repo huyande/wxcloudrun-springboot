@@ -90,6 +90,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             seasonRule.setPomodoroTime(memberRuleRequest.getPomodoroTime());
             seasonRule.setCompletionConditions(memberRuleRequest.getCompletionConditions());
             seasonRule.setStatus(1); // 默认激活
+            seasonRule.setIsTimerRule(memberRuleRequest.getIsTimerRule());
             if(memberRuleRequest.getIsAchievement() != null) {
                 // 如果SeasonRule有对应字段，需要进行设置
                 seasonRule.setIsAchievement(memberRuleRequest.getIsAchievement());
@@ -118,6 +119,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
             memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
             memberRules.setCompletionConditions(memberRuleRequest.getCompletionConditions());
+            memberRules.setIsTimerRule(memberRuleRequest.getIsTimerRule());
             if(memberRuleRequest.getIsAchievement()!=null){
                 memberRules.setIsAchievement(memberRuleRequest.getIsAchievement());
             }
@@ -209,6 +211,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             seasonRule.setPomodoroTime(memberRuleRequest.getPomodoroTime());
             seasonRule.setCompletionConditions(memberRuleRequest.getCompletionConditions());
             seasonRule.setUpdateTime(LocalDateTime.now());
+            seasonRule.setIsTimerRule(memberRuleRequest.getIsTimerRule());
             if(memberRuleRequest.getIsAchievement() != null) {
                 // 如果SeasonRule有对应字段，需要进行设置
                 seasonRule.setIsAchievement(memberRuleRequest.getIsAchievement());
@@ -232,6 +235,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             memberRules.setEnablePomodoro(memberRuleRequest.getEnablePomodoro());
             memberRules.setPomodoroTime(memberRuleRequest.getPomodoroTime());
             memberRules.setCompletionConditions(memberRuleRequest.getCompletionConditions());
+            memberRules.setIsTimerRule(memberRuleRequest.getIsTimerRule());
             if(memberRuleRequest.getIsAchievement()!=null){
                 memberRules.setIsAchievement(memberRuleRequest.getIsAchievement());
             }

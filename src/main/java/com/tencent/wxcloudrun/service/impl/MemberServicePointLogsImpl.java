@@ -163,7 +163,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     return null;
                 }
                 //更新
-                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus());
+                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus(),null);
                 if (expectedType.isAssignableFrom(MemberPointLogs.class)) {
                     return (T) log;
                 }
@@ -242,6 +242,10 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 if(memberPointLogsRequest.getConditionId()!=null){
                     seasonLog.setConditionId(memberPointLogsRequest.getConditionId());
                 }
+                //计时任务
+                if(seasonLog.getType()==5){
+                    seasonLog.setEndAt(LocalDateTime.now());
+                }
                 seasonPointLogMapper.update(seasonLog);
                 return res;
             } else {
@@ -262,6 +266,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 seasonPointLog.setType(memberPointLogsRequest.getType());
                 seasonPointLog.setRemark(memberPointLogsRequest.getRemark());
                 seasonPointLog.setStatus(memberPointLogsRequest.getStatus());
+                if(memberPointLogsRequest.getType()==5 && memberPointLogsRequest.getTimerRuleStatus().equals("start")){
+                    seasonPointLog.setStartAt(LocalDateTime.now());
+                }
                 if (memberPointLogsRequest.getPomodoroTime() != null) {
                     seasonPointLog.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }
@@ -302,8 +309,13 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     memberPointLogsMapper.delete(log.getId());
                     return res;
                 }
+                LocalDateTime endAt = null;
+                //计时任务
+                if(log.getType()==5){
+                    endAt = LocalDateTime.now();
+                }
                 //更新
-                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus());
+                memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus(),endAt);
                 return res;
             }else{
                 if(memberPointLogsRequest.getNum()==0 && memberPointLogsRequest.getType()==0){
@@ -321,6 +333,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 memberPointLogs.setType(memberPointLogsRequest.getType());
                 memberPointLogs.setRemark(memberPointLogsRequest.getRemark());
                 memberPointLogs.setStatus(memberPointLogsRequest.getStatus());
+                if(memberPointLogsRequest.getType()==5 && memberPointLogsRequest.getTimerRuleStatus().equals("start")){
+                    memberPointLogs.setStartAt(LocalDateTime.now());
+                }
                 if(memberPointLogsRequest.getPomodoroTime()!=null){
                     memberPointLogs.setPomodoroTime(memberPointLogsRequest.getPomodoroTime());
                 }

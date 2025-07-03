@@ -19,13 +19,14 @@
         <result column="pomodoroTime" property="pomodoroTime"/>
         <result column="isAchievement" property="isAchievement"/>
         <result column="completionConditions" property="completionConditions"/>
+        <result column="isTimerRule" property="isTimerRule"/>
         <result column="createTime" property="createTime"/>
         <result column="updateTime" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, seasonId, mId, name, type, typeSort, icon, iconType, weeks, content, sort, status, 
-        quickScore, enablePomodoro, pomodoroTime,isAchievement, completionConditions, createTime, updateTime
+        quickScore, enablePomodoro, pomodoroTime,isAchievement, completionConditions, isTimerRule,createTime, updateTime
     </sql>
 
     <select id="getById" resultMap="seasonRuleResultMap">
@@ -91,11 +92,11 @@
     <insert id="insert" parameterType="com.tencent.wxcloudrun.model.SeasonRule" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO season_rules (
             seasonId, mId, name, type, typeSort, icon, iconType, weeks, content, sort, status, 
-            quickScore, enablePomodoro, pomodoroTime, isAchievement, completionConditions, createTime, updateTime
+            quickScore, enablePomodoro, pomodoroTime, isAchievement, completionConditions,isTimerRule, createTime, updateTime
         )   
         VALUES (
             #{seasonId}, #{mId}, #{name}, #{type}, #{typeSort}, #{icon}, #{iconType}, #{weeks}, #{content}, 
-            #{sort}, #{status}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement}, #{completionConditions}, now(), now()
+            #{sort}, #{status}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement}, #{completionConditions},#{isTimerRule} now(), now()
         )
     </insert>
 
@@ -131,6 +132,7 @@
             <if test="pomodoroTime != null">pomodoroTime = #{pomodoroTime},</if> 
             <if test="isAchievement != null">isAchievement = #{isAchievement},</if>
             <if test="completionConditions != null">completionConditions = #{completionConditions},</if>
+            <if test="isTimerRule != null">isTimerRule = #{isTimerRule},</if>
             updateTime = now()
         </set>
         WHERE id = #{id}

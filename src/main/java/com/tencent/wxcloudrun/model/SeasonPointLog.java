@@ -19,6 +19,8 @@ public class SeasonPointLog implements Serializable {
     private Integer pomodoroTime; // 番茄时长
     private String conditionId; //配置完成条件积分的id
     private Integer status;
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

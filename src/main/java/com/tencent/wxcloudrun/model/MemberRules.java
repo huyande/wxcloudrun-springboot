@@ -25,4 +25,5 @@ public class MemberRules implements Serializable {
     private String completionConditions;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer isTimerRule;
 }

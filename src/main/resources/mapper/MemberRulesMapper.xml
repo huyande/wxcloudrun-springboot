@@ -19,43 +19,44 @@
         <result property="pomodoroTime" column="pomodoroTime"/>
         <result property="isAchievement" column="isAchievement"/>
         <result property="completionConditions" column="completionConditions"/>
+        <result property="isTimerRule" column="isTimerRule"/>
         <result property="createdAt" column="createdAt" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updatedAt" javaType="java.time.LocalDateTime"  />
     </resultMap>
 
     <select id="getRulesByMid" resultMap="memberRulesMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`,`isTimerRule` ,`createdAt`,`updatedAt`
         FROM member_rules
         WHERE mid = #{mId} and status=1 ORDER BY sort DESC
     </select>
 
     <select id="getRuleByNameAndMid" resultMap="memberRulesMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`,`isTimerRule` , `createdAt`,`updatedAt`
         FROM member_rules
         WHERE name = #{name} AND mid = #{mid}  and status=1 limit 1
     </select>
 
     <select id="getRuleByNameAndMids" resultMap="memberRulesMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`, `status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`, `status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`,`isTimerRule` , `createdAt`,`updatedAt`
         FROM member_rules
         WHERE name = #{name} AND mid = #{mid} and status=1
     </select>
 
     <select id="getRuleById" resultMap="memberRulesMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `isTimerRule` ,`createdAt`,`updatedAt`
         FROM member_rules
         WHERE id = #{id}
     </select>
 
     <select id="getActiveRulesByMid" resultMap="memberRulesMapper" parameterType="java.lang.Integer">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`,`isTimerRule` , `createdAt`,`updatedAt`
         FROM member_rules
         WHERE mid = #{mId} AND status = 1
         ORDER BY sort DESC
     </select>
     
     <select id="getLastSortByTypeAndMid" resultMap="memberRulesMapper" parameterType="java.util.Map">
-        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`, `createdAt`,`updatedAt`
+        SELECT `id`, `mid`, `name`, `type`, `typeSort`, `icon`, `iconType`,`weeks`,`content`,`sort`,`status`, `quickScore`, `enablePomodoro`, `pomodoroTime`, `isAchievement`, `completionConditions`,`isTimerRule` , `createdAt`,`updatedAt`
         FROM member_rules
         WHERE mid = #{mId} AND status = 1 and type=#{type}
         ORDER BY sort DESC limit 1
@@ -68,8 +69,8 @@
     </update>
 
     <insert id="insertOne"  useGeneratedKeys="true" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.MemberRules">
-        INSERT INTO `member_rules`(`name`,`type`, `typeSort`, `mid`,`icon`,`iconType`,`weeks`,`content`,`sort`,`quickScore`,`enablePomodoro`,`pomodoroTime`,`isAchievement`,`completionConditions`)
-        VALUE(#{name}, #{type}, #{typeSort}, #{mid}, #{icon}, #{iconType}, #{weeks}, #{content}, #{sort}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement},#{completionConditions})
+        INSERT INTO `member_rules`(`name`,`type`, `typeSort`, `mid`,`icon`,`iconType`,`weeks`,`content`,`sort`,`quickScore`,`enablePomodoro`,`pomodoroTime`,`isAchievement`,`completionConditions`,`isTimerRule`)
+        VALUE(#{name}, #{type}, #{typeSort}, #{mid}, #{icon}, #{iconType}, #{weeks}, #{content}, #{sort}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement},#{completionConditions},#{isTimerRule})
     </insert>
 
     <update id="swapRuleSort">
@@ -86,7 +87,7 @@
         SET name = #{name}, type = #{type}, typeSort = #{typeSort}, icon = #{icon}, iconType = #{iconType}, 
             weeks = #{weeks}, sort = #{sort}, status = #{status}, quickScore = #{quickScore}, 
             content = #{content}, enablePomodoro = #{enablePomodoro}, pomodoroTime = #{pomodoroTime},
-            isAchievement = #{isAchievement},completionConditions= #{completionConditions}
+            isAchievement = #{isAchievement},completionConditions= #{completionConditions},isTimerRule=${isTimerRule}
         WHERE id = #{id}
     </update>
 
