@@ -72,15 +72,18 @@ public class CourseLogServiceImpl implements CourseLogService {
                 seasonPointLog.setDay(dateTime);
                 seasonPointLog.setSeasonId(seasonId);
                 seasonPointLog.setType(4);
+                seasonPointLog.setStatus(0);
                 seasonPointLog.setMid(courseLogRequest.getMid());
                 seasonPointLog.setNum(course.getPointsPerLesson());
                 seasonPointLog.setRemark(courseLog.getId().toString());
+                seasonPointLogMapper.insert(seasonPointLog);
             }else{
                 MemberPointLogs memberPointLogs = new MemberPointLogs();
                 memberPointLogs.setDay(dateTime);
                 memberPointLogs.setMid(courseLogRequest.getMid());
                 memberPointLogs.setNum(course.getPointsPerLesson());
                 memberPointLogs.setType(4);
+                memberPointLogs.setStatus(0);
                 memberPointLogs.setRemark(courseLog.getId().toString());
                 memberPointLogsMapper.insertOne(memberPointLogs);
             }
