@@ -173,7 +173,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                     return null;
                 }
                 MemberPointLogs memberPointLogs = new MemberPointLogs();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
 
                 memberPointLogs.setDay(dateTime);
