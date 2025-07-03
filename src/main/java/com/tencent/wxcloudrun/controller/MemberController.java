@@ -1024,6 +1024,7 @@ return ApiResponse.ok(logs);
             memberPointLogs.setMid(mid);
             memberPointLogs.setType(3);
             memberPointLogs.setDay(currentTime);
+            memberPointLogs.setStatus(0);
             if(seasonId!=null){
                 SeasonPointLog result = memberPointLogsService.insert(memberPointLogs, seasonId, SeasonPointLog.class);
                 if (result != null) {
