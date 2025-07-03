@@ -127,7 +127,7 @@
             seasonId, day, mid, uid, ruleId, num, type, remark, pomodoroTime,conditionId, status,startAt,createdAt, updatedAt
         ) 
         VALUES (
-            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime},#{conditionId},${status},${startAt}, now(), now()
+            #{seasonId}, #{day}, #{mid}, #{uid}, #{ruleId}, #{num}, #{type}, #{remark}, #{pomodoroTime},#{conditionId},#{status},#{startAt},now(),now()
         )
     </insert>
 
@@ -341,7 +341,7 @@
 
     <delete id="deleteBySeasonIdAndReamrk">
         DELETE FROM season_point_logs
-        WHERE seasonId = #{seasonId} and mid=#{mid} and type=${type} and remark=#{remark}
+        WHERE seasonId = #{seasonId} and mid=#{mid} and type=#{type} and remark=#{remark}
     </delete>
 
 </mapper> 

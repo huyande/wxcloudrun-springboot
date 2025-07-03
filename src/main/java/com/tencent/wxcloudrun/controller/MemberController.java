@@ -1019,7 +1019,8 @@ return ApiResponse.ok(logs);
         try {
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String currentTime = LocalDateTime.now().format(formatter);
+            LocalDate today = LocalDate.now();
+            String currentTime = today.atStartOfDay().format(formatter);
             memberPointLogs.setMid(mid);
             memberPointLogs.setType(3);
             memberPointLogs.setDay(currentTime);

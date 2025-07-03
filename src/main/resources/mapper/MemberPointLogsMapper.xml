@@ -393,7 +393,7 @@
     <delete id="deleteByRemark">
         DELETE
         FROM member_point_logs
-        where mid=#{mid} and type=${type} and remark = #{remark}
+        where mid=#{mid} and type=#{type} and remark = #{remark}
     </delete>
 
 </mapper>

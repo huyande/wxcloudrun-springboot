@@ -87,7 +87,7 @@
         SET name = #{name}, type = #{type}, typeSort = #{typeSort}, icon = #{icon}, iconType = #{iconType}, 
             weeks = #{weeks}, sort = #{sort}, status = #{status}, quickScore = #{quickScore}, 
             content = #{content}, enablePomodoro = #{enablePomodoro}, pomodoroTime = #{pomodoroTime},
-            isAchievement = #{isAchievement},completionConditions= #{completionConditions},isTimerRule=${isTimerRule}
+            isAchievement = #{isAchievement},completionConditions= #{completionConditions},isTimerRule=#{isTimerRule}
         WHERE id = #{id}
     </update>
 
