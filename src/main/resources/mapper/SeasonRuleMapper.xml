@@ -96,7 +96,7 @@
         )   
         VALUES (
             #{seasonId}, #{mId}, #{name}, #{type}, #{typeSort}, #{icon}, #{iconType}, #{weeks}, #{content}, 
-            #{sort}, #{status}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement}, #{completionConditions},#{isTimerRule} now(), now()
+            #{sort}, #{status}, #{quickScore}, #{enablePomodoro}, #{pomodoroTime}, #{isAchievement}, #{completionConditions},#{isTimerRule},now(), now()
         )
     </insert>
 
