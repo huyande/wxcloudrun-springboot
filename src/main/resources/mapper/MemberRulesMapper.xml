@@ -121,4 +121,10 @@
         FROM member_rules 
         WHERE mid = #{mId} AND status = 1
     </select>
+
+    <update id="updateTypeSortByType">
+        UPDATE member_rules
+        SET typeSort = #{newTypeSort}
+        WHERE mid = #{mid} AND type = #{type} AND status = 1
+    </update>
 </mapper>

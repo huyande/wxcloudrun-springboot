@@ -563,6 +563,28 @@ return ApiResponse.ok(logs);
     }
 
     /**
+     * 交换两个分类的排序值
+     * @param mid 会员ID
+     * @param currentType 当前分类名称
+     * @param targetType 目标分类名称
+     * @return
+     */
+    @PutMapping("/rules/{mid}/swapTypeSort/{currentType}/{targetType}")
+    public ApiResponse swapTypeSort(
+            @PathVariable Integer mid,
+            @PathVariable String currentType, 
+            @PathVariable String targetType, 
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        try {
+            memberRulesService.swapTypeSort(mid, currentType, targetType, seasonId);
+            return ApiResponse.ok("交换分类排序成功");
+        } catch (Exception e) {
+            logger.error("交换分类排序失败", e);
+            return ApiResponse.error("交换分类排序失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 根据mid获取所有status=1的规则列表
      * @param mid
      * @return
@@ -930,7 +952,7 @@ return ApiResponse.ok(logs);
     @GetMapping("/rules/{mid}/types")
     public ApiResponse getRuleTypes(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-            List<Map<String, Integer>> types = memberRulesService.getRuleTypes(mid, seasonId);
+            List<Map<String, Object>> types = memberRulesService.getRuleTypes(mid, seasonId);
             return ApiResponse.ok(types);
         } catch (IllegalArgumentException e) {
             return ApiResponse.error("参数错误: " + e.getMessage());

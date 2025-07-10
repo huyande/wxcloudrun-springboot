@@ -111,7 +111,7 @@ public interface SeasonRuleMapper {
      * @param seasonId 赛季ID
      * @return 类型列表
      */
-    List<Map<String, Integer>> getRuleTypes(@Param("mId") Integer mId, @Param("seasonId") Long seasonId);
+    List<Map<String, Object>> getRuleTypes(@Param("mId") Integer mId, @Param("seasonId") Long seasonId);
     
     /**
      * 获取指定类型的最后一个规则（按排序）
@@ -130,4 +130,14 @@ public interface SeasonRuleMapper {
     int deleteBySeasonId(Long seasonId);
 
     int countActiveRulesBySeasonIdAndMid(@Param("seasonId")Long seasonId, @Param("mId")Integer mId);
+
+    /**
+     * 批量更新指定分类的typeSort值
+     * @param mId 会员ID
+     * @param seasonId 赛季ID
+     * @param type 分类名称
+     * @param newTypeSort 新的typeSort值
+     * @return 影响的行数
+     */
+    int updateTypeSortByType(@Param("mId") Integer mId, @Param("seasonId") Long seasonId, @Param("type") String type, @Param("newTypeSort") Integer newTypeSort);
 }

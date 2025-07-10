@@ -167,4 +167,10 @@
         WHERE mid = #{mId} AND seasonId = #{seasonId} and status = 1
     </select>
 
+    <update id="updateTypeSortByType">
+        UPDATE season_rules
+        SET typeSort = #{newTypeSort}, updateTime = now()
+        WHERE mId = #{mId} AND seasonId = #{seasonId} AND type = #{type} AND status = 1
+    </update>
+
 </mapper>

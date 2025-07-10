@@ -504,7 +504,7 @@ public class MemberServiceRulesImpl implements MemberRulesService {
      * 获取会员的所有规则分类（支持常规与赛季模式）
      */
     @Override
-    public List<Map<String, Integer>> getRuleTypes(Integer mid, Long seasonId) {
+    public List<Map<String, Object>> getRuleTypes(Integer mid, Long seasonId) {
         if (mid == null) {
             throw new IllegalArgumentException("会员ID不能为空");
         }
@@ -513,6 +513,55 @@ public class MemberServiceRulesImpl implements MemberRulesService {
             return seasonRuleMapper.getRuleTypes(mid, seasonId);
         } else {
             return memberRulesMapper.getRuleTypesByMid(mid);
+        }
+    }
+
+    /**
+     * 交换两个分类的排序值（支持常规与赛季模式）
+     */
+    @Override
+    public void swapTypeSort(Integer mid, String currentType, String targetType, Long seasonId) {
+        if (mid == null || currentType == null || targetType == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        
+        if (currentType.equals(targetType)) {
+            throw new IllegalArgumentException("不能交换相同的分类");
+        }
+        
+        // 获取当前分类的typeSort值
+        List<Map<String, Object>> types = getRuleTypes(mid, seasonId);
+        Integer currentTypeSort = null;
+        Integer targetTypeSort = null;
+        
+        for (Map<String, Object> typeInfo : types) {
+            String type = (String) typeInfo.get("type");
+            Integer typeSort = (Integer) typeInfo.get("typeSort");
+            
+            if (currentType.equals(type)) {
+                currentTypeSort = typeSort;
+            }
+            if (targetType.equals(type)) {
+                targetTypeSort = typeSort;
+            }
+        }
+        
+        if (currentTypeSort == null) {
+            throw new RuntimeException("当前分类不存在: " + currentType);
+        }
+        if (targetTypeSort == null) {
+            throw new RuntimeException("目标分类不存在: " + targetType);
+        }
+        
+        // 交换两个分类的typeSort值
+        if (seasonId != null) {
+            // 赛季模式：更新指定分类的所有规则的typeSort值
+            seasonRuleMapper.updateTypeSortByType(mid, seasonId, currentType, targetTypeSort);
+            seasonRuleMapper.updateTypeSortByType(mid, seasonId, targetType, currentTypeSort);
+        } else {
+            // 常规模式：更新指定分类的所有规则的typeSort值
+            memberRulesMapper.updateTypeSortByType(mid, currentType, targetTypeSort);
+            memberRulesMapper.updateTypeSortByType(mid, targetType, currentTypeSort);
         }
     }
 }

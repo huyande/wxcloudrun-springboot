@@ -155,5 +155,15 @@ public interface MemberRulesService {
      * @param seasonId 赛季ID，如果为null则获取常规规则分类
      * @return 分类列表
      */
-    List<Map<String, Integer>> getRuleTypes(Integer mid, Long seasonId);
+    List<Map<String, Object>> getRuleTypes(Integer mid, Long seasonId);
+
+    /**
+     * 交换两个分类的排序值
+     * 
+     * @param mid 会员ID
+     * @param currentType 当前分类名称
+     * @param targetType 目标分类名称
+     * @param seasonId 赛季ID，如果为null则交换常规规则分类
+     */
+    void swapTypeSort(Integer mid, String currentType, String targetType, Long seasonId);
 }

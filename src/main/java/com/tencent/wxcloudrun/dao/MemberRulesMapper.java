@@ -43,6 +43,15 @@ public interface MemberRulesMapper {
 
     int updateRuleTypeByMid(@Param("mid") Integer mid, @Param("oldType") String oldType, @Param("newType") String newType);
 
-    List<Map<String, Integer>> getRuleTypesByMid(@Param("mid") Integer mid);
+    List<Map<String, Object>> getRuleTypesByMid(@Param("mid") Integer mid);
+
+    /**
+     * 批量更新指定分类的typeSort值
+     * @param mid 会员ID
+     * @param type 分类名称
+     * @param newTypeSort 新的typeSort值
+     * @return 影响的行数
+     */
+    int updateTypeSortByType(@Param("mid") Integer mid, @Param("type") String type, @Param("newTypeSort") Integer newTypeSort);
 
 }
