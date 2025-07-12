@@ -8,6 +8,7 @@ import com.tencent.wxcloudrun.dto.MemberRequest;
 import com.tencent.wxcloudrun.dto.MemberRuleRequest;
 import com.tencent.wxcloudrun.model.*;
 import com.tencent.wxcloudrun.service.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -258,7 +259,7 @@ public class MemberController {
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
                             ruleMap.put("isTimerRule",rule.getIsTimerRule());
-                            if(rule.getCompletionConditions()!=null){
+                            if(rule.getCompletionConditions()!=null && !rule.getCompletionConditions().equals("")){
                                 ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
                             }else{
                                 ruleMap.put("completionConditions", null);
@@ -306,7 +307,7 @@ public class MemberController {
                             ruleMap.put("enablePomodoro", rule.getEnablePomodoro());
                             ruleMap.put("pomodoroTime", rule.getPomodoroTime());
                             ruleMap.put("isTimerRule",rule.getIsTimerRule());
-                            if(rule.getCompletionConditions()!=null){
+                            if(rule.getCompletionConditions()!=null && !rule.getCompletionConditions().equals("")){
                                 ruleMap.put("completionConditions", JSONUtil.parseArray(rule.getCompletionConditions()));
                             }else{
                                 ruleMap.put("completionConditions", null);
@@ -1373,8 +1374,10 @@ return ApiResponse.ok(logs);
                         Integer.parseInt(habitData.get("pomodoroTime").toString()) : null);
                     request.setIsAchievement(habitData.get("isAchievement") != null ? 
                         Integer.parseInt(habitData.get("isAchievement").toString()) : null);
-                    request.setCompletionConditions((String) habitData.get("completionConditions"));
-                    
+                    if(!StringUtils.isEmpty((String) habitData.get("completionConditions"))){
+                        request.setCompletionConditions((String) habitData.get("completionConditions"));
+                    }
+
                     // 创建规则
                     if (seasonId != null) {
                         SeasonRule createdRule = memberRulesService.insert(request, seasonId, SeasonRule.class);
