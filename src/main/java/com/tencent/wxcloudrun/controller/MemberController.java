@@ -31,6 +31,7 @@ public class MemberController {
     final MemberPointLogsService memberPointLogsService;
     final WishLogService wishLogService;
     final SeasonConfigService seasonConfigService;
+    final RuleAchievementService ruleAchievementService;
     final Logger logger;
 
     public MemberController(MemberService memberService,
@@ -38,13 +39,15 @@ public class MemberController {
                             MemberRulesService memberRulesService,
                             MemberPointLogsService memberPointLogsService,
                             WishLogService wishLogService,
-                            SeasonConfigService seasonConfigService) {
+                            SeasonConfigService seasonConfigService,
+                            RuleAchievementService ruleAchievementService) {
         this.memberService = memberService;
         this.wxuserService = wxuserService;
         this.memberRulesService = memberRulesService;
         this.memberPointLogsService = memberPointLogsService;
         this.wishLogService = wishLogService;
         this.seasonConfigService = seasonConfigService;
+        this.ruleAchievementService = ruleAchievementService;
         this.logger =  LoggerFactory.getLogger(MemberController.class);
     }
 
@@ -1168,6 +1171,328 @@ return ApiResponse.ok(logs);
         } catch (Exception e) {
             logger.error("批量导入规则失败", e);
             return ApiResponse.error("批量导入规则失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 导出习惯数据
+     * @param mid 成员ID
+     * @param seasonId 赛季ID（可选，为null时导出普通模式规则）
+     * @return 导出的习惯数据
+     */
+    @GetMapping("/export/habits/{mid}")
+    public ApiResponse exportHabits(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        try {
+            List<Map<String, Object>> exportData = new ArrayList<>();
+            
+            if (seasonId != null) {
+                // 导出赛季模式规则
+                List<SeasonRule> seasonRules = memberRulesService.getActiveRulesByMid(mid, seasonId, SeasonRule.class);
+                
+                for (SeasonRule rule : seasonRules) {
+                    Map<String, Object> ruleData = new HashMap<>();
+                    ruleData.put("name", rule.getName());
+                    ruleData.put("type", rule.getType());
+                    ruleData.put("icon", rule.getIcon());
+                    ruleData.put("iconType", rule.getIconType());
+                    ruleData.put("weeks", rule.getWeeks());
+                    ruleData.put("content", rule.getContent());
+                    ruleData.put("sort", rule.getSort());
+                    ruleData.put("quickScore", rule.getQuickScore());
+                    ruleData.put("typeSort", rule.getTypeSort());
+                    ruleData.put("enablePomodoro", rule.getEnablePomodoro());
+                    ruleData.put("pomodoroTime", rule.getPomodoroTime());
+                    ruleData.put("isAchievement", rule.getIsAchievement());
+                    ruleData.put("completionConditions", rule.getCompletionConditions());
+                    
+                    // 如果配置了成就，查询成就数据
+                    if (rule.getIsAchievement() != null && rule.getIsAchievement() == 1) {
+                        List<SeasonRuleAchievement> achievements = ruleAchievementService.getByRuleId(
+                            rule.getId().intValue(), seasonId, SeasonRuleAchievement.class);
+                        
+                        List<Map<String, Object>> achievementList = new ArrayList<>();
+                        for (SeasonRuleAchievement achievement : achievements) {
+                            Map<String, Object> achievementData = new HashMap<>();
+                            achievementData.put("title", achievement.getTitle());
+                            achievementData.put("img", achievement.getImg());
+                            achievementData.put("conditionType", achievement.getConditionType());
+                            achievementData.put("conditionValue", achievement.getConditionValue());
+                            achievementData.put("conditionDesc", achievement.getConditionDesc());
+                            achievementData.put("rewardType", achievement.getRewardType());
+                            achievementData.put("rewardValue", achievement.getRewardValue());
+                            achievementList.add(achievementData);
+                        }
+                        ruleData.put("achievements", achievementList);
+                    } else {
+                        ruleData.put("achievements", new ArrayList<>());
+                    }
+                    
+                    exportData.add(ruleData);
+                }
+            } else {
+                // 导出普通模式规则
+                List<MemberRules> memberRules = memberRulesService.getActiveRulesByMid(mid, null, MemberRules.class);
+                
+                for (MemberRules rule : memberRules) {
+                    Map<String, Object> ruleData = new HashMap<>();
+                    ruleData.put("name", rule.getName());
+                    ruleData.put("type", rule.getType());
+                    ruleData.put("icon", rule.getIcon());
+                    ruleData.put("iconType", rule.getIconType());
+                    ruleData.put("weeks", rule.getWeeks());
+                    ruleData.put("content", rule.getContent());
+                    ruleData.put("sort", rule.getSort());
+                    ruleData.put("quickScore", rule.getQuickScore());
+                    ruleData.put("typeSort", rule.getTypeSort());
+                    ruleData.put("enablePomodoro", rule.getEnablePomodoro());
+                    ruleData.put("pomodoroTime", rule.getPomodoroTime());
+                    ruleData.put("isAchievement", rule.getIsAchievement());
+                    ruleData.put("completionConditions", rule.getCompletionConditions());
+                    
+                    // 如果配置了成就，查询成就数据
+                    if (rule.getIsAchievement() != null && rule.getIsAchievement() == 1) {
+                        List<RuleAchievement> achievements = ruleAchievementService.getByRuleId(
+                            rule.getId(), null, RuleAchievement.class);
+                        
+                        List<Map<String, Object>> achievementList = new ArrayList<>();
+                        for (RuleAchievement achievement : achievements) {
+                            Map<String, Object> achievementData = new HashMap<>();
+                            achievementData.put("title", achievement.getTitle());
+                            achievementData.put("img", achievement.getImg());
+                            achievementData.put("conditionType", achievement.getConditionType());
+                            achievementData.put("conditionValue", achievement.getConditionValue());
+                            achievementData.put("conditionDesc", achievement.getConditionDesc());
+                            achievementData.put("rewardType", achievement.getRewardType());
+                            achievementData.put("rewardValue", achievement.getRewardValue());
+                            achievementList.add(achievementData);
+                        }
+                        ruleData.put("achievements", achievementList);
+                    } else {
+                        ruleData.put("achievements", new ArrayList<>());
+                    }
+                    
+                    exportData.add(ruleData);
+                }
+            }
+            
+            // 按类型和排序进行分组和排序
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", exportData.size());
+            result.put("mode", seasonId != null ? "season" : "normal");
+            result.put("exportTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            result.put("data", exportData);
+            
+            return ApiResponse.ok(result);
+        } catch (Exception e) {
+            logger.error("导出习惯数据失败", e);
+            return ApiResponse.error("导出习惯数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量导入习惯数据
+     * @param mid 目标成员ID
+     * @param requestMap 请求数据，包含habits数组，格式与导出数据相同
+     * @param seasonId 赛季ID（可选，为null时导入到普通模式）
+     * @return 导入结果
+     */
+    @PostMapping("/import/habits/{mid}")
+    public ApiResponse importHabits(@PathVariable Integer mid, 
+                                   @RequestBody Map<String, Object> requestMap,
+                                   @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> habitsData = (List<Map<String, Object>>) requestMap.get("data");
+            
+            if (habitsData == null || habitsData.isEmpty()) {
+                return ApiResponse.error("习惯数据不能为空");
+            }
+
+            List<MemberRuleRequest> memberRuleRequests = new ArrayList<>();
+            List<Map<String, Object>> createdRules = new ArrayList<>();
+            List<Map<String, Object>> importResults = new ArrayList<>();
+            
+            // 检查规则数量限制
+            int currentRuleCount = memberRulesService.countActiveRulesByMid(mid, seasonId);
+            if (currentRuleCount + habitsData.size() > 50) {
+                return ApiResponse.error("规则数量已达上限(50个)，当前有 " + currentRuleCount + " 个规则，无法导入 " + habitsData.size() + " 个新规则");
+            }
+            
+            // 处理每个习惯数据
+            for (Map<String, Object> habitData : habitsData) {
+                try {
+                    // 检查必要字段
+                    if (habitData.get("name") == null || habitData.get("type") == null) {
+                        continue;
+                    }
+                    
+                    String ruleName = (String) habitData.get("name");
+                    
+                    // 检查是否已存在同名规则
+                    if (seasonId != null) {
+                        SeasonRule existingRule = memberRulesService.getRuleByNameAndMid(ruleName, mid, seasonId, SeasonRule.class);
+                        if (existingRule != null) {
+                            Map<String, Object> skipResult = new HashMap<>();
+                            skipResult.put("name", ruleName);
+                            skipResult.put("status", "skipped");
+                            skipResult.put("reason", "规则已存在");
+                            importResults.add(skipResult);
+                            continue;
+                        }
+                    } else {
+                        MemberRules existingRule = memberRulesService.getRuleByNameAndMid(ruleName, mid, null, MemberRules.class);
+                        if (existingRule != null) {
+                            Map<String, Object> skipResult = new HashMap<>();
+                            skipResult.put("name", ruleName);
+                            skipResult.put("status", "skipped");
+                            skipResult.put("reason", "规则已存在");
+                            importResults.add(skipResult);
+                            continue;
+                        }
+                    }
+                    
+                    // 创建 MemberRuleRequest
+                    MemberRuleRequest request = new MemberRuleRequest();
+                    request.setMid(mid);
+                    request.setName(ruleName);
+                    request.setType((String) habitData.get("type"));
+                    request.setIcon((String) habitData.get("icon"));
+                    request.setIconType(habitData.get("iconType") != null ? 
+                        Integer.parseInt(habitData.get("iconType").toString()) : null);
+                    request.setWeeks((String) habitData.get("weeks"));
+                    request.setContent((String) habitData.get("content"));
+                    request.setSort(habitData.get("sort") != null ? 
+                        Integer.parseInt(habitData.get("sort").toString()) : 0);
+                    request.setQuickScore(habitData.get("quickScore") != null ? 
+                        Integer.parseInt(habitData.get("quickScore").toString()) : null);
+                    request.setTypeSort(habitData.get("typeSort") != null ? 
+                        Integer.parseInt(habitData.get("typeSort").toString()) : null);
+                    request.setEnablePomodoro(habitData.get("enablePomodoro") != null ? 
+                        Integer.parseInt(habitData.get("enablePomodoro").toString()) : null);
+                    request.setPomodoroTime(habitData.get("pomodoroTime") != null ? 
+                        Integer.parseInt(habitData.get("pomodoroTime").toString()) : null);
+                    request.setIsAchievement(habitData.get("isAchievement") != null ? 
+                        Integer.parseInt(habitData.get("isAchievement").toString()) : null);
+                    request.setCompletionConditions((String) habitData.get("completionConditions"));
+                    
+                    // 创建规则
+                    if (seasonId != null) {
+                        SeasonRule createdRule = memberRulesService.insert(request, seasonId, SeasonRule.class);
+                        
+                        // 处理成就数据
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> achievements = (List<Map<String, Object>>) habitData.get("achievements");
+                        if (achievements != null && !achievements.isEmpty() && request.getIsAchievement() != null && request.getIsAchievement() == 1) {
+                            List<Map<String, Object>> createdAchievements = new ArrayList<>();
+                            for (Map<String, Object> achievementData : achievements) {
+                                SeasonRuleAchievement achievement = new SeasonRuleAchievement();
+                                achievement.setMId(mid);
+                                achievement.setSeasonId(seasonId);
+                                achievement.setRuleId(createdRule.getId().intValue());
+                                achievement.setTitle((String) achievementData.get("title"));
+                                achievement.setImg((String) achievementData.get("img"));
+                                achievement.setConditionType((String) achievementData.get("conditionType"));
+                                achievement.setConditionValue(achievementData.get("conditionValue") != null ? 
+                                    Integer.parseInt(achievementData.get("conditionValue").toString()) : null);
+                                achievement.setConditionDesc((String) achievementData.get("conditionDesc"));
+                                achievement.setRewardType((String) achievementData.get("rewardType"));
+                                achievement.setRewardValue(achievementData.get("rewardValue") != null ? 
+                                    Integer.parseInt(achievementData.get("rewardValue").toString()) : null);
+                                
+                                SeasonRuleAchievement createdAchievement = (SeasonRuleAchievement) ruleAchievementService.insert(achievement, seasonId);
+                                Map<String, Object> achievementResult = new HashMap<>();
+                                achievementResult.put("id", createdAchievement.getId());
+                                achievementResult.put("title", createdAchievement.getTitle());
+                                achievementResult.put("conditionType", createdAchievement.getConditionType());
+                                achievementResult.put("conditionValue", createdAchievement.getConditionValue());
+                                createdAchievements.add(achievementResult);
+                            }
+                            
+                            Map<String, Object> successResult = new HashMap<>();
+                            successResult.put("name", ruleName);
+                            successResult.put("status", "success");
+                            successResult.put("ruleId", createdRule.getId());
+                            successResult.put("achievements", createdAchievements);
+                            importResults.add(successResult);
+                        } else {
+                            Map<String, Object> successResult = new HashMap<>();
+                            successResult.put("name", ruleName);
+                            successResult.put("status", "success");
+                            successResult.put("ruleId", createdRule.getId());
+                            importResults.add(successResult);
+                        }
+                    } else {
+                        MemberRules createdRule = memberRulesService.insert(request, null, MemberRules.class);
+                        
+                        // 处理成就数据
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> achievements = (List<Map<String, Object>>) habitData.get("achievements");
+                        if (achievements != null && !achievements.isEmpty() && request.getIsAchievement() != null && request.getIsAchievement() == 1) {
+                            List<Map<String, Object>> createdAchievements = new ArrayList<>();
+                            for (Map<String, Object> achievementData : achievements) {
+                                RuleAchievement achievement = new RuleAchievement();
+                                achievement.setMId(mid);
+                                achievement.setRuleId(createdRule.getId());
+                                achievement.setTitle((String) achievementData.get("title"));
+                                achievement.setImg((String) achievementData.get("img"));
+                                achievement.setConditionType((String) achievementData.get("conditionType"));
+                                achievement.setConditionValue(achievementData.get("conditionValue") != null ? 
+                                    Integer.parseInt(achievementData.get("conditionValue").toString()) : null);
+                                achievement.setConditionDesc((String) achievementData.get("conditionDesc"));
+                                achievement.setRewardType((String) achievementData.get("rewardType"));
+                                achievement.setRewardValue(achievementData.get("rewardValue") != null ? 
+                                    Integer.parseInt(achievementData.get("rewardValue").toString()) : null);
+                                
+                                RuleAchievement createdAchievement = (RuleAchievement) ruleAchievementService.insert(achievement, null);
+                                Map<String, Object> achievementResult = new HashMap<>();
+                                achievementResult.put("id", createdAchievement.getId());
+                                achievementResult.put("title", createdAchievement.getTitle());
+                                achievementResult.put("conditionType", createdAchievement.getConditionType());
+                                achievementResult.put("conditionValue", createdAchievement.getConditionValue());
+                                createdAchievements.add(achievementResult);
+                            }
+                            
+                            Map<String, Object> successResult = new HashMap<>();
+                            successResult.put("name", ruleName);
+                            successResult.put("status", "success");
+                            successResult.put("ruleId", createdRule.getId());
+                            successResult.put("achievements", createdAchievements);
+                            importResults.add(successResult);
+                        } else {
+                            Map<String, Object> successResult = new HashMap<>();
+                            successResult.put("name", ruleName);
+                            successResult.put("status", "success");
+                            successResult.put("ruleId", createdRule.getId());
+                            importResults.add(successResult);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("导入单个习惯失败: " + habitData.get("name"), e);
+                    Map<String, Object> failResult = new HashMap<>();
+                    failResult.put("name", habitData.get("name"));
+                    failResult.put("status", "failed");
+                    failResult.put("reason", "导入失败: " + e.getMessage());
+                    importResults.add(failResult);
+                }
+            }
+            
+            // 统计结果
+            long successCount = importResults.stream().filter(r -> "success".equals(r.get("status"))).count();
+            long skippedCount = importResults.stream().filter(r -> "skipped".equals(r.get("status"))).count();
+            long failedCount = importResults.stream().filter(r -> "failed".equals(r.get("status"))).count();
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", habitsData.size());
+            result.put("success", successCount);
+            result.put("skipped", skippedCount);
+            result.put("failed", failedCount);
+            result.put("details", importResults);
+            result.put("importTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            
+            return ApiResponse.ok(result);
+        } catch (Exception e) {
+            logger.error("批量导入习惯数据失败", e);
+            return ApiResponse.error("批量导入习惯数据失败: " + e.getMessage());
         }
     }
 }

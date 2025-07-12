@@ -13,6 +13,7 @@ import com.tencent.wxcloudrun.model.SeasonWish;
 import com.tencent.wxcloudrun.model.SeasonWishLog;
 import com.tencent.wxcloudrun.model.Wish;
 import com.tencent.wxcloudrun.model.WishLog;
+import com.tencent.wxcloudrun.service.MemberPointLogsService;
 import com.tencent.wxcloudrun.service.WishLogService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class WishLogServiceImpl implements WishLogService {
     private final SeasonWishLogMapper seasonWishLogMapper;
     private final WishMapper wishMapper;
     private final SeasonWishMapper seasonWishMapper;
+
+    @Autowired
+    private MemberPointLogsService memberPointLogsService;
     // Assuming MemberPointLogsService is also needed for point checks, and it's already in controller
     // If MemberPointLogsService also becomes season-aware, it needs to be handled.
     // For now, assuming its getPointSum method will be adapted or called with seasonId.
@@ -163,6 +167,14 @@ public class WishLogServiceImpl implements WishLogService {
     @Override
     public CanWishExchangeDto canWishExchange(WishLogRequest request) {
         Wish wish = wishMapper.getById(request.getWid());
+        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(request.getWid(), null);
+
+        Integer pointSum = info.get("pointSum");
+        if(pointSum<request.getPoint()){
+            return new CanWishExchangeDto(false,"所剩积分不够兑换此心愿");
+        }
+
+
         String limitJson = wish.getExchangeLimit();
         // 1. 使用 Hutool 的 StrUtil.isBlank 判断，如果没配置或为空，则不限制
         if (StrUtil.isBlank(limitJson)) {
@@ -214,6 +226,14 @@ public class WishLogServiceImpl implements WishLogService {
     @Override
     public CanWishExchangeDto canSeasonWishExchange(WishLogRequest request,Long seasonId) {
         SeasonWish seasonWish = seasonWishMapper.getById(request.getWid().longValue());
+        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(request.getWid(), seasonId);
+
+        Integer pointSum = info.get("pointSum");
+        if(pointSum<request.getPoint()){
+            return new CanWishExchangeDto(false,"所剩积分不够兑换此心愿");
+        }
+
+
         String limitJson = seasonWish.getExchangeLimit();
         // 1. 使用 Hutool 的 StrUtil.isBlank 判断，如果没配置或为空，则不限制
         if (StrUtil.isBlank(limitJson)) {
