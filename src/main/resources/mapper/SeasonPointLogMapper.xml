@@ -211,6 +211,7 @@
         WHERE 
             seasonId = #{seasonId}
             AND mid = #{mid}
+            AND status = 0
             AND day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             DATE_FORMAT(day, '%Y-%m')
@@ -223,7 +224,7 @@
         SELECT SUM(num) as total
         FROM season_point_logs
         WHERE seasonId = #{seasonId}
-            AND mid = #{mid}
+            AND mid = #{mid} and status=0
             AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
@@ -294,6 +295,7 @@
             l.seasonId = #{seasonId}
             AND l.mid = #{mid}
             AND l.type = 0
+            AND l.status = 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             CASE 

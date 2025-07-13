@@ -298,6 +298,7 @@
             member_point_logs
         WHERE 
             mid = #{mid}
+            AND status = 0
             AND day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             DATE_FORMAT(day, '%Y-%m')
@@ -308,7 +309,7 @@
     <select id="getTotalPointsByDateRange" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT SUM(num) as total
         FROM member_point_logs
-        WHERE mid = #{mid}
+        WHERE mid = #{mid} AND status=0
             AND day BETWEEN #{startDate} AND #{endDate}
     </select>
     
@@ -369,6 +370,7 @@
         WHERE 
             l.mid = #{mid}
             AND l.type in (0,5)
+            AND l.status = 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             CASE 
