@@ -167,7 +167,7 @@ public class WishLogServiceImpl implements WishLogService {
     @Override
     public CanWishExchangeDto canWishExchange(WishLogRequest request) {
         Wish wish = wishMapper.getById(request.getWid());
-        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(request.getWid(), null);
+        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(wish.getMid(), null);
 
         Integer pointSum = info.get("pointSum");
         if(pointSum<request.getPoint()){
@@ -226,7 +226,7 @@ public class WishLogServiceImpl implements WishLogService {
     @Override
     public CanWishExchangeDto canSeasonWishExchange(WishLogRequest request,Long seasonId) {
         SeasonWish seasonWish = seasonWishMapper.getById(request.getWid().longValue());
-        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(request.getWid(), seasonId);
+        HashMap<String, Integer> info = memberPointLogsService.getPointInfoByMid(request.getMid(), seasonId);
 
         Integer pointSum = info.get("pointSum");
         if(pointSum<request.getPoint()){
