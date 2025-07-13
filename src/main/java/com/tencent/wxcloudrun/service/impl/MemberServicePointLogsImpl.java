@@ -283,7 +283,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 // 检查成就规则
                 // 注意：这里假设RuleAchievementService也已经支持了赛季功能
                 // 如果RuleAchievementService还没有支持赛季，这里需要相应调整
-                if (memberPointLogsRequest.getRuleId() != null && memberPointLogsRequest.getNum() > 0) {
+                if (memberPointLogsRequest.getRuleId() != null && memberPointLogsRequest.getNum() > 0 && memberPointLogsRequest.getStatus()==0) {
                     // 调用赛季版本的成就检查逻辑
                     List<SeasonRuleAchievement> rules = ruleAchievementService.checkAchievementRules(
                         memberPointLogsRequest.getRuleId(),
@@ -316,6 +316,12 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 }
                 //更新
                 memberPointLogsMapper.updateById(log.getId(), memberPointLogsRequest.getNum(), memberPointLogsRequest.getUid(),memberPointLogsRequest.getRemark(),memberPointLogsRequest.getConditionId(),memberPointLogsRequest.getStatus(),endAt);
+                if(memberPointLogsRequest.getRuleId()!=null && memberPointLogsRequest.getNum()>0 && memberPointLogsRequest.getStatus()==0){
+                    List<RuleAchievement> rules = ruleAchievementService.checkAchievementRules(memberPointLogsRequest.getRuleId(), memberPointLogsRequest.getMid(),memberPointLogsRequest.getRemark(), seasonId, RuleAchievement.class);
+                    if(rules!=null && rules.size()!=0){
+                        res.put("achievements",rules);
+                    }
+                }
                 return res;
             }else{
                 if(memberPointLogsRequest.getNum()==0 && memberPointLogsRequest.getType()==0){
@@ -344,7 +350,7 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 }
                 memberPointLogsMapper.insertOne(memberPointLogs);
                 res.put("log",memberPointLogs);
-                if(memberPointLogsRequest.getRuleId()!=null && memberPointLogsRequest.getNum()>0){
+                if(memberPointLogsRequest.getRuleId()!=null && memberPointLogsRequest.getNum()>0 && memberPointLogsRequest.getStatus()==0){
                     List<RuleAchievement> rules = ruleAchievementService.checkAchievementRules(memberPointLogsRequest.getRuleId(), memberPointLogsRequest.getMid(),memberPointLogsRequest.getRemark(), seasonId, RuleAchievement.class);
                     if(rules!=null && rules.size()!=0){
                         res.put("achievements",rules);
