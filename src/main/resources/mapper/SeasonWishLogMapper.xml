@@ -155,7 +155,7 @@
     <select id="getSumNumBySeasonIdAndMid" resultType="java.lang.Integer">
         SELECT IFNULL(SUM(point),0)
         FROM season_wish_logs
-        WHERE seasonId = #{seasonId} AND mid = #{mid}
+        WHERE seasonId = #{seasonId} AND mid = #{mid} AND status != -1
     </select>
     
     <select id="countUserExchanges" parameterType="java.util.Map" resultType="java.lang.Integer">
