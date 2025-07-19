@@ -140,6 +140,7 @@
             <if test="pomodoroTime != null">pomodoroTime = #{pomodoroTime},</if>
             <if test="conditionId != null">conditionId = #{conditionId},</if>
             <if test="endAt != null">endAt = #{endAt},</if>
+            <if test="status != null">status = #{status},</if>
             updatedAt = now()
         </set>
         WHERE id = #{id}
