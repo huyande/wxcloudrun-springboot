@@ -335,16 +335,33 @@
 
 
     <select id="getPointLogsByMidAndSpecificMonth" resultType="java.util.Map" parameterType="java.util.Map">
-        SELECT DATE_FORMAT(day,'%Y-%m-%d') as day
+        SELECT 
+            DATE_FORMAT(day, '%Y-%m-%d') as day,
+            SUM(num) as value
         FROM season_point_logs
-        WHERE mid = #{mid} and type=0 and seasonId = #{seasonId}
-          AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
-        GROUP BY day
+        WHERE mid = #{mid} 
+        AND seasonId = #{seasonId}
+        AND type = 0 
+        AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        GROUP BY DATE_FORMAT(day, '%Y-%m-%d')
+        ORDER BY day ASC
     </select>
 
     <delete id="deleteBySeasonIdAndReamrk">
         DELETE FROM season_point_logs
-        WHERE seasonId = #{seasonId} and mid=#{mid} and type=#{type} and remark=#{remark}
+        WHERE seasonId = #{seasonId} AND remark = #{remark} AND mid = #{mid} AND type = #{type}
     </delete>
+
+    <!-- 获取某赛季某成员某规则在指定日期范围内的积分总和 -->
+    <select id="getPointSumBySeasonIdMidRuleIdAndDateRange" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(num), 0)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} 
+        AND mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND status = 0
+        AND type = 0
+    </select>
 
 </mapper> 

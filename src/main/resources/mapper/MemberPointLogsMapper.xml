@@ -393,9 +393,19 @@
 
 
     <delete id="deleteByRemark">
-        DELETE
-        FROM member_point_logs
-        where mid=#{mid} and type=#{type} and remark = #{remark}
+        DELETE FROM member_point_logs
+        WHERE remark = #{remark} AND mid = #{mid} AND type = #{type}
     </delete>
+
+    <!-- 获取某成员某规则在指定日期范围内的积分总和 -->
+    <select id="getPointSumByMidRuleIdAndDateRange" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(num), 0)
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND ruleId = #{ruleId}
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND status = 0
+        AND type IN (0, 5)
+    </select>
 
 </mapper>

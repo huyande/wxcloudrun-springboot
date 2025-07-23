@@ -16,6 +16,7 @@ import com.tencent.wxcloudrun.model.RuleAchievementLog;
 import com.tencent.wxcloudrun.model.SeasonRuleAchievement;
 import com.tencent.wxcloudrun.model.SeasonRuleAchievementLog;
 import com.tencent.wxcloudrun.service.RuleAchievementService;
+import com.tencent.wxcloudrun.dto.AchievementStatusDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -343,5 +344,204 @@ public class RuleAchievementServiceImpl implements RuleAchievementService {
             maxConsecutiveDays = Math.max(maxConsecutiveDays, consecutiveDays);
         }
         return maxConsecutiveDays;
+    }
+    
+    @Override
+    public List<AchievementStatusDto> getAchievementStatusByRuleId(Integer ruleId, Integer mid, Long seasonId) {
+        List<AchievementStatusDto> result = new ArrayList<>();
+        
+        if (seasonId != null) {
+            // 赛季模式
+            List<SeasonRuleAchievement> achievements = seasonRuleAchievementMapper.getBySeasonIdAndRuleId(seasonId, ruleId);
+            
+            for (SeasonRuleAchievement achievement : achievements) {
+                AchievementStatusDto dto = new AchievementStatusDto();
+                
+                // 设置基本信息
+                dto.setId(achievement.getId());
+                dto.setRuleId(achievement.getRuleId());
+                dto.setTitle(achievement.getTitle());
+                dto.setImg(achievement.getImg());
+                dto.setConditionType(achievement.getConditionType());
+                dto.setConditionValue(achievement.getConditionValue());
+                dto.setConditionDesc(achievement.getConditionDesc());
+                dto.setRewardType(achievement.getRewardType());
+                dto.setRewardValue(achievement.getRewardValue());
+                
+                // 检查是否完成
+                SeasonRuleAchievementLog log = seasonRuleAchievementLogMapper.getBySeasonIdAndSraIdAndMid(seasonId, achievement.getId(), mid);
+                dto.setIsCompleted(log != null);
+                if (log != null) {
+                    dto.setCompletedAt(log.getCreatedAt());
+                }
+                
+                // 计算当前进度和剩余进度
+                calculateSeasonProgress(dto, achievement, mid, seasonId);
+                
+                result.add(dto);
+            }
+        } else {
+            // 常规模式
+            List<RuleAchievement> achievements = ruleAchievementMapper.getByRuleId(ruleId);
+            
+            for (RuleAchievement achievement : achievements) {
+                AchievementStatusDto dto = new AchievementStatusDto();
+                
+                // 设置基本信息
+                dto.setId(achievement.getId().longValue());
+                dto.setRuleId(achievement.getRuleId());
+                dto.setTitle(achievement.getTitle());
+                dto.setImg(achievement.getImg());
+                dto.setConditionType(achievement.getConditionType());
+                dto.setConditionValue(achievement.getConditionValue());
+                dto.setConditionDesc(achievement.getConditionDesc());
+                dto.setRewardType(achievement.getRewardType());
+                dto.setRewardValue(achievement.getRewardValue());
+                
+                // 检查是否完成
+                RuleAchievementLog log = ruleAchievementLogMapper.getByAchievementAndMember(achievement.getId(), mid);
+                dto.setIsCompleted(log != null);
+                if (log != null) {
+                    dto.setCompletedAt(log.getCreatedAt());
+                }
+                
+                // 计算当前进度和剩余进度
+                calculateRegularProgress(dto, achievement, mid);
+                
+                result.add(dto);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 计算赛季模式下的进度
+     */
+    private void calculateSeasonProgress(AchievementStatusDto dto, SeasonRuleAchievement achievement, Integer mid, Long seasonId) {
+        String conditionType = achievement.getConditionType();
+        Integer conditionValue = achievement.getConditionValue();
+        
+        switch (conditionType) {
+            case "连续":
+                Integer consecutiveDays = calculateConsecutiveCheckIns(mid, achievement.getRuleId(), conditionValue, seasonId);
+                dto.setCurrentProgress(consecutiveDays != null ? consecutiveDays : 0);
+                dto.setProgressDesc("当前连续" + dto.getCurrentProgress() + "天");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - dto.getCurrentProgress()));
+                    dto.setRemainingDesc("还需连续" + dto.getRemainingProgress() + "天");
+                }
+                break;
+                
+            case "累计":
+                Integer cumulativeCount = seasonPointLogMapper.getPointLogsCountBySeasonIdMidAndRuleId(seasonId, mid, achievement.getRuleId().longValue());
+                dto.setCurrentProgress(cumulativeCount != null ? cumulativeCount : 0);
+                dto.setProgressDesc("当前累计" + dto.getCurrentProgress() + "次");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - dto.getCurrentProgress()));
+                    dto.setRemainingDesc("还需" + dto.getRemainingProgress() + "次");
+                }
+                break;
+                
+            case "积分":
+                Map<String, Object> pointsData = seasonPointLogMapper.getPointSumBySeasonIdMidAndRuleId(seasonId, mid, achievement.getRuleId().longValue());
+                Integer pointsSum = 0;
+                if (pointsData != null && pointsData.get("pointSum") != null) {
+                    pointsSum = ((Number) pointsData.get("pointSum")).intValue();
+                }
+                dto.setCurrentProgress(pointsSum);
+                dto.setProgressDesc("当前累计" + pointsSum + "积分");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - pointsSum));
+                    dto.setRemainingDesc("还需" + dto.getRemainingProgress() + "积分");
+                }
+                break;
+                
+            case "备注":
+                if (achievement.getConditionDesc() != null) {
+                    dto.setCurrentProgress(dto.getIsCompleted() ? 1 : 0);
+                    dto.setProgressDesc(dto.getIsCompleted() ? "已匹配关键字" : "未匹配关键字");
+                    if (!dto.getIsCompleted()) {
+                        dto.setRemainingProgress(1);
+                        dto.setRemainingDesc("需要匹配关键字: " + achievement.getConditionDesc());
+                    }
+                } else {
+                    dto.setCurrentProgress(0);
+                    dto.setProgressDesc("无条件设置");
+                    dto.setRemainingProgress(0);
+                    dto.setRemainingDesc("无条件设置");
+                }
+                break;
+                
+            default:
+                dto.setCurrentProgress(0);
+                dto.setProgressDesc("未知条件类型");
+                dto.setRemainingProgress(0);
+                dto.setRemainingDesc("未知条件类型");
+                break;
+        }
+    }
+    
+    /**
+     * 计算常规模式下的进度
+     */
+    private void calculateRegularProgress(AchievementStatusDto dto, RuleAchievement achievement, Integer mid) {
+        String conditionType = achievement.getConditionType();
+        Integer conditionValue = achievement.getConditionValue();
+        
+        switch (conditionType) {
+            case "连续":
+                Integer consecutiveDays = calculateConsecutiveCheckIns(mid, achievement.getRuleId(), conditionValue, null);
+                dto.setCurrentProgress(consecutiveDays != null ? consecutiveDays : 0);
+                dto.setProgressDesc("当前连续" + dto.getCurrentProgress() + "天");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - dto.getCurrentProgress()));
+                    dto.setRemainingDesc("还需连续" + dto.getRemainingProgress() + "天");
+                }
+                break;
+                
+            case "累计":
+                Integer cumulativeCount = memberPointLogsMapper.getPointLogsCountByMidAndRuleId(mid, achievement.getRuleId());
+                dto.setCurrentProgress(cumulativeCount != null ? cumulativeCount : 0);
+                dto.setProgressDesc("当前累计" + dto.getCurrentProgress() + "次");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - dto.getCurrentProgress()));
+                    dto.setRemainingDesc("还需" + dto.getRemainingProgress() + "次");
+                }
+                break;
+                
+            case "积分":
+                Integer pointsSum = memberPointLogsMapper.getPointSumByMidAndRuleId(mid, achievement.getRuleId());
+                dto.setCurrentProgress(pointsSum != null ? pointsSum : 0);
+                dto.setProgressDesc("当前累计" + dto.getCurrentProgress() + "积分");
+                if (!dto.getIsCompleted()) {
+                    dto.setRemainingProgress(Math.max(0, conditionValue - dto.getCurrentProgress()));
+                    dto.setRemainingDesc("还需" + dto.getRemainingProgress() + "积分");
+                }
+                break;
+                
+            case "备注":
+                if (achievement.getConditionDesc() != null) {
+                    dto.setCurrentProgress(dto.getIsCompleted() ? 1 : 0);
+                    dto.setProgressDesc(dto.getIsCompleted() ? "已匹配关键字" : "未匹配关键字");
+                    if (!dto.getIsCompleted()) {
+                        dto.setRemainingProgress(1);
+                        dto.setRemainingDesc("需要匹配关键字: " + achievement.getConditionDesc());
+                    }
+                } else {
+                    dto.setCurrentProgress(0);
+                    dto.setProgressDesc("无条件设置");
+                    dto.setRemainingProgress(0);
+                    dto.setRemainingDesc("无条件设置");
+                }
+                break;
+                
+            default:
+                dto.setCurrentProgress(0);
+                dto.setProgressDesc("未知条件类型");
+                dto.setRemainingProgress(0);
+                dto.setRemainingDesc("未知条件类型");
+                break;
+        }
     }
 } 

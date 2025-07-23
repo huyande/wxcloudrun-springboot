@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.config.ApiResponse;
 import com.tencent.wxcloudrun.model.RuleAchievement;
 import com.tencent.wxcloudrun.model.SeasonRuleAchievement;
 import com.tencent.wxcloudrun.service.RuleAchievementService;
+import com.tencent.wxcloudrun.dto.AchievementStatusDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +50,14 @@ public class RuleAchievementController {
             List<RuleAchievement> list = ruleAchievementService.getByRuleId(ruleId, null, RuleAchievement.class);
             return ApiResponse.ok(list);
         }
+    }
+
+    @GetMapping("/rule/{ruleId}/status/{mid}")
+    public ApiResponse getAchievementStatusByRuleId(@RequestHeader(value = "X-Season-Id", required = false) Long seasonId,
+                                                   @PathVariable Integer ruleId,
+                                                   @PathVariable Integer mid) {
+        List<AchievementStatusDto> statusList = ruleAchievementService.getAchievementStatusByRuleId(ruleId, mid, seasonId);
+        return ApiResponse.ok(statusList);
     }
 
     @PostMapping

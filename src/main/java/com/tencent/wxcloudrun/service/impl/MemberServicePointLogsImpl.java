@@ -531,20 +531,99 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             // 直接调用SeasonPointLogMapper中的getStreakInfo方法，或自己计算
             Map<String, Integer> streakInfo = seasonPointLogMapper.getStreakInfo(seasonId, mid, ruleId.longValue());
             
-            // 如果Mapper中的实现不完整，这里可以补充计算
-            if (streakInfo == null) {
+            // 如果Mapper中的实现不完整或返回null，这里进行手动计算
+            if (streakInfo == null || !streakInfo.containsKey("currentStreak")) {
                 streakInfo = new HashMap<>();
                 streakInfo.put("currentStreak", 0);
-                streakInfo.put("longestStreak", 0);
+                
+                // 获取赛季的打卡记录，类似常规模式的逻辑
+                List<Map<String, Object>> records = seasonPointLogMapper.getCheckInLogsBySeasonIdAndMidAndRuleId(seasonId, mid, ruleId.longValue());
+                
+                if (records != null && !records.isEmpty()) {
+                    int currentStreak = 0;
+                    int currentCount = 0;
+                    LocalDateTime lastDate = null;
+
+                    // 计算当前连续天数，类似常规模式的逻辑
+                    for (int i = 0; i < records.size(); i++) {
+                        Map<String, Object> record = records.get(i);
+                        Object dayObj = record.get("day");
+                        LocalDateTime currentDate = null;
+                        
+                        // 处理不同的日期类型
+                        if (dayObj instanceof LocalDateTime) {
+                            currentDate = (LocalDateTime) dayObj;
+                        } else if (dayObj instanceof String) {
+                            try {
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                currentDate = LocalDateTime.parse((String) dayObj, formatter);
+                            } catch (Exception e) {
+                                // 尝试其他格式
+                                try {
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                    currentDate = LocalDate.parse((String) dayObj, formatter).atStartOfDay();
+                                } catch (Exception ex) {
+                                    continue; // 跳过格式错误的记录
+                                }
+                            }
+                        }
+                        
+                        if (currentDate == null) {
+                            continue; // 跳过无效记录
+                        }
+                        
+                        if (lastDate == null) {
+                            // 第一条记录
+                            currentCount = 1;
+                            lastDate = currentDate;
+                        } else {
+                            // 计算两个日期之间的天数差
+                            long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(currentDate, lastDate);
+                            
+                            if (daysBetween == 1) {
+                                // 日期连续
+                                currentCount++;
+                            } else {
+                                // 日期不连续，结束连续计数
+                                break;
+                            }
+                            lastDate = currentDate;
+                        }
+                    }
+
+                    // 检查最近的记录是否是今天或昨天，如果是则为当前连续天数
+                    if (records.size() > 0 && lastDate != null) {
+                        LocalDate today = LocalDate.now();
+                        LocalDate recordDate = lastDate.toLocalDate();
+                        long daysFromToday = java.time.temporal.ChronoUnit.DAYS.between(recordDate, today);
+                        
+                        // 如果最近的记录是今天或昨天，则为当前连续天数
+                        if (daysFromToday <= 1) {
+                            currentStreak = currentCount;
+                        } else {
+                            currentStreak = 0;
+                        }
+                    }
+                    
+                    streakInfo.put("currentStreak", currentStreak);
+                }
             }
             
             // 获取总积分和总记录数
             Map<String, Object> pointSumInfo = seasonPointLogMapper.getPointSumBySeasonIdMidAndRuleId(seasonId, mid, ruleId.longValue());
-            Integer totalPoints = pointSumInfo != null ? ((Number) pointSumInfo.get("point_sum")).intValue() : 0;
-            Integer totalRecords = seasonPointLogMapper.getPointLogsCountBySeasonIdMidAndRuleId(seasonId, mid, ruleId.longValue());
+            Integer totalPoints = pointSumInfo != null ? ((Number) pointSumInfo.get("pointSum")).intValue() : 0;
+            
+            // 获取当月该规则的积分
+            LocalDate now = LocalDate.now();
+            String currentMonth = now.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String monthStart = currentMonth + "-01";
+            String monthEnd = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            
+            Integer currentMonthPoints = seasonPointLogMapper.getPointSumBySeasonIdMidRuleIdAndDateRange(
+                seasonId, mid, ruleId.longValue(), monthStart, monthEnd);
             
             streakInfo.put("totalPoints", totalPoints);
-            streakInfo.put("totalRecords", totalRecords != null ? totalRecords : 0);
+            streakInfo.put("currentMonthPoints", currentMonthPoints != null ? currentMonthPoints : 0);
             
             return streakInfo;
         } else {
@@ -560,52 +639,61 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             }
 
             int currentStreak = 0;
-            int longestStreak = 0;
             int currentCount = 0;
             LocalDateTime lastDate = null;
 
-            // 计算当前连续天数和最长连续天数
+            // 计算当前连续天数，从最新记录开始向前计算
             for (int i = 0; i < records.size(); i++) {
                 LocalDateTime currentDate = records.get(i).getDay();
                 
                 if (lastDate == null) {
-                    // 第一条记录
+                    // 第一条记录（最新的记录）
                     currentCount = 1;
                     lastDate = currentDate;
                 } else {
-                    // 计算两个日期之间的天数差
+                    // 计算两个日期之间的天数差（注意：records已按日期倒序排列）
                     long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(currentDate, lastDate);
                     
                     if (daysBetween == 1) {
-                        // 日期连续
+                        // 日期连续（相差1天）
                         currentCount++;
+                        lastDate = currentDate;
                     } else {
-                        // 日期不连续，重新开始计数
-                        if (currentCount > longestStreak) {
-                            longestStreak = currentCount;
-                        }
-                        currentCount = 1;
+                        // 日期不连续，结束连续计数
+                        break;
                     }
-                    lastDate = currentDate;
                 }
             }
 
-            // 处理最后一段连续记录
-            if (currentCount > longestStreak) {
-                longestStreak = currentCount;
+            // 检查最新记录是否是今天或昨天，确定当前连续天数
+            if (records.size() > 0) {
+                LocalDate today = LocalDate.now();
+                LocalDate latestRecordDate = records.get(0).getDay().toLocalDate();
+                long daysFromToday = java.time.temporal.ChronoUnit.DAYS.between(latestRecordDate, today);
+                
+                // 如果最新记录是今天或昨天，则为当前连续天数；否则为0
+                if (daysFromToday <= 1) {
+                    currentStreak = currentCount;
+                } else {
+                    currentStreak = 0;
+                }
             }
-
-            // 当前连续天数就是第一段连续的天数
-            currentStreak = records.get(0).getDay().equals(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)) ? 
-                currentCount : 0;
+            
             // 计算总积分
             Integer totalPoints = memberPointLogsMapper.getPointSumByMidAndRuleId(mid, ruleId);
-            Integer totalRecords = memberPointLogsMapper.getPointLogsCountByMidAndRuleId(mid, ruleId);
+            
+            // 获取当月该规则的积分
+            LocalDate now = LocalDate.now();
+            String currentMonth = now.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String monthStart = currentMonth + "-01";
+            String monthEnd = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            
+            Integer currentMonthPoints = memberPointLogsMapper.getPointSumByMidRuleIdAndDateRange(
+                mid, ruleId, monthStart, monthEnd);
 
             result.put("currentStreak", currentStreak);
-            result.put("longestStreak", longestStreak);
-            result.put("totalPoints",totalPoints);
-            result.put("totalRecords",totalRecords);
+            result.put("totalPoints", totalPoints != null ? totalPoints : 0);
+            result.put("currentMonthPoints", currentMonthPoints != null ? currentMonthPoints : 0);
             
             return result;
         }

@@ -164,4 +164,17 @@ public interface MemberPointLogsMapper {
     Integer getCheckInCountBetweenDates(Integer mid, Integer ruleId, LocalDateTime startDate, LocalDateTime endDate);
 
     void deleteByRemark(@Param("remark") String remark,@Param("mid")Integer mid,@Param("type")Integer type);
+
+    /**
+     * 获取某成员某规则在指定日期范围内的积分总和
+     * @param mid 成员ID
+     * @param ruleId 规则ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 积分总和
+     */
+    Integer getPointSumByMidRuleIdAndDateRange(@Param("mid") Integer mid, 
+                                              @Param("ruleId") Integer ruleId,
+                                              @Param("startDate") String startDate, 
+                                              @Param("endDate") String endDate);
 }

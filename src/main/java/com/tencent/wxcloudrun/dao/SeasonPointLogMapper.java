@@ -291,4 +291,20 @@ public interface SeasonPointLogMapper {
     List<Map<String, Object>> getPointLogsByMidAndSpecificMonth(@Param("mid")Integer mid, @Param("yearMonth")String yearMonth, @Param("seasonId")Long seasonId);
 
     void deleteBySeasonIdAndReamrk(@Param("seasonId")Long seasonId, @Param("remark")String remark,@Param("mid")Integer mid,@Param("type")Integer type);
+
+    /**
+     * 获取某赛季某成员某规则在指定日期范围内的积分总和
+     * @param seasonId 赛季ID
+     * @param mid 成员ID
+     * @param ruleId 规则ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 积分总和
+     */
+    Integer getPointSumBySeasonIdMidRuleIdAndDateRange(
+            @Param("seasonId") Long seasonId,
+            @Param("mid") Integer mid,
+            @Param("ruleId") Long ruleId,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate);
 }
