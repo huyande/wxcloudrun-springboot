@@ -8,13 +8,16 @@ import com.tencent.wxcloudrun.dao.SeasonWishLogMapper;
 import com.tencent.wxcloudrun.dao.SeasonWishMapper;
 import com.tencent.wxcloudrun.dao.SeasonRuleAchievementLogMapper;
 import com.tencent.wxcloudrun.dao.SeasonRuleMapper;
+import com.tencent.wxcloudrun.dto.WeeklyReportDTO;
 import com.tencent.wxcloudrun.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 /**
@@ -373,6 +376,322 @@ public class StatisticsServiceImpl implements StatisticsService {
             result.put("data", typePointsData != null ? typePointsData : new ArrayList<>());
             return result;
         }
+    }
+
+    /**
+     * 获取成就周报
+     * 
+     * @param mid 会员ID
+     * @param reportDate 周报的指定日期
+     * @param seasonId 赛季ID
+     * @return 成就周报数据
+     */
+    @Override
+    public WeeklyReportDTO getWeeklyReport(Integer mid, LocalDate reportDate, Long seasonId) {
+        // 计算周的开始和结束日期（周一到周日）
+        LocalDate weekStart = reportDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate weekEnd = reportDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        
+        String startDateStr = weekStart.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String endDateStr = weekEnd.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
+        // 计算上周的开始和结束日期用于对比
+        LocalDate lastWeekStart = weekStart.minusWeeks(1);
+        LocalDate lastWeekEnd = weekEnd.minusWeeks(1);
+        String lastWeekStartStr = lastWeekStart.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String lastWeekEndStr = lastWeekEnd.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
+        WeeklyReportDTO report = new WeeklyReportDTO();
+        
+        // 设置日期范围
+        report.setDateRange(formatDateRange(weekStart, weekEnd));
+        
+        // 获取概览统计
+        WeeklyReportDTO.OverviewStats overview = getOverviewStats(mid, startDateStr, endDateStr, seasonId);
+        report.setOverview(overview);
+        
+        // 获取每日打卡趋势
+        List<WeeklyReportDTO.ChartData> dailyTrend = getDailyTrend(mid, weekStart, weekEnd, seasonId);
+        report.setDailyTrend(dailyTrend);
+        
+        // 获取任务类型分布
+        List<WeeklyReportDTO.ChartData> taskTypeDistribution = getTaskDistribution(mid, startDateStr, endDateStr, seasonId);
+        report.setTaskDistribution(taskTypeDistribution);
+        
+        // 生成总结文字
+        String summaryText = generateSummaryText(overview);
+        report.setSummaryText(summaryText);
+        
+        // 生成高光时刻
+        List<String> highlights = generateHighlights(mid, weekStart, weekEnd, overview, seasonId);
+        report.setHighlights(highlights);
+        
+        // 获取对比数据
+        WeeklyReportDTO.ComparisonStats comparison = getComparisonStats(mid, startDateStr, endDateStr, lastWeekStartStr, lastWeekEndStr, seasonId);
+        report.setComparison(comparison);
+        
+        return report;
+    }
+
+    /**
+     * 格式化日期范围
+     */
+    private String formatDateRange(LocalDate start, LocalDate end) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M月d日");
+        return String.format("%s - %s",
+                start.format(formatter), 
+                end.format(formatter));
+    }
+    
+    /**
+     * 获取概览统计数据
+     */
+    private WeeklyReportDTO.OverviewStats getOverviewStats(Integer mid, String startDate, String endDate, Long seasonId) {
+        WeeklyReportDTO.OverviewStats overview = new WeeklyReportDTO.OverviewStats();
+        
+        if (seasonId != null) {
+            // 赛季模式
+            // 打卡总次数
+            Integer totalCheckIns = seasonPointLogMapper.getCheckInTimesByDateRange(seasonId, mid, startDate, endDate);
+            overview.setTotalCheckIns(totalCheckIns != null ? totalCheckIns : 0);
+            
+            // 获得积分（num > 0的总和）
+            Integer pointsEarned = seasonPointLogMapper.getTotalPointsByDateRange(seasonId, mid, startDate, endDate);
+            overview.setPointsEarned(pointsEarned != null ? pointsEarned : 0);
+            
+            // 心愿消费积分
+            Integer wishPointsSpent = getSeasonWishPointsSpentByDateRange(seasonId, mid, startDate, endDate);
+            overview.setWishPointsSpent(wishPointsSpent != null ? wishPointsSpent : 0);
+            
+            // 惩罚扣分（需要新的查询方法）
+            Integer penaltyPointsLost = getSeasonPenaltyPointsByDateRange(seasonId, mid, startDate, endDate);
+            overview.setPenaltyPointsLost(penaltyPointsLost != null ? penaltyPointsLost : 0);
+            
+            // 活跃天数（需要新的查询方法）
+            Integer activeDays = getSeasonActiveDaysByDateRange(seasonId, mid, startDate, endDate);
+            overview.setActiveDays(activeDays != null ? activeDays : 0);
+            
+        } else {
+            // 常规模式
+            // 打卡总次数
+            Integer totalCheckIns = memberPointLogsMapper.getCheckInTimesByDateRange(mid, startDate, endDate);
+            overview.setTotalCheckIns(totalCheckIns != null ? totalCheckIns : 0);
+            
+            // 获得积分（num > 0的总和）
+            Integer pointsEarned = memberPointLogsMapper.getTotalPointsByDateRange(mid, startDate, endDate);
+            overview.setPointsEarned(pointsEarned != null ? pointsEarned : 0);
+            
+            // 心愿消费积分
+            Integer wishPointsSpent = wishLogMapper.getConsumedPointsByDateRange(mid, startDate, endDate);
+            overview.setWishPointsSpent(wishPointsSpent != null ? wishPointsSpent : 0);
+            
+            // 惩罚扣分（需要新的查询方法）
+            Integer penaltyPointsLost = getPenaltyPointsByDateRange(mid, startDate, endDate);
+            overview.setPenaltyPointsLost(penaltyPointsLost != null ? penaltyPointsLost : 0);
+            
+            // 活跃天数（需要新的查询方法）
+            Integer activeDays = getActiveDaysByDateRange(mid, startDate, endDate);
+            overview.setActiveDays(activeDays != null ? activeDays : 0);
+        }
+        
+        return overview;
+    }
+    
+    /**
+     * 获取每日打卡趋势数据
+     */
+    private List<WeeklyReportDTO.ChartData> getDailyTrend(Integer mid, LocalDate weekStart, LocalDate weekEnd, Long seasonId) {
+        List<WeeklyReportDTO.ChartData> dailyTrend = new ArrayList<>();
+        String[] dayNames = {"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+        
+        for (int i = 0; i < 7; i++) {
+            LocalDate currentDay = weekStart.plusDays(i);
+            String dayStr = currentDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            
+            Integer checkInCount = 0;
+            if (seasonId != null) {
+                checkInCount = seasonPointLogMapper.getCheckInTimesByDateRange(seasonId, mid, dayStr, dayStr);
+            } else {
+                checkInCount = memberPointLogsMapper.getCheckInTimesByDateRange(mid, dayStr, dayStr);
+            }
+            
+            dailyTrend.add(new WeeklyReportDTO.ChartData(dayNames[i], checkInCount != null ? checkInCount : 0));
+        }
+        
+        return dailyTrend;
+    }
+    
+    /**
+     * 获取任务类型分布数据
+     */
+    private List<WeeklyReportDTO.ChartData> getTaskDistribution(Integer mid, String startDate, String endDate, Long seasonId) {
+        List<WeeklyReportDTO.ChartData> taskTypeDistribution = new ArrayList<>();
+        
+        List<Map<String, Object>> typeData;
+        if (seasonId != null) {
+            typeData = seasonPointLogMapper.getCheckInTypePointsRatio(seasonId, mid, startDate, endDate);
+        } else {
+            typeData = memberPointLogsMapper.getCheckInTypePointsRatio(mid, startDate, endDate);
+        }
+        
+        if (typeData != null) {
+            for (Map<String, Object> type : typeData) {
+                String typeName = (String) type.get("name");
+                Integer count = ((Number) type.get("value")).intValue();
+                taskTypeDistribution.add(new WeeklyReportDTO.ChartData(typeName, count));
+            }
+        }
+        
+        return taskTypeDistribution;
+    }
+    
+    /**
+     * 生成总结文字
+     */
+    private String generateSummaryText(WeeklyReportDTO.OverviewStats overview) {
+        return String.format("本周孩子共打卡%d次，获得积分%d分，消费积分%d分，活跃%d天。", 
+                overview.getTotalCheckIns(),
+                overview.getPointsEarned(),
+                overview.getWishPointsSpent(),
+                overview.getActiveDays());
+    }
+    
+    /**
+     * 生成高光时刻
+     */
+    private List<String> generateHighlights(Integer mid, LocalDate weekStart, LocalDate weekEnd, WeeklyReportDTO.OverviewStats overview, Long seasonId) {
+        List<String> highlights = new ArrayList<>();
+        
+        // 连续打卡天数检测
+        if (overview.getActiveDays() >= 5) {
+            highlights.add("本周活跃天数达到" + overview.getActiveDays() + "天，真棒！");
+        }
+        
+        // 打卡次数里程碑
+        if (overview.getTotalCheckIns() >= 20) {
+            highlights.add("本周打卡超过20次，坚持就是胜利！");
+        } else if (overview.getTotalCheckIns() >= 10) {
+            highlights.add("本周打卡超过10次，保持良好习惯！");
+        }
+        
+        // 积分获得里程碑
+        if (overview.getPointsEarned() >= 100) {
+            highlights.add("本周获得积分超过100分，真是积分小达人！");
+        }
+        
+        // 如果没有特别的成就，至少给一个鼓励
+        if (highlights.isEmpty()) {
+            highlights.add("每一次打卡都是进步，继续加油！");
+        }
+        
+        return highlights;
+    }
+    
+    /**
+     * 获取对比数据
+     */
+    private WeeklyReportDTO.ComparisonStats getComparisonStats(Integer mid, String thisWeekStart, String thisWeekEnd, 
+                                                             String lastWeekStart, String lastWeekEnd, Long seasonId) {
+        WeeklyReportDTO.ComparisonStats comparison = new WeeklyReportDTO.ComparisonStats();
+        
+        // 本周数据
+        Integer thisWeekCheckIns, thisWeekPoints;
+        // 上周数据
+        Integer lastWeekCheckIns, lastWeekPoints;
+        
+        if (seasonId != null) {
+            thisWeekCheckIns = seasonPointLogMapper.getCheckInTimesByDateRange(seasonId, mid, thisWeekStart, thisWeekEnd);
+            thisWeekPoints = seasonPointLogMapper.getTotalPointsByDateRange(seasonId, mid, thisWeekStart, thisWeekEnd);
+            lastWeekCheckIns = seasonPointLogMapper.getCheckInTimesByDateRange(seasonId, mid, lastWeekStart, lastWeekEnd);
+            lastWeekPoints = seasonPointLogMapper.getTotalPointsByDateRange(seasonId, mid, lastWeekStart, lastWeekEnd);
+        } else {
+            thisWeekCheckIns = memberPointLogsMapper.getCheckInTimesByDateRange(mid, thisWeekStart, thisWeekEnd);
+            thisWeekPoints = memberPointLogsMapper.getTotalPointsByDateRange(mid, thisWeekStart, thisWeekEnd);
+            lastWeekCheckIns = memberPointLogsMapper.getCheckInTimesByDateRange(mid, lastWeekStart, lastWeekEnd);
+            lastWeekPoints = memberPointLogsMapper.getTotalPointsByDateRange(mid, lastWeekStart, lastWeekEnd);
+        }
+        
+        // 计算打卡次数对比
+        thisWeekCheckIns = thisWeekCheckIns != null ? thisWeekCheckIns : 0;
+        lastWeekCheckIns = lastWeekCheckIns != null ? lastWeekCheckIns : 0;
+        int checkInDiff = thisWeekCheckIns - lastWeekCheckIns;
+        String checkInTrend;
+        if (checkInDiff > 0) {
+            comparison.setCheckInsComparison("↑ " + checkInDiff + "次");
+            checkInTrend = WeeklyReportDTO.TrendStatus.UP;
+        } else if (checkInDiff < 0) {
+            comparison.setCheckInsComparison("↓ " + Math.abs(checkInDiff) + "次");
+            checkInTrend = WeeklyReportDTO.TrendStatus.DOWN;
+        } else {
+            comparison.setCheckInsComparison("→ 持平");
+            checkInTrend = WeeklyReportDTO.TrendStatus.EQUAL;
+        }
+        
+        // 计算积分对比
+        thisWeekPoints = thisWeekPoints != null ? thisWeekPoints : 0;
+        lastWeekPoints = lastWeekPoints != null ? lastWeekPoints : 0;
+        int pointsDiff = thisWeekPoints - lastWeekPoints;
+        String pointsTrend;
+        if (pointsDiff > 0) {
+            comparison.setPointsEarnedComparison("↑ " + pointsDiff + "分");
+            pointsTrend = WeeklyReportDTO.TrendStatus.UP;
+        } else if (pointsDiff < 0) {
+            comparison.setPointsEarnedComparison("↓ " + Math.abs(pointsDiff) + "分");
+            pointsTrend = WeeklyReportDTO.TrendStatus.DOWN;
+        } else {
+            comparison.setPointsEarnedComparison("→ 持平");
+            pointsTrend = WeeklyReportDTO.TrendStatus.EQUAL;
+        }
+        
+        // 计算整体趋势状态
+        String overallTrend;
+        if (checkInTrend.equals(pointsTrend)) {
+            // 两个趋势一致
+            overallTrend = checkInTrend;
+        } else {
+            // 两个趋势不一致，设为混合状态
+            overallTrend = WeeklyReportDTO.TrendStatus.MIXED;
+        }
+        comparison.setTrend(overallTrend);
+        
+        return comparison;
+    }
+    
+    // 以下方法需要新增到相应的Mapper中，现在先用临时实现
+    
+    /**
+     * 获取赛季模式下指定日期范围内的心愿消费积分
+     */
+    private Integer getSeasonWishPointsSpentByDateRange(Long seasonId, Integer mid, String startDate, String endDate) {
+        return seasonWishLogMapper.getConsumedPointsByDateRange(seasonId, mid, startDate, endDate);
+    }
+    
+    /**
+     * 获取赛季模式下指定日期范围内的惩罚扣分
+     */
+    private Integer getSeasonPenaltyPointsByDateRange(Long seasonId, Integer mid, String startDate, String endDate) {
+        return seasonPointLogMapper.getPenaltyPointsByDateRange(seasonId, mid, startDate, endDate);
+    }
+    
+    /**
+     * 获取赛季模式下指定日期范围内的活跃天数
+     */
+    private Integer getSeasonActiveDaysByDateRange(Long seasonId, Integer mid, String startDate, String endDate) {
+        return seasonPointLogMapper.getActiveDaysByDateRange(seasonId, mid, startDate, endDate);
+    }
+    
+    /**
+     * 获取常规模式下指定日期范围内的惩罚扣分
+     */
+    private Integer getPenaltyPointsByDateRange(Integer mid, String startDate, String endDate) {
+        return memberPointLogsMapper.getPenaltyPointsByDateRange(mid, startDate, endDate);
+    }
+    
+    /**
+     * 获取常规模式下指定日期范围内的活跃天数
+     */
+    private Integer getActiveDaysByDateRange(Integer mid, String startDate, String endDate) {
+        return memberPointLogsMapper.getActiveDaysByDateRange(mid, startDate, endDate);
     }
 
     // 赛季模式下：积分统计

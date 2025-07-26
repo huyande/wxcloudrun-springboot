@@ -307,4 +307,34 @@ public interface SeasonPointLogMapper {
             @Param("ruleId") Long ruleId,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate);
+
+    // ========== 周报功能新增查询方法 ==========
+
+    /**
+     * 获取赛季模式下指定时间范围内的惩罚扣分总数（所有num < 0的记录）
+     * 
+     * @param seasonId 赛季ID
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 惩罚扣分总数（绝对值）
+     */
+    Integer getPenaltyPointsByDateRange(@Param("seasonId") Long seasonId,
+                                       @Param("mid") Integer mid,
+                                       @Param("startDate") String startDate, 
+                                       @Param("endDate") String endDate);
+
+    /**
+     * 获取赛季模式下指定时间范围内的活跃天数（有打卡记录的不同日期数量）
+     * 
+     * @param seasonId 赛季ID
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 活跃天数
+     */
+    Integer getActiveDaysByDateRange(@Param("seasonId") Long seasonId,
+                                    @Param("mid") Integer mid,
+                                    @Param("startDate") String startDate, 
+                                    @Param("endDate") String endDate);
 }

@@ -73,7 +73,7 @@
         SELECT COUNT(DISTINCT DATE(day))
         FROM season_point_logs
         WHERE seasonId = #{seasonId} AND mid = #{mid}
-        AND type = 0 AND num > 0
+        AND type in(0,5) AND num > 0
     </select>
 
     <select id="getPointInfoBySeasonIdAndMid" resultType="java.util.Map">
@@ -197,7 +197,7 @@
           AND mid = #{mid} 
           AND ruleId = #{ruleId}
           AND day BETWEEN #{startDate} AND #{endDate} 
-          AND type = 0 AND num > 0 <!-- Assuming type=0 means check-in and num > 0 means valid check-in -->
+          AND type in (0,5) AND num > 0 <!-- Assuming type=0 means check-in and num > 0 means valid check-in -->
     </select>
 
     <!-- 从MemberPointLogsMapper.xml迁移的赛季相关方法，以MemberPointLogsMapper.xml中的实现为准 -->
@@ -235,7 +235,7 @@
         FROM season_point_logs
         WHERE seasonId = #{seasonId}
             AND mid = #{mid}
-            AND type = 0
+            AND type in (0,5)
             AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
@@ -245,7 +245,7 @@
         FROM season_point_logs
         WHERE seasonId = #{seasonId}
           AND mid = #{mid}
-          AND type = 0
+          AND type in (0,5)
           AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
@@ -261,7 +261,7 @@
         WHERE 
             l.seasonId = #{seasonId}
             AND l.mid = #{mid}
-            AND l.type = 0
+            AND l.type in (0,5)
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             l.ruleId, sr.name
@@ -295,7 +295,7 @@
         WHERE 
             l.seasonId = #{seasonId}
             AND l.mid = #{mid}
-            AND l.type = 0
+            AND l.type in (0,5)
             AND l.status = 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
@@ -310,7 +310,7 @@
     <select id="getLogsBySeasonIdMidAndDayAndRuleId" resultMap="seasonPointLogResultMap" parameterType="java.util.Map">
         SELECT <include refid="Base_Column_List"/>
         FROM season_point_logs
-        WHERE mid = #{mid} AND day = #{day} AND ruleId = #{ruleId} and type=0 and seasonId = #{seasonId}
+        WHERE mid = #{mid} AND day = #{day} AND ruleId = #{ruleId} and seasonId = #{seasonId}
     </select>
 
     <select id="getPointlogCurrentDayDetail" resultType="java.util.Map">
@@ -320,7 +320,7 @@
         FROM season_point_logs l
         JOIN season_rules r ON l.ruleId = r.id
         WHERE l.mid = #{mid} 
-        AND l.type = 0 and l.seasonId = #{seasonId}
+        AND l.type in (0,5) and l.seasonId = #{seasonId}
         AND DATE(l.day) = DATE(#{day})
         GROUP BY l.ruleId, r.name
         ORDER BY value DESC
@@ -341,7 +341,7 @@
         FROM season_point_logs
         WHERE mid = #{mid} 
         AND seasonId = #{seasonId}
-        AND type = 0 
+        AND type in (0,5)
         AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
         GROUP BY DATE_FORMAT(day, '%Y-%m-%d')
         ORDER BY day ASC
@@ -361,7 +361,32 @@
         AND ruleId = #{ruleId}
         AND day BETWEEN #{startDate} AND #{endDate}
         AND status = 0
-        AND type = 0
+        AND type in (0,5)
+    </select>
+
+    <!-- ========== 周报功能新增SQL查询 ========== -->
+
+    <!-- 获取赛季模式下指定时间范围内的惩罚扣分总数（所有num < 0的记录） -->
+    <select id="getPenaltyPointsByDateRange" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(ABS(num)), 0)
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} 
+        AND mid = #{mid} 
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND num &lt; 0
+        AND status = 0
+    </select>
+
+    <!-- 获取赛季模式下指定时间范围内的活跃天数（有打卡记录的不同日期数量） -->
+    <select id="getActiveDaysByDateRange" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(day))
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId} 
+        AND mid = #{mid} 
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND type in (0,5)
+        AND status = 0
+        AND num > 0
     </select>
 
 </mapper> 

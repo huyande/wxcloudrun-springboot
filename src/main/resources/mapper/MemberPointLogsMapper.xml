@@ -408,4 +408,27 @@
         AND type IN (0, 5)
     </select>
 
+    <!-- ========== 周报功能新增SQL查询 ========== -->
+
+    <!-- 获取指定时间范围内的惩罚扣分总数（所有num < 0的记录） -->
+    <select id="getPenaltyPointsByDateRange" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(ABS(num)), 0)
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND num &lt; 0
+        AND status = 0
+    </select>
+
+    <!-- 获取指定时间范围内的活跃天数（有打卡记录的不同日期数量） -->
+    <select id="getActiveDaysByDateRange" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT DATE(day))
+        FROM member_point_logs
+        WHERE mid = #{mid} 
+        AND day BETWEEN #{startDate} AND #{endDate}
+        AND type IN (0, 5)
+        AND status = 0
+        AND num > 0
+    </select>
+
 </mapper>

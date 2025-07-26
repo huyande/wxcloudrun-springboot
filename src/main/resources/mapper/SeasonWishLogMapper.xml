@@ -164,4 +164,14 @@
         WHERE wid = #{id} and seasonId = #{seasonId}
         AND createdAt  <![CDATA[ >= ]]> #{startTime}
     </select>
+
+    <!-- 获取赛季模式下指定时间范围内的心愿消费积分总数 -->
+    <select id="getConsumedPointsByDateRange" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(point), 0)
+        FROM season_wish_logs
+        WHERE seasonId = #{seasonId} 
+        AND mid = #{mid} 
+        AND createdAt BETWEEN #{startDate} AND #{endDate}
+        AND status = 1
+    </select>
 </mapper> 

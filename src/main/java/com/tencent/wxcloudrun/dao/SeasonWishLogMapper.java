@@ -152,4 +152,20 @@ public interface SeasonWishLogMapper {
     Integer getSumNumBySeasonIdAndMid(@Param("seasonId") Long seasonId, @Param("mid") Integer mid);
 
     int countUserExchanges(@Param("id")Long id, @Param("startTime")LocalDateTime startTime, @Param("seasonId")Long seasonId);
+
+    // ========== 周报功能新增查询方法 ==========
+
+    /**
+     * 获取赛季模式下指定时间范围内的心愿消费积分总数
+     * 
+     * @param seasonId 赛季ID
+     * @param mid 会员ID
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 心愿消费积分总数
+     */
+    Integer getConsumedPointsByDateRange(@Param("seasonId") Long seasonId,
+                                        @Param("mid") Integer mid,
+                                        @Param("startDate") String startDate, 
+                                        @Param("endDate") String endDate);
 }

@@ -80,23 +80,13 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
             
-            // 首先检查是否存在记录
-            List<SeasonPointLog> existingLogs = seasonPointLogMapper.getLogsBySeasonIdMidAndDateRange(
-                seasonId, 
-                memberPointLogsRequest.getMid(), 
-                dateTime, 
-                dateTime.plusDays(1).minusNanos(1)
+            // 检查是否存在记录
+            SeasonPointLog existingLog = seasonPointLogMapper.getLogsBySeasonIdMidAndDayAndRuleId(
+                memberPointLogsRequest.getDay(),
+                seasonId,
+                memberPointLogsRequest.getMid(),
+                memberPointLogsRequest.getRuleId()
             );
-            
-            SeasonPointLog existingLog = null;
-            if (existingLogs != null && !existingLogs.isEmpty()) {
-                for (SeasonPointLog log : existingLogs) {
-                    if (log.getRuleId() != null && log.getRuleId().equals(memberPointLogsRequest.getRuleId().longValue())) {
-                        existingLog = log;
-                        break;
-                    }
-                }
-            }
             
             if (existingLog != null) {
                 // 更新现有记录

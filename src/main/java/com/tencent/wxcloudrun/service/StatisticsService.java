@@ -1,5 +1,8 @@
 package com.tencent.wxcloudrun.service;
 
+import com.tencent.wxcloudrun.dto.WeeklyReportDTO;
+
+import java.time.LocalDate;
 import java.util.Map;
 
 /**
@@ -79,4 +82,15 @@ public interface StatisticsService {
      *         }
      */
     Map<String, Object> getCheckInTypePointsRatio(Integer mid, String startDate, String endDate, Long seasonId);
+    
+    /**
+     * 获取成就周报
+     * 生成一个可视化的、个性化的周报，展示孩子在指定周的任务类型分布、积分表现和成长轨迹
+     * 
+     * @param mid 会员ID
+     * @param reportDate 周报的指定日期，系统将计算包含该日期的周（周一至周日）
+     * @param seasonId 赛季ID，如果为null则使用常规数据
+     * @return 成就周报数据
+     */
+    WeeklyReportDTO getWeeklyReport(Integer mid, LocalDate reportDate, Long seasonId);
 } 
