@@ -98,5 +98,14 @@ public interface WishLogMapper {
                                                     @Param("endDate") String endDate,
                                                     @Param("limit") Integer limit);
 
+    /**
+     * 获取某日愿望消费积分统计
+     * 
+     * @param mid 会员ID
+     * @param day 日期
+     * @return 愿望消费积分统计
+     */
+    Map<String, Object> getDailyWishConsumption(@Param("mid") Integer mid, @Param("day") String day);
+
     int countUserExchanges(@Param("id") Integer id, @Param("startTime") LocalDateTime startTime);
 }

@@ -41,7 +41,7 @@
         SELECT <include refid="Base_Column_List"/>
         FROM season_point_logs
         WHERE seasonId = #{seasonId} AND mid = #{mid}
-        AND day BETWEEN #{startDateTime} AND #{endDateTime}
+        AND day BETWEEN #{startDateTime} AND #{endDateTime} AND status != -1
         ORDER BY createdAt DESC
     </select>
 
@@ -387,6 +387,35 @@
         AND type in (0,5)
         AND status = 0
         AND num > 0
+    </select>
+
+    <!-- 获取某赛季下某成员在指定日期范围内的每日积分总和（按天分组） -->
+    <select id="getDailyTotalPointsBySeasonIdMidAndDateRange" resultType="java.util.Map">
+        SELECT DATE(day) as day, SUM(num) as num
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+        AND mid = #{mid}
+        AND status = 0
+        AND day BETWEEN #{startDateTime} AND #{endDateTime}
+        GROUP BY DATE(day)
+        ORDER BY DATE(day) ASC
+    </select>
+
+    <!-- 按日期和类型统计赛季积分 -->
+    <select id="getDailyPointStatsByType" resultType="java.util.Map">
+        SELECT 
+            type,
+            SUM(CASE WHEN num <![CDATA[ > ]]> 0 THEN num ELSE 0 END) as earnedPoints,
+            SUM(CASE WHEN num <![CDATA[ < ]]> 0 THEN ABS(num) ELSE 0 END) as deductedPoints,
+            SUM(num) as totalPoints,
+            COUNT(*) as recordCount
+        FROM season_point_logs
+        WHERE seasonId = #{seasonId}
+        AND mid = #{mid}
+        AND DATE(day) = #{day}
+        AND status = 0
+        GROUP BY type
+        ORDER BY type ASC
     </select>
 
 </mapper> 

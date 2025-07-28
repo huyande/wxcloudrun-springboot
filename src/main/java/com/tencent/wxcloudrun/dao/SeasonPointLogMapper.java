@@ -293,7 +293,7 @@ public interface SeasonPointLogMapper {
     void deleteBySeasonIdAndReamrk(@Param("seasonId")Long seasonId, @Param("remark")String remark,@Param("mid")Integer mid,@Param("type")Integer type);
 
     /**
-     * 获取某赛季某成员某规则在指定日期范围内的积分总和
+     * 获取某赛季下某成员某规则在指定日期范围内的积分总和
      * @param seasonId 赛季ID
      * @param mid 成员ID
      * @param ruleId 规则ID
@@ -307,6 +307,33 @@ public interface SeasonPointLogMapper {
             @Param("ruleId") Long ruleId,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate);
+
+    /**
+     * 获取某赛季下某成员在指定日期范围内的每日积分总和（按天分组）
+     * @param seasonId 赛季ID
+     * @param mid 成员ID
+     * @param startDateTime 开始时间
+     * @param endDateTime 结束时间
+     * @return 每日积分总和列表
+     */
+    List<Map<String, Object>> getDailyTotalPointsBySeasonIdMidAndDateRange(
+            @Param("seasonId") Long seasonId,
+            @Param("mid") Integer mid,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime);
+
+    /**
+     * 按日期和类型统计赛季积分
+     * 
+     * @param seasonId 赛季ID
+     * @param mid 成员ID
+     * @param day 日期
+     * @return 按类型分组的积分统计
+     */
+    List<Map<String, Object>> getDailyPointStatsByType(
+            @Param("seasonId") Long seasonId,
+            @Param("mid") Integer mid,
+            @Param("day") String day);
 
     // ========== 周报功能新增查询方法 ==========
 

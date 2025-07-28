@@ -134,6 +134,26 @@ public interface MemberPointLogsService {
     List<Map<String, Object>> getMonthlyCheckInRecords(Integer mid, Integer ruleId, String yearMonth, Long seasonId);
     
     /**
+     * 获取月度每日积分总数
+     * 
+     * @param mid 会员ID
+     * @param yearMonth 年月（格式：yyyy-MM）
+     * @param seasonId 赛季ID，如果为null则获取常规数据
+     * @return 月度每日积分总数
+     */
+    List<Map<String, Object>> getMonthlyTotalPoints(Integer mid, String yearMonth, Long seasonId);
+
+    /**
+     * 获取某日积分统计（按类型分组）
+     * 
+     * @param mid 会员ID
+     * @param day 日期（格式：yyyy-MM-dd）
+     * @param seasonId 赛季ID，如果为null则获取常规数据
+     * @return 某日积分统计数据
+     */
+    Map<String, Object> getDailyPointStatistics(Integer mid, String day, Long seasonId);
+    
+    /**
      * 获取指定日期范围内的打卡记录
      * 
      * @param mid 会员ID

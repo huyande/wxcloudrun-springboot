@@ -168,4 +168,17 @@ public interface SeasonWishLogMapper {
                                         @Param("mid") Integer mid,
                                         @Param("startDate") String startDate, 
                                         @Param("endDate") String endDate);
+
+    /**
+     * 获取某日愿望消费积分统计（赛季模式）
+     * 
+     * @param seasonId 赛季ID
+     * @param mid 会员ID
+     * @param day 日期
+     * @return 愿望消费积分统计
+     */
+    Map<String, Object> getDailyWishConsumption(
+            @Param("seasonId") Long seasonId,
+            @Param("mid") Integer mid, 
+            @Param("day") String day);
 }

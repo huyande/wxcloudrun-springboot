@@ -174,4 +174,18 @@
         AND createdAt BETWEEN #{startDate} AND #{endDate}
         AND status = 1
     </select>
+
+    <!-- 获取某日愿望消费积分统计（赛季模式） -->
+    <select id="getDailyWishConsumption" resultType="java.util.Map">
+        SELECT 
+            COUNT(*) as exchangeCount,
+            COALESCE(SUM(point), 0) as totalPoints,
+            COUNT(DISTINCT wid) as uniqueWishes
+        FROM season_wish_logs
+        WHERE seasonId = #{seasonId}
+        AND mid = #{mid}
+        AND DATE(createdAt) = #{day}
+        AND status != -1
+    </select>
+
 </mapper> 

@@ -810,6 +810,46 @@ return ApiResponse.ok(logs);
     }
 
     /**
+     * 获取指定月份的每日积分总数
+     * @param mid 会员ID
+     * @param yearMonth 年月(格式：yyyy-MM)
+     * @return 每日积分总数列表
+     */
+    @GetMapping("/monthlyTotalPoints/{mid}")
+    public ApiResponse getMonthlyTotalPoints(
+            @PathVariable Integer mid,
+            @RequestParam String yearMonth,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        try {
+            List<Map<String, Object>> records = memberPointLogsService.getMonthlyTotalPoints(mid, yearMonth, seasonId);
+            return ApiResponse.ok(records);
+        } catch (Exception e) {
+            logger.error("获取月度每日积分总数失败", e);
+            return ApiResponse.error("获取月度每日积分总数失败");
+        }
+    }
+
+    /**
+     * 获取某日积分统计（按类型分组）
+     * @param mid 会员ID
+     * @param day 日期(格式：yyyy-MM-dd)
+     * @return 某日积分统计数据
+     */
+    @GetMapping("/dailyPointStats/{mid}")
+    public ApiResponse getDailyPointStatistics(
+            @PathVariable Integer mid,
+            @RequestParam String day,
+            @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
+        try {
+            Map<String, Object> statistics = memberPointLogsService.getDailyPointStatistics(mid, day, seasonId);
+            return ApiResponse.ok(statistics);
+        } catch (Exception e) {
+            logger.error("获取某日积分统计失败", e);
+            return ApiResponse.error("获取某日积分统计失败");
+        }
+    }
+
+    /**
      * 获取指定时间段内的打卡记录
      * @param mid 会员ID
      * @param ruleId 规则ID

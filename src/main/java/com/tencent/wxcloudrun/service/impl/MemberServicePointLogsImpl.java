@@ -744,6 +744,167 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
     }
 
     @Override
+    public List<Map<String, Object>> getMonthlyTotalPoints(Integer mid, String yearMonth, Long seasonId) {
+        // 构造日期范围
+        String startDate = yearMonth + "-01";
+        // 计算月末日期
+        int year = Integer.parseInt(yearMonth.substring(0, 4));
+        int month = Integer.parseInt(yearMonth.substring(5));
+        int lastDay;
+        switch (month) {
+            case 2:
+                lastDay = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) ? 29 : 28;
+                break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                lastDay = 30;
+                break;
+            default:
+                lastDay = 31;
+        }
+        String endDate = yearMonth + "-" + lastDay;
+        
+        if (seasonId != null) {
+            // 赛季模式
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDateTime = LocalDateTime.parse(startDate + " 00:00:00", formatter);
+            LocalDateTime endDateTime = LocalDateTime.parse(endDate + " 23:59:59", formatter);
+            
+            // 使用数据库分组查询获取每日积分总和
+            List<Map<String, Object>> dailyTotalPoints = seasonPointLogMapper.getDailyTotalPointsBySeasonIdMidAndDateRange(
+                seasonId,
+                mid,
+                startDateTime,
+                endDateTime
+            );
+            
+            // 转换结果格式
+            List<Map<String, Object>> result = new ArrayList<>();
+            if (dailyTotalPoints != null) {
+                for (Map<String, Object> record : dailyTotalPoints) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("day", record.get("day").toString());
+                    map.put("num", record.get("num"));
+                    result.add(map);
+                }
+            }
+            
+            return result;
+        } else {
+            // 常规模式 - 使用现有的按日期范围总计方法
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDateTime = LocalDateTime.parse(startDate + " 00:00:00", formatter);
+            LocalDateTime endDateTime = LocalDateTime.parse(endDate + " 23:59:59", formatter);
+
+            List<Map<String, Object>> records = memberPointLogsMapper.getDailyTotalPointsByMidAndDateRange(mid, startDateTime, endDateTime);
+            List<Map<String, Object>> result = new ArrayList<>();
+            
+            if (records != null) {
+                for (Map<String, Object> record : records) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("day", record.get("day").toString());
+                    map.put("num", record.get("num"));
+                    result.add(map);
+                }
+            }
+            
+            return result;
+        }
+    }
+
+    @Override
+    public Map<String, Object> getDailyPointStatistics(Integer mid, String day, Long seasonId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        // 1. 获取积分统计（按类型分组）
+        List<Map<String, Object>> pointStats;
+        if (seasonId != null) {
+            // 赛季模式
+            pointStats = seasonPointLogMapper.getDailyPointStatsByType(seasonId, mid, day);
+        } else {
+            // 常规模式
+            pointStats = memberPointLogsMapper.getDailyPointStatsByType(mid, day);
+        }
+        
+        // 处理积分统计数据，按类型分组
+        List<Map<String, Object>> taskPoints = new ArrayList<>();
+        List<Map<String, Object>> activityPoints = new ArrayList<>();
+        
+        // 定义类型名称映射
+        Map<Integer, String> typeNames = new HashMap<>();
+        typeNames.put(0, "规则积分");
+        typeNames.put(1, "转盘游戏");
+        typeNames.put(2, "趣味计算");
+        typeNames.put(3, "用户修改");
+        typeNames.put(4, "课时奖励");
+        typeNames.put(5, "计时任务");
+        
+        for (Map<String, Object> stat : pointStats) {
+            Integer type = (Integer) stat.get("type");
+            String typeName = typeNames.getOrDefault(type, "未知类型");
+            
+            Map<String, Object> typeData = new HashMap<>();
+            typeData.put("type", type);
+            typeData.put("typeName", typeName);
+            typeData.put("earnedPoints", stat.get("earnedPoints"));
+            typeData.put("deductedPoints", stat.get("deductedPoints"));
+            typeData.put("totalPoints", stat.get("totalPoints"));
+            typeData.put("recordCount", stat.get("recordCount"));
+            
+            if (type == 0 || type == 5) {
+                // 任务积分
+                taskPoints.add(typeData);
+            } else {
+                // 活动积分
+                activityPoints.add(typeData);
+            }
+        }
+        
+        // 2. 获取愿望消费统计
+        Map<String, Object> wishConsumption;
+        if (seasonId != null) {
+            // 赛季模式
+            wishConsumption = seasonWishLogMapper.getDailyWishConsumption(seasonId, mid, day);
+        } else {
+            // 常规模式
+            wishConsumption = wishLogMapper.getDailyWishConsumption(mid, day);
+        }
+        
+        // 3. 汇总数据
+        result.put("taskPoints", taskPoints);
+        result.put("activityPoints", activityPoints);
+        result.put("wishConsumption", wishConsumption);
+        
+        // 4. 计算总计
+        int totalEarned = 0;
+        int totalDeducted = 0;
+        int totalRecords = 0;
+        
+        for (Map<String, Object> stat : pointStats) {
+            totalEarned += ((Number) stat.get("earnedPoints")).intValue();
+            totalDeducted += ((Number) stat.get("deductedPoints")).intValue();
+            totalRecords += ((Number) stat.get("recordCount")).intValue();
+        }
+        
+        int wishPoints = wishConsumption != null ? 
+            ((Number) wishConsumption.getOrDefault("totalPoints", 0)).intValue() : 0;
+        
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("totalEarnedPoints", totalEarned);
+        summary.put("totalDeductedPoints", totalDeducted);
+        summary.put("totalWishPoints", wishPoints);
+        summary.put("netPoints", totalEarned - totalDeducted - wishPoints);
+        summary.put("totalRecords", totalRecords);
+        
+        result.put("summary", summary);
+        result.put("date", day);
+        
+        return result;
+    }
+
+    @Override
     public List<Map<String, Object>> getPointLogsByDateRange(Integer mid, Integer ruleId, String startDay, String endDay, Long seasonId) {
         if (seasonId != null) {
             // 赛季模式

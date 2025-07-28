@@ -71,6 +71,28 @@ public interface MemberPointLogsMapper {
     List<Map<String, Object>> getYearlyHeatmapALL(Integer mid, Integer year);
 
     /**
+     * 按日期和类型统计积分
+     * 
+     * @param mid 会员ID
+     * @param day 日期
+     * @return 按类型分组的积分统计
+     */
+    List<Map<String, Object>> getDailyPointStatsByType(@Param("mid") Integer mid, @Param("day") String day);
+
+    /**
+     * 获取某用户在指定日期范围内的每日积分总和（按天分组）
+     * 
+     * @param mid 会员ID
+     * @param startDateTime 开始时间
+     * @param endDateTime 结束时间
+     * @return 每日积分总和列表
+     */
+    List<Map<String, Object>> getDailyTotalPointsByMidAndDateRange(
+            @Param("mid") Integer mid,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime);
+
+    /**
      * 按月份统计积分增减情况
      * 
      * @param mid 会员ID
@@ -206,4 +228,6 @@ public interface MemberPointLogsMapper {
     Integer getActiveDaysByDateRange(@Param("mid") Integer mid, 
                                     @Param("startDate") String startDate, 
                                     @Param("endDate") String endDate);
+
+//    List<Map<String, Object>> getDailyTotalPointsByMidAndDateRange(@Param("mid") Integer mid,@Param("startDateTime") LocalDateTime startDay, @Param("endDateTime") LocalDateTime endDay);
 }
