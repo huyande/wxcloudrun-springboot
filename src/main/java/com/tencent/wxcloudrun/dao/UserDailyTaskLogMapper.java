@@ -63,4 +63,8 @@ public interface UserDailyTaskLogMapper {
      * @return 影响的行数
      */
     int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    UserDailyTaskLog findTodayLogByOpenidAndTypeAndContent(@Param("openid") String ownerOpenid, @Param("type")String type, @Param("review_content")String review_content);
+
+    Integer countTaskByTypeAndOpenid(@Param("openid")String openid, @Param("type")String type);
 }

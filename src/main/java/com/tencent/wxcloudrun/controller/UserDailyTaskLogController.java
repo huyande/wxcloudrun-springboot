@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -85,6 +87,13 @@ public class UserDailyTaskLogController {
             logger.error("Error adding task log for openid: " + openid, e);
             return ApiResponse.error("50001");
         }
+    }
+
+    @PostMapping("/shareJifen")
+    public ApiResponse addShareJifen(@RequestHeader(value = "X-WX-OPENID", required = true) String ownerOpenid, @RequestBody Map<String,String> params){
+        String fromOpenid = params.get("fromOpenid");
+        userDailyTaskLogService.addShareJifen(ownerOpenid,fromOpenid);
+        return ApiResponse.ok();
     }
 
     @GetMapping("/counts")

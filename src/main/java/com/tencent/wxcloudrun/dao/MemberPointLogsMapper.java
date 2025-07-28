@@ -19,6 +19,9 @@ public interface MemberPointLogsMapper {
                     @Param("conditionId") String conditionId,
                     @Param("status") Integer status,
                     @Param("endAt") LocalDateTime endAt);
+
+    void updateStatusById(@Param("id") Long id,@Param("status") Integer status);
+
     void delete(@Param("id") Long id);
     List<MemberPointLogs> getLogsByMidAndDate(@Param("mid") Integer mid, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 

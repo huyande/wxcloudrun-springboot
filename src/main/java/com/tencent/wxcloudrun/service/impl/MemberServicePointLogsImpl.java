@@ -195,25 +195,6 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             Map<String, Object> res = new HashMap<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(memberPointLogsRequest.getDay(), formatter);
-//
-//            // 查找现有记录
-//            List<SeasonPointLog> existingLogs = seasonPointLogMapper.getLogsBySeasonIdMidAndDateRange(
-//                seasonId,
-//                memberPointLogsRequest.getMid(),
-//                dateTime,
-//                dateTime.plusDays(1).minusNanos(1)
-//            );
-//
-//            SeasonPointLog existingLog = null;
-//            if (existingLogs != null && !existingLogs.isEmpty()) {
-//                for (SeasonPointLog log : existingLogs) {
-//                    if (log.getRuleId() != null && log.getRuleId().equals(memberPointLogsRequest.getRuleId().longValue())) {
-//                        existingLog = log;
-//                        break;
-//                    }
-//                }
-//            }
-
             SeasonPointLog seasonLog =  seasonPointLogMapper.getLogsBySeasonIdMidAndDayAndRuleId(memberPointLogsRequest.getDay(),seasonId,memberPointLogsRequest.getMid(),memberPointLogsRequest
                     .getRuleId());
             
@@ -221,7 +202,9 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
                 // 更新现有记录
                 res.put("log", seasonLog);
                 if (memberPointLogsRequest.getNum() == 0) {
-                    seasonPointLogMapper.delete(seasonLog.getId());
+//                    seasonPointLogMapper.delete(seasonLog.getId());
+                    seasonLog.setStatus(-1);
+                    seasonPointLogMapper.update(seasonLog);
                     return res;
                 }
 
@@ -296,7 +279,8 @@ public class MemberServicePointLogsImpl implements MemberPointLogsService {
             if(log!=null){
                 res.put("log",log);
                 if(memberPointLogsRequest.getNum()==0){
-                    memberPointLogsMapper.delete(log.getId());
+//                    memberPointLogsMapper.delete(log.getId());
+                    memberPointLogsMapper.updateStatusById(log.getId(),-1);
                     return res;
                 }
                 LocalDateTime endAt = null;

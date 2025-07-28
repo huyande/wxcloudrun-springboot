@@ -55,6 +55,16 @@
         ORDER BY created_at DESC
     </select>
 
+    <select id="findTodayLogByOpenidAndTypeAndContent" resultMap="userDailyTaskLogResultMap">
+        SELECT id, openid, type, points, created_at, status, review_content, remark
+        FROM user_daily_task_log
+        WHERE openid = #{openid}
+          AND type ="share_jifen"
+          AND review_content = #{review_content}
+          AND DATE_FORMAT(created_at, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        ORDER BY created_at DESC
+    </select>
+
     <select id="findLimitedLogsByOpenid" resultMap="userDailyTaskLogResultMap">
         SELECT t1.id, openid, t1.type, t1.points, t1.created_at, t1.status, t1.review_content, t1.remark
         FROM user_daily_task_log as t1,task_config as t2
@@ -80,6 +90,11 @@ select distinct openid from user_daily_task_log where openid='oBjXq0LC0fNVc74SoT
             AND review_content = #{reviewContent}
         </if>
         ORDER BY created_at DESC
+    </select>
+
+
+    <select id="countTaskByTypeAndOpenid" resultType="java.lang.Integer">
+        select count(1) from user_daily_task_log where openid=#{openid} and type=#{type} AND DATE_FORMAT(created_at, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
     </select>
 
     <!-- 更新任务日志状态 -->

@@ -54,4 +54,6 @@ public interface UserDailyTaskLogService {
      * @return 是否更新成功
      */
     boolean updateLogStatus(Long id, String status);
+
+    void addShareJifen(String ownerOpenid, String fromOpenid);
 }

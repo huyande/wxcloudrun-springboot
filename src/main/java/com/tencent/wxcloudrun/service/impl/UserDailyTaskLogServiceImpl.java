@@ -1,8 +1,10 @@
 package com.tencent.wxcloudrun.service.impl;
 
+import com.tencent.wxcloudrun.dao.TaskConfigMapper;
 import com.tencent.wxcloudrun.dao.UserDailyTaskLogMapper;
 import com.tencent.wxcloudrun.dto.TaskCountDto;
 import com.tencent.wxcloudrun.dto.UserDailyTaskLogDto;
+import com.tencent.wxcloudrun.model.TaskConfig;
 import com.tencent.wxcloudrun.model.UserDailyTaskLog;
 import com.tencent.wxcloudrun.service.UserDailyTaskLogService;
 import org.slf4j.Logger;
@@ -24,10 +26,12 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
     private static final Logger logger = LoggerFactory.getLogger(UserDailyTaskLogServiceImpl.class);
 
     private final UserDailyTaskLogMapper userDailyTaskLogMapper;
+    private final TaskConfigMapper taskConfigMapper;
 
     @Autowired
-    public UserDailyTaskLogServiceImpl(UserDailyTaskLogMapper userDailyTaskLogMapper) {
+    public UserDailyTaskLogServiceImpl(UserDailyTaskLogMapper userDailyTaskLogMapper,TaskConfigMapper taskConfigMapper) {
         this.userDailyTaskLogMapper = userDailyTaskLogMapper;
+        this.taskConfigMapper = taskConfigMapper;
     }
 
     @Override
@@ -200,5 +204,42 @@ public class UserDailyTaskLogServiceImpl implements UserDailyTaskLogService {
             logger.error("Error updating log status for id: " + id, e);
             return false;
         }
+    }
+
+    @Override
+    public void addShareJifen(String ownerOpenid, String fromOpenid) {
+        if(ownerOpenid.equals(fromOpenid)){
+            return;
+        }
+        //先更具ownerOpenid、type、review_content是fromOpenid 来查询是否已经打开过，如果已经打开过，则不进行增加
+        UserDailyTaskLog log = userDailyTaskLogMapper.findTodayLogByOpenidAndTypeAndContent(ownerOpenid,"share_jifen",fromOpenid);
+        if(log!=null){
+            return;
+        }
+
+        TaskConfig task = taskConfigMapper.findByTaskKey("share_jifen");
+        if(task!=null){
+            Integer count =  userDailyTaskLogMapper.countTaskByTypeAndOpenid(fromOpenid,"share_jifen");
+            if(count<task.getMaxDaily()){
+                UserDailyTaskLog logNew = new UserDailyTaskLog();
+                logNew.setOpenid(fromOpenid);
+                logNew.setType("share_jifen");
+                logNew.setStatus("completed");
+                logNew.setPoints(1);
+                userDailyTaskLogMapper.insert(logNew);
+            }
+
+            Integer countOwn =  userDailyTaskLogMapper.countTaskByTypeAndOpenid(ownerOpenid,"share_jifen");
+            if(countOwn<task.getMaxDaily()){
+                UserDailyTaskLog logNew = new UserDailyTaskLog();
+                logNew.setOpenid(ownerOpenid);
+                logNew.setType("share_jifen");
+                logNew.setStatus("completed");
+                logNew.setPoints(1);
+                logNew.setReviewContent(fromOpenid);
+                userDailyTaskLogMapper.insert(logNew);
+            }
+        }
+        return;
     }
 }

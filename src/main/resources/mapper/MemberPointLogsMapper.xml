@@ -63,6 +63,12 @@
         WHERE `id`=#{id}
     </update>
 
+    <update id="updateStatusById" parameterType="java.util.Map">
+        UPDATE `member_point_logs`
+        SET `status` = #{status},updatedAt = now()
+        WHERE `id`=#{id}
+    </update>
+
     <select id="getPointSumByMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
         SELECT sum(num) as c
         FROM member_point_logs
