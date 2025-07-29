@@ -51,7 +51,7 @@
             DATE_FORMAT(day, '%w') as weekday,
             SUM(num) as totalNum
         FROM season_point_logs
-        WHERE seasonId = #{seasonId} AND mid = #{mid} and type=0
+        WHERE seasonId = #{seasonId} AND mid = #{mid} and type in (0,5) and status!=-1
         AND day BETWEEN #{weekStart} AND #{weekEnd}
         GROUP BY ruleId, DATE_FORMAT(day, '%w')
     </select>
