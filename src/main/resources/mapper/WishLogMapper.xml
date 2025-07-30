@@ -27,7 +27,7 @@
 <!--    </select>-->
 
     <select id="getSumNumByMid" resultType="Integer">
-        SELECT IFNULL(SUM(point),0) FROM wish_log WHERE mid = #{mid} AND status != -1
+        SELECT IFNULL(SUM(point),0) FROM wish_log WHERE mid = #{mid} AND status !=-1
     </select>
 
     <select id="getByMid" resultType="java.util.Map">

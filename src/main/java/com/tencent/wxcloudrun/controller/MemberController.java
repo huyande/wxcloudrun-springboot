@@ -433,7 +433,6 @@ return ApiResponse.ok(logs);
 //            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
             Integer pointCurrentSum = memberPointLogsService.getCurrentDayPointSumByMid(mid,day, seasonId);
             Integer wishSum =  wishLogService.getSumNumByMid(mid, seasonId);
-            memberPointLogsService.getLastPointSum(mid, seasonId);
             HashMap<String, Object> result = new HashMap<>();
 //            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
             Integer lastPointSum = memberPointLogsService.getLastPointSum(mid, seasonId);//计算剩余积分
@@ -451,15 +450,6 @@ return ApiResponse.ok(logs);
     @GetMapping("/pointsum/{mid}")
     public ApiResponse getPointSumByMid(@PathVariable Integer mid, @RequestHeader(value = "X-Season-Id", required = false) Long seasonId) {
         try {
-//            Member member = memberService.getMemberById(mid);
-//            Integer pointSum = memberPointLogsService.getPointSumByMid(mid);
-//            Integer days = memberPointLogsService.getPointDaysByMid(mid);
-//            Integer wishSum =  wishLogService.getSumNumByMid(mid);
-//            HashMap<String, Object> result = new HashMap<>();
-//            int  total = (pointSum == null ? 0 : pointSum) - (wishSum==null ? 0 :wishSum);
-//            result.put("pointSum", total+member.getPointTotal());
-//            result.put("days", days);
-//            result.put("originalPointSum", (pointSum == null ? 0 : pointSum)+member.getPointTotal());//累计的积分，不减去wishSum的积分
             HashMap<String, Integer> result = memberPointLogsService.getPointInfoByMid(mid, seasonId);
             return ApiResponse.ok(result);
         } catch (Exception e) {

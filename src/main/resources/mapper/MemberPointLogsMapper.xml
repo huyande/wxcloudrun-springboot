@@ -35,7 +35,7 @@
     <select id="getAllCountLogsByDayMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
         SELECT count(distinct day) as c
         FROM member_point_logs
-        WHERE mid = #{mid} and type in (0,5)
+        WHERE mid = #{mid} and type in (0,5) and status=0
     </select>
 
     <delete id="delete" parameterType="java.lang.Long">
@@ -78,13 +78,13 @@
     <select id="getPointDaysByMid" resultType="java.lang.Integer" parameterType="java.lang.Integer">
         SELECT count(DISTINCT day) as c
         FROM member_point_logs
-        WHERE mid = #{mid} and type in (0,5)
+        WHERE mid = #{mid} and type in (0,5) and status=0
     </select>
 
     <select id="getPointLogsByMidAndMonth" resultType="java.util.Map" parameterType="java.lang.Integer">
         SELECT DATE_FORMAT(day,'%Y-%m-%d') as day
         FROM member_point_logs
-        WHERE mid = #{mid} and type in (0,5) AND day BETWEEN DATE_FORMAT(NOW() ,'%Y-%m-01') AND CURDATE() GROUP BY day
+        WHERE mid = #{mid} and type in (0,5) and status=0 AND day BETWEEN DATE_FORMAT(NOW() ,'%Y-%m-01') AND CURDATE() GROUP BY day
     </select>
 
     <select id="getPointLogsByMidAndSpecificMonth" resultType="java.util.Map" parameterType="java.util.Map">
@@ -92,6 +92,7 @@
         FROM member_point_logs
         WHERE mid = #{mid} and type in (0,5) 
         AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        AND status = 0
         GROUP BY day
     </select>
 
@@ -125,6 +126,7 @@
             t1.mid = #{mid}
             AND t2.mid = #{mid}
             AND t1.type in (0,5)
+            AND t1.status = 0
             ORDER BY
             t1.day DESC, t1.num DESC
             ) ranked_logs
@@ -153,6 +155,7 @@
                      t1.mid = #{mid}
                    AND t2.mid = #{mid}
                    AND t1.type in (0,5)
+                   AND t1.status = 0
                  ORDER BY
                      t1.day DESC, t1.num DESC
              ) ranked_logs
@@ -184,6 +187,7 @@
         AND ruleId = #{ruleId} 
         AND DATE(day) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
         AND type in (0,5)
+        AND status!=-1
         LIMIT 1
     </select>
 
@@ -194,6 +198,7 @@
         AND ruleId = #{ruleId} 
         AND DATE(createdAt) = DATE_SUB(CURDATE(), INTERVAL 2 DAY)
         AND type in (0,5)
+        AND status!=-1
         LIMIT 1
     </select>
 
@@ -204,19 +209,20 @@
         AND ruleId = #{ruleId}
         AND type in (0,5)
         AND num != 0
+        AND status =0
         ORDER BY day DESC
     </select>
 
     <select id="getPointSumByMidAndRuleId" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT sum(num) as c
         FROM member_point_logs
-        WHERE mid = #{mid} AND ruleId = #{ruleId} and type in (0,5)
+        WHERE mid = #{mid} AND ruleId = #{ruleId} and type in (0,5) and status = 0
     </select>
 
     <select id="getPointLogsCountByMidAndRuleId" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT count(1) as c
         FROM member_point_logs
-        WHERE mid = #{mid} AND ruleId = #{ruleId} and type in (0,5) and num !=0
+        WHERE mid = #{mid} AND ruleId = #{ruleId} and type in (0,5) and num !=0 and status = 0
     </select>
 
     <select id="getMonthlyCheckInRecords" resultMap="memberRulesMapper" parameterType="java.util.Map">
@@ -227,6 +233,7 @@
         AND type in (0,5)
         AND num !=0
         AND DATE_FORMAT(day, '%Y-%m') = #{yearMonth}
+        AND status !=-1
         ORDER BY day DESC
     </select>
 
@@ -237,6 +244,7 @@
         AND ruleId = #{ruleId}
         AND type in (0,5)
         AND day BETWEEN #{startDay} AND #{endDay}
+        AND status !=-1
         ORDER BY day ASC
     </select>
 
@@ -246,6 +254,7 @@
         WHERE mid = #{mid}
                   AND type in (0,5)
                   AND day BETWEEN #{startDay} AND #{endDay}
+                  AND status =0
         GROUP BY day
         ORDER BY day ASC
     </select>
@@ -275,6 +284,7 @@
         AND ruleId = #{ruleId}
         AND type in (0,5)
         AND num !=0
+        AND status = 0
         AND YEAR(day) = #{year}
         ORDER BY day ASC
     </select>
@@ -287,6 +297,7 @@
         WHERE mid = #{mid}
         AND type in (0,5)
         AND YEAR(day) = #{year}
+        AND status = 0
         group by day
         ORDER BY day ASC
     </select>
@@ -296,7 +307,7 @@
     <select id="getCurrentDayPointSumByMid" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT sum(num)
         FROM member_point_logs
-        WHERE mid = #{mid}  and day = #{day}
+        WHERE mid = #{mid}  and day = #{day} and status =0
     </select>
 
     <select id="getPointlogCurrentDayDetail" resultType="java.util.Map" parameterType="java.util.Map">
@@ -308,6 +319,7 @@
         WHERE l.mid = #{mid} 
         AND l.type in (0,5)
         AND DATE(l.day) = DATE(#{day})
+        AND l.status = 0
         GROUP BY l.ruleId, r.name
         ORDER BY value DESC
     </select>
@@ -341,6 +353,7 @@
         FROM member_point_logs
         WHERE mid = #{mid}
             AND type in (0,5)
+            AND status = 0
             AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
@@ -349,6 +362,7 @@
         FROM member_point_logs
         WHERE mid = #{mid}
         AND type in (0,5)
+        AND status = 0
         AND day BETWEEN #{startDate} AND #{endDate}
     </select>
     
@@ -363,6 +377,7 @@
         WHERE 
             l.mid = #{mid}
             AND l.type in (0,5)
+            AND l.status = 0
             AND l.day BETWEEN #{startDate} AND #{endDate}
         GROUP BY 
             l.ruleId, r.name
@@ -411,6 +426,7 @@
         AND ruleId = #{ruleId}
         AND type in (0,5)
         AND num > 0
+        AND status = 0
         AND day BETWEEN #{startDate} AND #{endDate}
     </select>
 
@@ -439,7 +455,7 @@
         FROM member_point_logs
         WHERE mid = #{mid} 
         AND day BETWEEN #{startDate} AND #{endDate}
-        AND num &lt; 0
+        AND num <![CDATA[ < ]]> 0
         AND status = 0
     </select>
 
